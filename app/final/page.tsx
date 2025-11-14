@@ -50,73 +50,116 @@ export default function FinalPage() {
         .map((id) => conceptNotes.find((n) => n.id === id))
         .filter((note) => note !== undefined) as typeof conceptNotes;
 
-      // Build detailed concept descriptions including token allocation
+      // Build detailed concept descriptions with structured fields
       const conceptsText = selectedNotes
         .map((note, i) => {
-          const tokens = state.tokenAllocation[note.id] || 0;
           let text = `Concept ${i + 1}:\n`;
-          text += `- Title/Summary: ${note.text}\n`;
+          text += `Title: ${note.text}\n`;
 
           if (note.details && note.details.trim()) {
-            text += `- Detailed Description: ${note.details}\n`;
+            // Parse structured details if available
+            const details = note.details;
+            if (details.includes("Problem:")) {
+              text += `\n${details}\n`;
+            } else {
+              text += `\nDetails: ${details}\n`;
+            }
           } else {
-            text += `- Detailed Description: [No details provided]\n`;
+            text += `\n[No structured details provided]\n`;
           }
 
           if (note.image?.caption) {
-            text += `- Visual Reference: ${note.image.caption}\n`;
+            text += `Visual Reference: ${note.image.caption}\n`;
           }
-
-          text += `- Student Investment: ${tokens} tokens allocated (indicates confidence level)\n`;
 
           return text;
         })
-        .join("\n");
+        .join("\n---\n\n");
 
-      const evaluationPrompt = `You are a CRITICAL design educator evaluating student design concepts. Your job is to provide HONEST assessment, not encouragement.
+      const evaluationPrompt = `You are a CRITICAL design educator evaluating student design concepts. Provide HONEST, constructive assessment.
 
 HMW Statement: "${state.hmwStatement}"
 
-Student's Selected Concepts:
+Student's Concepts (structured with Problem, Solution, User Value, Implementation):
 ${conceptsText}
 
-=== CRITICAL EVALUATION RUBRIC ===
+=== EVALUATION FRAMEWORK ===
 
-Evaluate each concept on CONTENT QUALITY and DESIGN MERIT:
+Assess each concept on these dimensions:
 
-1. DEVELOPMENT LEVEL:
-   - How much meaningful, specific detail is present?
-   - Are ideas fleshed out or just vague statements?
-   - Does it show actual thinking or just placeholder text?
+1. PROBLEM UNDERSTANDING:
+   - Does the concept clearly identify and understand the problem?
+   - Is it connected to the HMW statement?
+   - Is the problem articulated in a meaningful way?
 
-2. RELEVANCE & CLARITY:
-   - Does it clearly address the HMW statement?
-   - Is the concept understandable and specific?
-   - Would someone else understand what's being proposed?
+2. SOLUTION CLARITY & DEPTH:
+   - Is the solution specific and well-explained?
+   - Does it logically address the problem identified?
+   - Is there enough detail to understand HOW it works?
 
-3. FEASIBILITY & INNOVATION:
-   - Is it actionable and realistic?
-   - Does it show original thinking or is it generic/obvious?
-   - Would this actually solve the HMW problem?
+3. USER VALUE:
+   - Are user benefits clearly articulated?
+   - Is the value proposition compelling?
+   - Does it consider the user perspective?
 
-4. SERIOUSNESS OF SUBMISSION:
-   - Does the token allocation match the concept quality?
-   - Does the level of detail justify student confidence?
+4. FEASIBILITY & REALISM:
+   - Is the implementation approach realistic?
+   - Are there concrete steps or considerations mentioned?
+   - Does it show understanding of constraints and resources?
 
-=== STRICT SCORING GUIDELINES ===
+5. INNOVATION & THOUGHTFULNESS:
+   - Does it show original thinking?
+   - Is it more than just an obvious/generic solution?
+   - Does it demonstrate design thinking depth?
 
-1-3: INADEQUATE - Missing or placeholder text, no details, incoherent, doesn't address HMW
-4-5: MINIMAL/UNDERDEVELOPED - Very brief, minimal detail, generic ideas, weak HMW connection
-6-7: BASIC/ADEQUATE - Some detail, addresses HMW generically, decent but not strong
-8-9: STRONG/WELL-DEVELOPED - Clear detail, thoughtful approach, strong relevance
-10: EXCELLENT - Detailed, innovative, clearly solves HMW
+=== STRICT SCORING (1-10) ===
+
+1-3: INADEQUATE
+- Missing key elements (no problem, solution, value, or implementation)
+- Placeholder text or incoherent
+- Doesn't address HMW at all
+- Under 50 words total with no substance
+
+4-5: UNDERDEVELOPED
+- Vague or minimal detail in most sections
+- Generic solution without specificity
+- Weak or missing connection to HMW
+- Shows limited thinking or planning
+- Missing 2+ structured fields
+
+6-7: ADEQUATE/DEVELOPING
+- Has most structured elements but some are thin
+- Addresses HMW but in a basic way
+- Solution makes sense but lacks depth
+- Implementation is mentioned but not well thought through
+- Shows decent thinking but room for much more
+
+8-9: STRONG
+- All structured elements present with good detail
+- Clear problem-solution fit
+- Specific, actionable implementation plan
+- Compelling user value articulation
+- Shows thoughtful design reasoning
+
+10: EXCEPTIONAL
+- Comprehensive detail in all sections
+- Deep problem understanding
+- Innovative, well-justified solution
+- Clear feasibility with realistic plan
+- Demonstrates sophisticated design thinking
 
 === CRITICAL RULES ===
-- [No details provided] = MAXIMUM SCORE 5
-- Concept under 30 characters = MAXIMUM SCORE 4
-- Doesn't relate to HMW = SCORE 1-4
-- Be strict. Underdeveloped work gets low scores.
-- Most work scores 4-7. Scores 8+ are rare.
+- Missing structured details (Problem/Solution/Value/Implementation) = MAX SCORE 5
+- Vague one-liners in each field = MAX SCORE 6
+- Generic solutions without specificity = MAX SCORE 6
+- No connection to HMW = SCORE 1-4
+- Be strict but fair. Most work scores 5-7. Scores 8+ require excellence.
+
+For EACH concept provide:
+- 2-3 specific strengths (only if genuinely present)
+- 3-4 concrete improvement areas (be specific about what's missing/weak)
+- Honest 2-3 sentence feedback
+- Score that reflects actual development level
 
 Respond ONLY with valid JSON:
 {
@@ -124,10 +167,10 @@ Respond ONLY with valid JSON:
     {
       "conceptNumber": 1,
       "rank": 1,
-      "score": 5,
-      "strengths": ["strength"],
-      "improvements": ["gap 1", "gap 2", "gap 3"],
-      "feedback": "Honest assessment"
+      "score": 6,
+      "strengths": ["specific strength 1", "specific strength 2"],
+      "improvements": ["specific gap 1", "specific gap 2", "specific gap 3"],
+      "feedback": "Honest assessment referencing what they did well and what needs work"
     }
   ]
 }`;
@@ -136,7 +179,7 @@ Respond ONLY with valid JSON:
         [
           {
             role: "system",
-            content: `You are a STRICT design educator. Give HONEST, CRITICAL feedback - not encouragement. Underdeveloped work gets LOW scores. Use full 1-10 range. Most student work scores 4-7. Do NOT give 7+ scores for incomplete submissions.`,
+            content: `You are a STRICT but fair design educator. Evaluate based on the structured fields provided (Problem, Solution, User Value, Implementation). Give CRITICAL feedback - low scores for incomplete work, high scores only for truly excellent submissions. If sections are missing or vague, reflect that in the score. Use the full 1-10 range appropriately.`,
           },
           {
             role: "user",
@@ -144,7 +187,7 @@ Respond ONLY with valid JSON:
           },
         ],
         0.15,
-        1800
+        2000
       );
 
       // Parse AI response
