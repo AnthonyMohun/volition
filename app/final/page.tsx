@@ -151,9 +151,9 @@ Format your response as JSON with this structure:
             <h1 className="text-3xl font-bold text-gray-100">AI Evaluation Results</h1>
             <button
               onClick={handleStartOver}
-              className="flex items-center gap-2 px-4 py-2 glass-light border border-gray-700 rounded-lg hover:bg-gray-800/50 transition-colors text-gray-200"
+              className="flex items-center gap-2 px-4 py-2 glass-light border border-gray-700 rounded-lg hover:bg-gray-800/50 transition-colors text-gray-200 group"
             >
-              <Home className="w-4 h-4" />
+              <Home className="w-4 h-4 group-hover:text-orange-400 transition-colors" />
               Start New Project
             </button>
           </div>

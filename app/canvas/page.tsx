@@ -12,12 +12,12 @@ import {
   useSensors,
   PointerSensor,
 } from "@dnd-kit/core";
-import { Plus, ArrowRight, Home } from "lucide-react";
+import { Plus, ArrowRight, Home, RotateCcw } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 
 export default function CanvasPage() {
   const router = useRouter();
-  const { state, addNote, updateNote, deleteNote, setPhase } = useSession();
+  const { state, addNote, updateNote, deleteNote, setPhase, resetSession } = useSession();
   const [selectedColor, setSelectedColor] = useState(STICKY_COLORS[0]);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
@@ -86,6 +86,13 @@ export default function CanvasPage() {
     }
   };
 
+  const handleStartNewProject = () => {
+    if (confirm("Start a new project? This will clear all your current work.")) {
+      resetSession();
+      router.push("/");
+    }
+  };
+
   if (!state.hmwStatement) {
     return null;
   }
@@ -101,6 +108,13 @@ export default function CanvasPage() {
             title="Back to home"
           >
             <Home className="w-5 h-5 text-gray-300" />
+          </button>
+          <button
+            onClick={handleStartNewProject}
+            className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors group"
+            title="Start a new project"
+          >
+            <RotateCcw className="w-5 h-5 text-gray-300 group-hover:text-orange-400 transition-colors" />
           </button>
           <div>
             <h1 className="text-lg font-semibold text-gray-100">

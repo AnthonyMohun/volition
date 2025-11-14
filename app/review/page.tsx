@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from '@/lib/session-context'
-import { ArrowRight, ArrowLeft, Star, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Star, CheckCircle2, RotateCcw } from 'lucide-react'
 
 export default function ReviewPage() {
   const router = useRouter()
-  const { state, setPhase } = useSession()
+  const { state, setPhase, resetSession } = useSession()
   const [selectedConcepts, setSelectedConcepts] = useState<string[]>([])
   const [tokenAllocation, setTokenAllocation] = useState<Record<string, number>>({})
 
@@ -56,6 +56,13 @@ export default function ReviewPage() {
     }
   }
 
+  const handleStartNewProject = () => {
+    if (confirm('Start a new project? This will clear all your current work.')) {
+      resetSession()
+      router.push('/')
+    }
+  }
+
   if (!state.hmwStatement || conceptNotes.length < 3) {
     return null
   }
@@ -65,13 +72,22 @@ export default function ReviewPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.push('/canvas')}
-            className="flex items-center gap-2 text-purple-400 hover:text-purple-300 mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Canvas
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => router.push('/canvas')}
+              className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Canvas
+            </button>
+            <button
+              onClick={handleStartNewProject}
+              className="flex items-center gap-2 px-4 py-2 glass-light border border-gray-700 rounded-lg hover:bg-gray-800/50 transition-colors text-gray-200 group"
+            >
+              <RotateCcw className="w-4 h-4 group-hover:text-orange-400 transition-colors" />
+              Start New Project
+            </button>
+          </div>
           <h1 className="text-3xl font-bold text-gray-100 mb-2">Review Your Concepts</h1>
           <p className="text-gray-400">Select your top 3 concepts and allocate tokens to evaluate them</p>
         </div>
