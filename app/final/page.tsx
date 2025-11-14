@@ -68,8 +68,9 @@ export default function FinalPage() {
             text += `\n[No structured details provided]\n`;
           }
 
-          if (note.image?.caption) {
-            text += `Visual Reference: ${note.image.caption}\n`;
+          if (note.image) {
+            text += `\nVisual Reference Attached: ${note.image.caption || "Sketch/diagram included"}\n`;
+            text += `[IMAGE: See attached visual for Concept ${i + 1}]\n`;
           }
 
           return text;
@@ -112,6 +113,12 @@ Assess each concept on these dimensions:
    - Is it more than just an obvious/generic solution?
    - Does it demonstrate design thinking depth?
 
+6. VISUAL COMMUNICATION (if sketch/image provided):
+   - Does the visual clearly communicate the concept?
+   - Are there helpful annotations or labels?
+   - Does the sketch show design thinking (user flows, interactions, layout)?
+   - Does the visual add meaningful information beyond the text?
+
 === STRICT SCORING (1-10) ===
 
 1-3: INADEQUATE
@@ -140,6 +147,7 @@ Assess each concept on these dimensions:
 - Specific, actionable implementation plan
 - Compelling user value articulation
 - Shows thoughtful design reasoning
+- Visual (if included) effectively supports the concept
 
 10: EXCEPTIONAL
 - Comprehensive detail in all sections
@@ -147,6 +155,7 @@ Assess each concept on these dimensions:
 - Innovative, well-justified solution
 - Clear feasibility with realistic plan
 - Demonstrates sophisticated design thinking
+- Visual communication (if included) is clear, detailed, and insightful
 
 === CRITICAL RULES ===
 - Missing structured details (Problem/Solution/Value/Implementation) = MAX SCORE 5
@@ -154,9 +163,10 @@ Assess each concept on these dimensions:
 - Generic solutions without specificity = MAX SCORE 6
 - No connection to HMW = SCORE 1-4
 - Be strict but fair. Most work scores 5-7. Scores 8+ require excellence.
+- If image is provided but unclear or unhelpful, note it in improvements
 
 For EACH concept provide:
-- 2-3 specific strengths (only if genuinely present)
+- 2-3 specific strengths (only if genuinely present, mention visual if strong)
 - 3-4 concrete improvement areas (be specific about what's missing/weak)
 - Honest 2-3 sentence feedback
 - Score that reflects actual development level
@@ -175,20 +185,48 @@ Respond ONLY with valid JSON:
   ]
 }`;
 
-      const response = await askAI(
-        [
-          {
-            role: "system",
-            content: `You are a STRICT but fair design educator. Evaluate based on the structured fields provided (Problem, Solution, User Value, Implementation). Give CRITICAL feedback - low scores for incomplete work, high scores only for truly excellent submissions. If sections are missing or vague, reflect that in the score. Use the full 1-10 range appropriately.`,
-          },
-          {
-            role: "user",
-            content: evaluationPrompt,
-          },
-        ],
-        0.15,
-        2000
-      );
+      // Prepare messages with images for vision models
+      const userContent: Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }> = [
+        {
+          type: "text",
+          text: evaluationPrompt,
+        },
+      ];
+
+      // Add images to the user message if available
+      selectedNotes.forEach((note, i) => {
+        if (note.image?.dataUrl) {
+          userContent.push({
+            type: "image_url",
+            image_url: {
+              url: note.image.dataUrl,
+            },
+          });
+          userContent.push({
+            type: "text",
+            text: `^ Image for Concept ${i + 1}: ${note.text}${note.image.caption ? ` (${note.image.caption})` : ""}`,
+          });
+        }
+      });
+
+      const messages = [
+        {
+          role: "system" as const,
+          content: `You are a STRICT but fair design educator. Evaluate based on the structured fields provided (Problem, Solution, User Value, Implementation). Give CRITICAL feedback - low scores for incomplete work, high scores only for truly excellent submissions. If sections are missing or vague, reflect that in the score. Use the full 1-10 range appropriately.
+
+When images/sketches are provided, also evaluate:
+- How well the visual supports the written concept
+- Clarity of visual communication (annotations, labels, detail)
+- Whether the sketch adds meaningful information
+- Quality of visual design thinking (layout, user flows, interactions)`,
+        },
+        {
+          role: "user" as const,
+          content: userContent,
+        },
+      ];
+
+      const response = await askAI(messages, 0.15, 2000);
 
       // Parse AI response
       try {

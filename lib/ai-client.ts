@@ -1,8 +1,22 @@
 // Client-side AI communication utilities
 
+export interface MessageContentText {
+  type: "text";
+  text: string;
+}
+
+export interface MessageContentImage {
+  type: "image_url";
+  image_url: {
+    url: string;
+  };
+}
+
+export type MessageContent = string | (MessageContentText | MessageContentImage)[];
+
 export interface Message {
   role: "system" | "user" | "assistant";
-  content: string;
+  content: MessageContent;
 }
 
 export type MessageRole = "system" | "user" | "assistant";

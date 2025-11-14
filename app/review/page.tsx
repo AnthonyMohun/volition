@@ -334,7 +334,7 @@ export default function ReviewPage() {
 
           {/* Selection Step */}
           <div className="glass rounded-xl p-6 mb-6 border border-gray-700/50">
-            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-6">
               <div className="flex-1">
                 <h2 className="text-xl font-semibold text-gray-100 mb-2">
                   Select 3 Concepts to Review
@@ -342,14 +342,17 @@ export default function ReviewPage() {
                 <p className="text-sm text-gray-400">
                   Click cards to select. Each concept will be assessed on
                   clarity, feasibility, novelty, and relevance to your HMW.
+                  {conceptNotes.some((n) => n.image) && (
+                    <span className="block mt-1 text-purple-400">
+                      ✓ Sketches/images will be included in AI evaluation
+                    </span>
+                  )}
                 </p>
               </div>
               {selectedConcepts.length === 3 && (
                 <CheckCircle2 className="w-6 h-6 text-green-400 ml-4 flex-shrink-0" />
               )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            </div>            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
               {conceptNotes.map((note) => {
                 const isSelected = selectedConcepts.includes(note.id);
                 const quality = assessConceptQuality(note);
