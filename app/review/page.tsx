@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import {
   ArrowRight,
+  ArrowLeft,
   Star,
   CheckCircle2,
   RotateCcw,
@@ -277,9 +278,16 @@ export default function ReviewPage() {
 
   return (
     <div className="min-h-screen dark-gradient-radial texture-overlay flex flex-col">
-      {/* Header */}
-      <div className="glass border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-50 glass border-b border-gray-800 px-6 py-4 flex items-center justify-between backdrop-blur-xl">
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push("/canvas")}
+            className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors group"
+            title="Back to canvas"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-300 group-hover:text-blue-400 transition-colors" />
+          </button>
           <button
             onClick={handleStartNewProject}
             className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors group"
@@ -309,6 +317,21 @@ export default function ReviewPage() {
       {/* Content */}
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-6xl mx-auto">
+          {/* HMW Statement Display */}
+          <div className="glass rounded-xl p-5 mb-6 border border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-purple-500/5">
+            <div className="flex items-start gap-3">
+              <Lightbulb className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-blue-300 mb-1">
+                  Your Challenge
+                </h3>
+                <p className="text-base text-gray-100 font-medium">
+                  {state.hmwStatement}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Selection Step */}
           <div className="glass rounded-xl p-6 mb-6 border border-gray-700/50">
             <div className="flex items-center justify-between mb-6">
