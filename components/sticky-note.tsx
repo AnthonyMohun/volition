@@ -2,7 +2,14 @@
 
 import { useState, useRef } from "react";
 import { StickyNote as StickyNoteType } from "@/lib/types";
-import { Trash2, Image as ImageIcon, Star, X, Edit2 } from "lucide-react";
+import {
+  Trash2,
+  Image as ImageIcon,
+  Star,
+  X,
+  Edit2,
+  FileText,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface StickyNoteProps {
@@ -21,6 +28,8 @@ export function StickyNote({
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(note.text);
   const [showImagePreview, setShowImagePreview] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [detailsText, setDetailsText] = useState(note.details || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -64,7 +73,17 @@ export function StickyNote({
   };
 
   const toggleConcept = () => {
+    if (!note.isConcept) {
+      // When marking as concept, open the details modal
+      setShowDetailsModal(true);
+      setDetailsText(note.details || "");
+    }
     onUpdate({ isConcept: !note.isConcept });
+  };
+
+  const handleSaveDetails = () => {
+    onUpdate({ details: detailsText.trim() });
+    setShowDetailsModal(false);
   };
 
   // Dark mode color palette with subtle colored accents
@@ -140,6 +159,19 @@ export function StickyNote({
             >
               <ImageIcon className="w-4 h-4" />
             </button>
+            {note.isConcept && (
+              <button
+                onClick={() => {
+                  setShowDetailsModal(true);
+                  setDetailsText(note.details || "");
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                className="p-1.5 rounded hover:bg-white/15 transition-all text-purple-300 hover:text-purple-100"
+                title="Edit concept details"
+              >
+                <FileText className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={() => {
                 setIsEditing(true);
@@ -244,6 +276,49 @@ export function StickyNote({
                 {note.image.caption}
               </p>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Concept Details Modal */}
+      {showDetailsModal && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={() => setShowDetailsModal(false)}
+        >
+          <div
+            className="glass border border-purple-500/30 rounded-lg p-6 max-w-md w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-gray-100 mb-2">
+              Add Concept Details
+            </h3>
+            <p className="text-sm text-gray-400 mb-4">
+              Provide more information about this concept to help the AI
+              evaluate it better.
+            </p>
+            <textarea
+              value={detailsText}
+              onChange={(e) => setDetailsText(e.target.value)}
+              placeholder="e.g., Why is this concept important? How does it address the HMW? What are its key features?"
+              className="w-full p-3 border border-gray-600 rounded-lg text-sm resize-none bg-black/30 text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:bg-black/40 transition-all placeholder:text-gray-500"
+              rows={5}
+              autoFocus
+            />
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-800/50 transition-colors text-sm"
+              >
+                Skip for now
+              </button>
+              <button
+                onClick={handleSaveDetails}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all text-sm font-medium"
+              >
+                Save Details
+              </button>
+            </div>
           </div>
         </div>
       )}

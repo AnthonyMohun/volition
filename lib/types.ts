@@ -16,6 +16,7 @@ export interface StickyNote {
   color: string;
   isConcept: boolean;
   image?: ImageAttachment;
+  details?: string;
   createdAt: number;
 }
 
