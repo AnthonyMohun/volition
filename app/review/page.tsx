@@ -13,7 +13,12 @@ import {
 
 export default function ReviewPage() {
   const router = useRouter();
-  const { state, setPhase, resetSession, setSelectedConcepts: saveSelectedConcepts } = useSession();
+  const {
+    state,
+    setPhase,
+    resetSession,
+    setSelectedConcepts: saveSelectedConcepts,
+  } = useSession();
   const [selectedConcepts, setSelectedConcepts] = useState<string[]>([]);
   const [tokenAllocation, setTokenAllocation] = useState<
     Record<string, number>
@@ -62,6 +67,37 @@ export default function ReviewPage() {
 
   const handleProceedToFinal = () => {
     if (selectedConcepts.length === 3 && allocatedTokens === totalTokens) {
+      // Check for low-quality concepts
+      const warnings: string[] = [];
+      selectedConcepts.forEach((id) => {
+        const note = conceptNotes.find((n) => n.id === id);
+        if (!note) return;
+
+        const defaultTexts = ["new note", "new note..", "concept", "idea", ""];
+        const isPlaceholder = defaultTexts.some(
+          (t) => note.text.toLowerCase().trim() === t
+        );
+        const isTooShort = note.text.trim().length < 10;
+        const hasNoDetails = !note.details || note.details.trim().length < 20;
+
+        if (isPlaceholder) {
+          warnings.push(`"${note.text}" appears to be placeholder text`);
+        } else if (isTooShort) {
+          warnings.push(`"${note.text}" is very short and may lack detail`);
+        } else if (hasNoDetails) {
+          warnings.push(`"${note.text}" has no detailed description added`);
+        }
+      });
+
+      if (warnings.length > 0) {
+        const proceed = confirm(
+          `⚠️ Quality Concerns Detected:\n\n${warnings.join("\n")}\n\n` +
+            `The AI evaluation will be critical of incomplete concepts. ` +
+            `Consider going back to add more detail.\n\nProceed anyway?`
+        );
+        if (!proceed) return;
+      }
+
       saveSelectedConcepts(selectedConcepts, tokenAllocation);
       setPhase("final");
       router.push("/final");
@@ -178,9 +214,19 @@ export default function ReviewPage() {
                       className="w-full h-24 object-cover rounded mb-2 border border-gray-700/50"
                     />
                   )}
-                  <p className="text-sm text-gray-200 line-clamp-3">
+                  <p className="text-sm text-gray-200 line-clamp-3 mb-2">
                     {note.text}
                   </p>
+                  {note.details && note.details.trim() && (
+                    <p className="text-xs text-gray-400 italic line-clamp-2 border-t border-gray-700/30 pt-2">
+                      {note.details}
+                    </p>
+                  )}
+                  {(!note.details || !note.details.trim()) && (
+                    <p className="text-xs text-orange-400/70 italic border-t border-gray-700/30 pt-2">
+                      ⚠️ No detailed description added
+                    </p>
+                  )}
                 </button>
               );
             })}

@@ -50,58 +50,101 @@ export default function FinalPage() {
         .map((id) => conceptNotes.find((n) => n.id === id))
         .filter((note) => note !== undefined) as typeof conceptNotes;
 
+      // Build detailed concept descriptions including token allocation
       const conceptsText = selectedNotes
         .map((note, i) => {
-          let text = `Concept ${i + 1}: ${note.text}`;
-          if (note.image?.caption) {
-            text += `\n[Has visual reference: ${note.image.caption}]`;
+          const tokens = state.tokenAllocation[note.id] || 0;
+          let text = `Concept ${i + 1}:\n`;
+          text += `- Title/Summary: ${note.text}\n`;
+
+          if (note.details && note.details.trim()) {
+            text += `- Detailed Description: ${note.details}\n`;
+          } else {
+            text += `- Detailed Description: [No details provided]\n`;
           }
+
+          if (note.image?.caption) {
+            text += `- Visual Reference: ${note.image.caption}\n`;
+          }
+
+          text += `- Student Investment: ${tokens} tokens allocated (indicates confidence level)\n`;
+
           return text;
         })
-        .join("\n\n");
+        .join("\n");
 
-      const evaluationPrompt = `Project Context: ${state.hmwStatement}
+      const evaluationPrompt = `You are a CRITICAL design educator evaluating student design concepts. Your job is to provide HONEST assessment, not encouragement.
 
-Here are the student's top 3 concepts:
+HMW Statement: "${state.hmwStatement}"
 
+Student's Selected Concepts:
 ${conceptsText}
 
-As a design mentor, provide a structured evaluation of each concept. For EACH concept, analyze:
-1. Strengths (2-3 key strengths)
-2. Areas for improvement (2-3 suggestions)
-3. Overall feedback (1-2 sentences)
-4. A score out of 10
+=== CRITICAL EVALUATION RUBRIC ===
 
-Then rank them from best to least developed, explaining your reasoning briefly.
+Evaluate each concept on CONTENT QUALITY and DESIGN MERIT:
 
-Format your response as JSON with this structure:
+1. DEVELOPMENT LEVEL:
+   - How much meaningful, specific detail is present?
+   - Are ideas fleshed out or just vague statements?
+   - Does it show actual thinking or just placeholder text?
+
+2. RELEVANCE & CLARITY:
+   - Does it clearly address the HMW statement?
+   - Is the concept understandable and specific?
+   - Would someone else understand what's being proposed?
+
+3. FEASIBILITY & INNOVATION:
+   - Is it actionable and realistic?
+   - Does it show original thinking or is it generic/obvious?
+   - Would this actually solve the HMW problem?
+
+4. SERIOUSNESS OF SUBMISSION:
+   - Does the token allocation match the concept quality?
+   - Does the level of detail justify student confidence?
+
+=== STRICT SCORING GUIDELINES ===
+
+1-3: INADEQUATE - Missing or placeholder text, no details, incoherent, doesn't address HMW
+4-5: MINIMAL/UNDERDEVELOPED - Very brief, minimal detail, generic ideas, weak HMW connection
+6-7: BASIC/ADEQUATE - Some detail, addresses HMW generically, decent but not strong
+8-9: STRONG/WELL-DEVELOPED - Clear detail, thoughtful approach, strong relevance
+10: EXCELLENT - Detailed, innovative, clearly solves HMW
+
+=== CRITICAL RULES ===
+- [No details provided] = MAXIMUM SCORE 5
+- Concept under 30 characters = MAXIMUM SCORE 4
+- Doesn't relate to HMW = SCORE 1-4
+- Be strict. Underdeveloped work gets low scores.
+- Most work scores 4-7. Scores 8+ are rare.
+
+Respond ONLY with valid JSON:
 {
   "concepts": [
     {
       "conceptNumber": 1,
       "rank": 1,
-      "score": 8.5,
-      "strengths": ["strength1", "strength2"],
-      "improvements": ["improvement1", "improvement2"],
-      "feedback": "Overall feedback text"
+      "score": 5,
+      "strengths": ["strength"],
+      "improvements": ["gap 1", "gap 2", "gap 3"],
+      "feedback": "Honest assessment"
     }
-  ],
-  "summary": "Brief summary of evaluation approach"
+  ]
 }`;
 
       const response = await askAI(
         [
           {
             role: "system",
-            content: `${SOCRATIC_SYSTEM_PROMPT}\n\nFor this evaluation task, provide structured constructive feedback. Be encouraging but honest.`,
+            content: `You are a STRICT design educator. Give HONEST, CRITICAL feedback - not encouragement. Underdeveloped work gets LOW scores. Use full 1-10 range. Most student work scores 4-7. Do NOT give 7+ scores for incomplete submissions.`,
           },
           {
             role: "user",
             content: evaluationPrompt,
           },
         ],
-        0.7,
-        1000
+        0.15,
+        1800
       );
 
       // Parse AI response
@@ -123,21 +166,15 @@ Format your response as JSON with this structure:
 
         setEvaluations(evals.sort((a, b) => a.rank - b.rank));
       } catch (parseError) {
-        console.error("Failed to parse AI response:", parseError);
-        // Fallback: create simple evaluations from selected notes
-        const selectedNotes = state.selectedConceptIds
-          .map((id) => conceptNotes.find((n) => n.id === id))
-          .filter((note) => note !== undefined) as typeof conceptNotes;
-
-        const fallbackEvals = selectedNotes.map((note, i) => ({
-          noteId: note.id,
-          rank: i + 1,
-          score: 7,
-          strengths: ["Shows creative thinking"],
-          improvements: ["Could be more specific"],
-          feedback: response.substring(0, 200),
-        }));
-        setEvaluations(fallbackEvals);
+        console.error(
+          "Failed to parse AI response:",
+          parseError,
+          "Response:",
+          response
+        );
+        throw new Error(
+          "Failed to parse evaluation response. Please try again."
+        );
       }
     } catch (err) {
       console.error("Evaluation failed:", err);
