@@ -1,42 +1,49 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useSession } from '@/lib/session-context'
-import { askAI, SOCRATIC_SYSTEM_PROMPT, buildConversationContext, MessageRole } from '@/lib/ai-client'
-import { Bot, Sparkles, Loader2 } from 'lucide-react'
+import { useState, useEffect, useRef } from "react";
+import { useSession } from "@/lib/session-context";
+import {
+  askAI,
+  SOCRATIC_SYSTEM_PROMPT,
+  buildConversationContext,
+  MessageRole,
+} from "@/lib/ai-client";
+import { Bot, Sparkles, Loader2 } from "lucide-react";
 
 export function AIQuestionPanel() {
-  const { state, addQuestion } = useSession()
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { state, addQuestion } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const hasAskedFirstQuestion = useRef(false);
 
-  const currentQuestion = state.questions[state.questions.length - 1]
+  const currentQuestion = state.questions[state.questions.length - 1];
 
   useEffect(() => {
-    // Auto-ask first question when canvas loads
-    if (state.questions.length === 0 && state.hmwStatement && !isLoading) {
-      askFirstQuestion()
+    // Auto-ask first question when canvas loads (only once)
+    if (
+      !hasAskedFirstQuestion.current &&
+      state.questions.length === 0 &&
+      state.hmwStatement
+    ) {
+      hasAskedFirstQuestion.current = true;
+      askFirstQuestion();
     }
-  }, [state.hmwStatement, state.questions.length])
+  }, [state.hmwStatement]);
 
   const askFirstQuestion = async () => {
-    setIsLoading(true)
-    setError(null)
-    
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const context = buildConversationContext(
-        state.hmwStatement,
-        [],
-        []
-      )
+      const context = buildConversationContext(state.hmwStatement, [], []);
 
       const response = await askAI([
-        { role: 'system', content: SOCRATIC_SYSTEM_PROMPT },
+        { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
         {
-          role: 'user',
+          role: "user",
           content: `${context}\n\nThis is the beginning of our ideation session. Ask me an opening question to help me start exploring this design challenge.`,
         },
-      ])
+      ]);
 
       addQuestion({
         id: `q-${Date.now()}`,
@@ -44,54 +51,57 @@ export function AIQuestionPanel() {
         fromAI: true,
         answered: false,
         timestamp: Date.now(),
-      })
+      });
     } catch (err) {
-      setError('Failed to get question from AI. Make sure LM Studio is running.')
-      console.error(err)
+      setError(
+        "Failed to get question from AI. Make sure LM Studio is running."
+      );
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const askNextQuestion = async () => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const recentNotes = state.notes.slice(-5)
-      const concepts = state.concepts.map(c => ({
+      const recentNotes = state.notes.slice(-5);
+      const concepts = state.concepts.map((c) => ({
         title: c.title,
         description: c.description,
-      }))
+      }));
 
       const context = buildConversationContext(
         state.hmwStatement,
         recentNotes,
         concepts
-      )
+      );
 
       // Build conversation history
       const messages: Array<{ role: MessageRole; content: string }> = [
-        { role: 'system', content: SOCRATIC_SYSTEM_PROMPT },
-        { role: 'user', content: context },
-      ]
+        { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
+        { role: "user", content: context },
+      ];
 
       // Add recent Q&A history
-      const recentQuestions = state.questions.slice(-3)
-      recentQuestions.forEach(q => {
-        const role: MessageRole = q.fromAI ? 'assistant' : 'user'
+      const recentQuestions = state.questions.slice(-3);
+      recentQuestions.forEach((q) => {
+        const role: MessageRole = q.fromAI ? "assistant" : "user";
         messages.push({
           role,
           content: q.text,
-        })
-      })
+        });
+      });
 
       messages.push({
-        role: 'user' as const,
-        content: 'Based on my recent notes and progress, what should I explore next?',
-      })
+        role: "user" as const,
+        content:
+          "Based on my recent notes and progress, what should I explore next?",
+      });
 
-      const response = await askAI(messages)
+      const response = await askAI(messages);
 
       addQuestion({
         id: `q-${Date.now()}`,
@@ -99,14 +109,14 @@ export function AIQuestionPanel() {
         fromAI: true,
         answered: false,
         timestamp: Date.now(),
-      })
+      });
     } catch (err) {
-      setError('Failed to get next question from AI.')
-      console.error(err)
+      setError("Failed to get next question from AI.");
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="glass border-l border-gray-800 w-80 flex flex-col">
@@ -133,12 +143,14 @@ export function AIQuestionPanel() {
             key={question.id}
             className={`p-3 rounded-lg ${
               question.fromAI
-                ? 'glass-light border border-purple-500/20'
-                : 'glass-light border border-gray-700'
+                ? "glass-light border border-purple-500/20"
+                : "glass-light border border-gray-700"
             }`}
           >
             <div className="flex items-start gap-2">
-              {question.fromAI && <Bot className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />}
+              {question.fromAI && (
+                <Bot className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />
+              )}
               <p className="text-sm text-gray-200">{question.text}</p>
             </div>
             <p className="text-xs text-gray-500 mt-2">
@@ -168,14 +180,14 @@ export function AIQuestionPanel() {
           className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium py-2 px-4 rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2 silver-glow"
         >
           <Sparkles className="w-4 h-4" />
-          {isLoading ? 'Thinking...' : 'Ask Next Question'}
+          {isLoading ? "Thinking..." : "Ask Next Question"}
         </button>
         <p className="text-xs text-gray-500 mt-2 text-center">
           {state.notes.length === 0
-            ? 'Add some notes to get started'
-            : 'Get the next guiding question'}
+            ? "Add some notes to get started"
+            : "Get the next guiding question"}
         </p>
       </div>
     </div>
-  )
+  );
 }
