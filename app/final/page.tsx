@@ -1,52 +1,59 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSession } from '@/lib/session-context'
-import { askAI, SOCRATIC_SYSTEM_PROMPT } from '@/lib/ai-client'
-import { Home, Loader2, Trophy, TrendingUp, Lightbulb, Target } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/session-context";
+import { askAI, SOCRATIC_SYSTEM_PROMPT } from "@/lib/ai-client";
+import {
+  Home,
+  Loader2,
+  Trophy,
+  TrendingUp,
+  Lightbulb,
+  Target,
+} from "lucide-react";
 
 interface ConceptEvaluation {
-  noteId: string
-  rank: number
-  score: number
-  strengths: string[]
-  improvements: string[]
-  feedback: string
+  noteId: string;
+  rank: number;
+  score: number;
+  strengths: string[];
+  improvements: string[];
+  feedback: string;
 }
 
 export default function FinalPage() {
-  const router = useRouter()
-  const { state, resetSession } = useSession()
-  const [evaluations, setEvaluations] = useState<ConceptEvaluation[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const { state, resetSession } = useSession();
+  const [evaluations, setEvaluations] = useState<ConceptEvaluation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const conceptNotes = state.notes.filter(n => n.isConcept)
+  const conceptNotes = state.notes.filter((n) => n.isConcept);
 
   useEffect(() => {
     if (!state.hmwStatement || conceptNotes.length < 3) {
-      router.push('/canvas')
-      return
+      router.push("/canvas");
+      return;
     }
 
-    evaluateConcepts()
-  }, [])
+    evaluateConcepts();
+  }, []);
 
   const evaluateConcepts = async () => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
       const conceptsText = conceptNotes
         .map((note, i) => {
-          let text = `Concept ${i + 1}: ${note.text}`
+          let text = `Concept ${i + 1}: ${note.text}`;
           if (note.image?.caption) {
-            text += `\n[Has visual reference: ${note.image.caption}]`
+            text += `\n[Has visual reference: ${note.image.caption}]`;
           }
-          return text
+          return text;
         })
-        .join('\n\n')
+        .join("\n\n");
 
       const evaluationPrompt = `Project Context: ${state.hmwStatement}
 
@@ -75,71 +82,75 @@ Format your response as JSON with this structure:
     }
   ],
   "summary": "Brief summary of evaluation approach"
-}`
+}`;
 
       const response = await askAI(
         [
           {
-            role: 'system',
+            role: "system",
             content: `${SOCRATIC_SYSTEM_PROMPT}\n\nFor this evaluation task, provide structured constructive feedback. Be encouraging but honest.`,
           },
           {
-            role: 'user',
+            role: "user",
             content: evaluationPrompt,
           },
         ],
         0.7,
         1000
-      )
+      );
 
       // Parse AI response
       try {
         // Extract JSON from response (in case AI adds extra text)
-        const jsonMatch = response.match(/\{[\s\S]*\}/)
-        if (!jsonMatch) throw new Error('No JSON found in response')
-        
-        const parsed = JSON.parse(jsonMatch[0])
-        
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error("No JSON found in response");
+
+        const parsed = JSON.parse(jsonMatch[0]);
+
         const evals: ConceptEvaluation[] = parsed.concepts.map((c: any) => ({
-          noteId: conceptNotes[c.conceptNumber - 1]?.id || '',
+          noteId: conceptNotes[c.conceptNumber - 1]?.id || "",
           rank: c.rank,
           score: c.score,
           strengths: c.strengths,
           improvements: c.improvements,
           feedback: c.feedback,
-        }))
+        }));
 
-        setEvaluations(evals.sort((a, b) => a.rank - b.rank))
+        setEvaluations(evals.sort((a, b) => a.rank - b.rank));
       } catch (parseError) {
-        console.error('Failed to parse AI response:', parseError)
+        console.error("Failed to parse AI response:", parseError);
         // Fallback: create simple evaluations
         const fallbackEvals = conceptNotes.map((note, i) => ({
           noteId: note.id,
           rank: i + 1,
           score: 7,
-          strengths: ['Shows creative thinking'],
-          improvements: ['Could be more specific'],
+          strengths: ["Shows creative thinking"],
+          improvements: ["Could be more specific"],
           feedback: response.substring(0, 200),
-        }))
-        setEvaluations(fallbackEvals)
+        }));
+        setEvaluations(fallbackEvals);
       }
     } catch (err) {
-      console.error('Evaluation failed:', err)
-      setError('Failed to get AI evaluation. Please check your LM Studio connection.')
+      console.error("Evaluation failed:", err);
+      setError(
+        "Failed to get AI evaluation. Please check your LM Studio connection."
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleStartOver = () => {
-    if (confirm('Start a new project? This will clear all your current work.')) {
-      resetSession()
-      router.push('/')
+    if (
+      confirm("Start a new project? This will clear all your current work.")
+    ) {
+      resetSession();
+      router.push("/");
     }
-  }
+  };
 
   if (!state.hmwStatement || conceptNotes.length < 3) {
-    return null
+    return null;
   }
 
   return (
@@ -148,7 +159,9 @@ Format your response as JSON with this structure:
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-100">AI Evaluation Results</h1>
+            <h1 className="text-3xl font-bold text-gray-100">
+              AI Evaluation Results
+            </h1>
             <button
               onClick={handleStartOver}
               className="flex items-center gap-2 px-4 py-2 glass-light border border-gray-700 rounded-lg hover:bg-gray-800/50 transition-colors text-gray-200 group"
@@ -159,7 +172,8 @@ Format your response as JSON with this structure:
           </div>
           <div className="glass rounded-lg p-4 border border-gray-700">
             <p className="text-sm text-gray-300">
-              <strong className="text-gray-100">Project:</strong> {state.hmwStatement}
+              <strong className="text-gray-100">Project:</strong>{" "}
+              {state.hmwStatement}
             </p>
           </div>
         </div>
@@ -167,7 +181,9 @@ Format your response as JSON with this structure:
         {isLoading ? (
           <div className="glass rounded-xl p-12 text-center border border-gray-700/50">
             <Loader2 className="w-12 h-12 animate-spin text-purple-400 mx-auto mb-4" />
-            <p className="text-lg text-gray-200">AI is evaluating your concepts...</p>
+            <p className="text-lg text-gray-200">
+              AI is evaluating your concepts...
+            </p>
             <p className="text-sm text-gray-400 mt-2">This may take a moment</p>
           </div>
         ) : error ? (
@@ -183,16 +199,16 @@ Format your response as JSON with this structure:
         ) : (
           <div className="space-y-6">
             {evaluations.map((evaluation) => {
-              const note = conceptNotes.find(n => n.id === evaluation.noteId)
-              if (!note) return null
+              const note = conceptNotes.find((n) => n.id === evaluation.noteId);
+              if (!note) return null;
 
               const rankColors = [
-                'from-yellow-500 to-orange-500',
-                'from-gray-400 to-gray-500',
-                'from-orange-400 to-orange-500',
-              ]
-              const rankIcons = [Trophy, TrendingUp, Target]
-              const RankIcon = rankIcons[evaluation.rank - 1] || Target
+                "from-yellow-500 to-orange-500",
+                "from-gray-400 to-gray-500",
+                "from-orange-400 to-orange-500",
+              ];
+              const rankIcons = [Trophy, TrendingUp, Target];
+              const RankIcon = rankIcons[evaluation.rank - 1] || Target;
 
               return (
                 <div
@@ -208,8 +224,12 @@ Format your response as JSON with this structure:
                     <div className="flex items-center gap-3">
                       <RankIcon className="w-6 h-6 text-white" />
                       <div>
-                        <h3 className="text-white font-bold text-lg">Rank #{evaluation.rank}</h3>
-                        <p className="text-white/90 text-sm">Score: {evaluation.score}/10</p>
+                        <h3 className="text-white font-bold text-lg">
+                          Rank #{evaluation.rank}
+                        </h3>
+                        <p className="text-white/90 text-sm">
+                          Score: {evaluation.score}/10
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -221,12 +241,14 @@ Format your response as JSON with this structure:
                         {note.image && (
                           <img
                             src={note.image.dataUrl}
-                            alt={note.image.caption || 'Concept'}
+                            alt={note.image.caption || "Concept"}
                             className="w-32 h-32 object-cover rounded-lg border border-gray-700"
                           />
                         )}
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-100 mb-2">Your Concept</h4>
+                          <h4 className="font-semibold text-gray-100 mb-2">
+                            Your Concept
+                          </h4>
                           <p className="text-gray-300">{note.text}</p>
                         </div>
                       </div>
@@ -242,7 +264,10 @@ Format your response as JSON with this structure:
                         </h5>
                         <ul className="space-y-1">
                           {evaluation.strengths.map((strength, i) => (
-                            <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
+                            <li
+                              key={i}
+                              className="text-sm text-gray-300 flex items-start gap-2"
+                            >
                               <span className="text-green-400 mt-0.5">•</span>
                               <span>{strength}</span>
                             </li>
@@ -258,7 +283,10 @@ Format your response as JSON with this structure:
                         </h5>
                         <ul className="space-y-1">
                           {evaluation.improvements.map((improvement, i) => (
-                            <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
+                            <li
+                              key={i}
+                              className="text-sm text-gray-300 flex items-start gap-2"
+                            >
                               <span className="text-blue-400 mt-0.5">•</span>
                               <span>{improvement}</span>
                             </li>
@@ -269,33 +297,48 @@ Format your response as JSON with this structure:
 
                     {/* Overall Feedback */}
                     <div className="glass-light rounded-lg p-4 border border-purple-500/20">
-                      <h5 className="font-semibold text-purple-400 mb-2">Overall Feedback</h5>
-                      <p className="text-sm text-gray-300">{evaluation.feedback}</p>
+                      <h5 className="font-semibold text-purple-400 mb-2">
+                        Overall Feedback
+                      </h5>
+                      <p className="text-sm text-gray-300">
+                        {evaluation.feedback}
+                      </p>
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
 
             {/* Next Steps */}
             <div className="glass rounded-xl p-6 border border-gray-700/50">
-              <h3 className="text-xl font-bold text-gray-100 mb-3">Next Steps</h3>
+              <h3 className="text-xl font-bold text-gray-100 mb-3">
+                Next Steps
+              </h3>
               <ul className="space-y-2 text-gray-300">
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 font-bold">1.</span>
-                  <span>Review the feedback and identify patterns across your concepts</span>
+                  <span>
+                    Review the feedback and identify patterns across your
+                    concepts
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 font-bold">2.</span>
-                  <span>Refine your top-ranked concept based on the suggestions</span>
+                  <span>
+                    Refine your top-ranked concept based on the suggestions
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 font-bold">3.</span>
-                  <span>Create prototypes or sketches to test key assumptions</span>
+                  <span>
+                    Create prototypes or sketches to test key assumptions
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 font-bold">4.</span>
-                  <span>Gather user feedback to validate your design direction</span>
+                  <span>
+                    Gather user feedback to validate your design direction
+                  </span>
                 </li>
               </ul>
             </div>
@@ -303,5 +346,5 @@ Format your response as JSON with this structure:
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,23 +1,30 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSession } from '@/lib/session-context'
-import { Lightbulb, Sparkles } from 'lucide-react'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/session-context";
+import { HMWHelperModal } from "@/components/hmw-helper-modal";
+import { Lightbulb, Sparkles, HelpCircle } from "lucide-react";
 
 export default function Home() {
-  const router = useRouter()
-  const { updateHMW, setPhase } = useSession()
-  const [hmwInput, setHmwInput] = useState('')
+  const router = useRouter();
+  const { updateHMW, setPhase } = useSession();
+  const [hmwInput, setHmwInput] = useState("");
+  const [showHelper, setShowHelper] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (hmwInput.trim()) {
-      updateHMW(hmwInput.trim())
-      setPhase('canvas')
-      router.push('/canvas')
+      updateHMW(hmwInput.trim());
+      setPhase("canvas");
+      router.push("/canvas");
     }
-  }
+  };
+
+  const handleSelectTemplate = (template: string) => {
+    setHmwInput(template);
+    setShowHelper(false);
+  };
 
   return (
     <div className="min-h-screen dark-gradient-radial texture-overlay flex items-center justify-center p-4">
@@ -42,16 +49,31 @@ export default function Home() {
                 Start with a "How Might We" statement
               </h2>
               <p className="text-sm text-gray-400">
-                Frame your design challenge as an open-ended question. This helps focus your ideation.
+                Frame your design challenge as an open-ended question. This
+                helps focus your ideation.
               </p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
-              <label htmlFor="hmw" className="block text-sm font-medium text-gray-300 mb-2">
-                Your Design Challenge
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="hmw"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Your Design Challenge
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowHelper(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors"
+                  title="Get help formulating your statement"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  <span>Need help?</span>
+                </button>
+              </div>
               <textarea
                 id="hmw"
                 value={hmwInput}
@@ -73,7 +95,9 @@ export default function Home() {
           </form>
 
           <div className="mt-6 p-4 glass-light rounded-lg border border-gray-700/50">
-            <h3 className="font-medium text-gray-200 mb-2 text-sm">What happens next?</h3>
+            <h3 className="font-medium text-gray-200 mb-2 text-sm">
+              What happens next?
+            </h3>
             <ul className="text-sm text-gray-400 space-y-1">
               <li>• Answer guided questions with sticky notes</li>
               <li>• Attach images to your notes for richer ideas</li>
@@ -84,6 +108,12 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <HMWHelperModal
+        isOpen={showHelper}
+        onClose={() => setShowHelper(false)}
+        onSelect={handleSelectTemplate}
+      />
     </div>
-  )
+  );
 }

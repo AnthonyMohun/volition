@@ -17,7 +17,8 @@ import { STICKY_COLORS } from "@/lib/types";
 
 export default function CanvasPage() {
   const router = useRouter();
-  const { state, addNote, updateNote, deleteNote, setPhase, resetSession } = useSession();
+  const { state, addNote, updateNote, deleteNote, setPhase, resetSession } =
+    useSession();
   const [selectedColor, setSelectedColor] = useState(STICKY_COLORS[0]);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
@@ -87,7 +88,9 @@ export default function CanvasPage() {
   };
 
   const handleStartNewProject = () => {
-    if (confirm("Start a new project? This will clear all your current work.")) {
+    if (
+      confirm("Start a new project? This will clear all your current work.")
+    ) {
       resetSession();
       router.push("/");
     }
