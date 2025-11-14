@@ -22,6 +22,7 @@ export function StickyNote({
   const [editText, setEditText] = useState(note.text);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleTextSave = () => {
     if (editText.trim()) {
@@ -111,12 +112,10 @@ export function StickyNote({
         }}
       >
         {/* Header */}
-        <div
-          className="flex items-center justify-between mb-2"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
+        <div className="flex items-center justify-between mb-2">
           <button
             onClick={toggleConcept}
+            onPointerDown={(e) => e.stopPropagation()}
             className={cn(
               "p-1.5 rounded hover:bg-white/15 transition-all",
               note.isConcept
@@ -135,13 +134,18 @@ export function StickyNote({
           <div className="flex gap-1">
             <button
               onClick={() => fileInputRef.current?.click()}
+              onPointerDown={(e) => e.stopPropagation()}
               className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100"
               title="Attach image"
             >
               <ImageIcon className="w-4 h-4" />
             </button>
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={() => {
+                setIsEditing(true);
+                setEditText(note.text);
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
               className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100"
               title="Edit note"
             >
@@ -149,6 +153,7 @@ export function StickyNote({
             </button>
             <button
               onClick={onDelete}
+              onPointerDown={(e) => e.stopPropagation()}
               className="p-1.5 rounded hover:bg-red-500/30 text-red-400 hover:text-red-300 transition-all"
               title="Delete note"
             >
@@ -184,8 +189,12 @@ export function StickyNote({
         {isEditing ? (
           <div className="space-y-2" onPointerDown={(e) => e.stopPropagation()}>
             <textarea
+              ref={textareaRef}
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
+              onFocus={(e) => {
+                e.currentTarget.select();
+              }}
               className="w-full p-2.5 border border-gray-600 rounded text-sm resize-none bg-black/30 text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:bg-black/40 transition-all placeholder:text-gray-500"
               rows={3}
               autoFocus
