@@ -13,7 +13,7 @@ import {
 
 export default function ReviewPage() {
   const router = useRouter();
-  const { state, setPhase, resetSession } = useSession();
+  const { state, setPhase, resetSession, setSelectedConcepts: saveSelectedConcepts } = useSession();
   const [selectedConcepts, setSelectedConcepts] = useState<string[]>([]);
   const [tokenAllocation, setTokenAllocation] = useState<
     Record<string, number>
@@ -62,6 +62,7 @@ export default function ReviewPage() {
 
   const handleProceedToFinal = () => {
     if (selectedConcepts.length === 3 && allocatedTokens === totalTokens) {
+      saveSelectedConcepts(selectedConcepts, tokenAllocation);
       setPhase("final");
       router.push("/final");
     }

@@ -94,6 +94,22 @@ export default function Home() {
             </button>
           </form>
 
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                const exampleHMW =
+                  "How might we help students manage their time more effectively?";
+                updateHMW(exampleHMW);
+                setPhase("canvas");
+                router.push("/canvas");
+              }}
+              className="w-full text-gray-300 font-semibold py-3 px-6 rounded-lg border border-gray-600 hover:border-purple-500 hover:text-purple-300 hover:bg-purple-500/10 transition-all"
+            >
+              Try with an Example
+            </button>
+          </div>
+
           <div className="mt-6 p-4 glass-light rounded-lg border border-gray-700/50">
             <h3 className="font-medium text-gray-200 mb-2 text-sm">
               What happens next?

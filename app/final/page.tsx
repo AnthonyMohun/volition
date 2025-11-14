@@ -45,7 +45,12 @@ export default function FinalPage() {
     setError(null);
 
     try {
-      const conceptsText = conceptNotes
+      // Only evaluate the selected concepts
+      const selectedNotes = state.selectedConceptIds
+        .map((id) => conceptNotes.find((n) => n.id === id))
+        .filter((note) => note !== undefined) as typeof conceptNotes;
+
+      const conceptsText = selectedNotes
         .map((note, i) => {
           let text = `Concept ${i + 1}: ${note.text}`;
           if (note.image?.caption) {
@@ -108,7 +113,7 @@ Format your response as JSON with this structure:
         const parsed = JSON.parse(jsonMatch[0]);
 
         const evals: ConceptEvaluation[] = parsed.concepts.map((c: any) => ({
-          noteId: conceptNotes[c.conceptNumber - 1]?.id || "",
+          noteId: selectedNotes[c.conceptNumber - 1]?.id || "",
           rank: c.rank,
           score: c.score,
           strengths: c.strengths,
@@ -119,8 +124,12 @@ Format your response as JSON with this structure:
         setEvaluations(evals.sort((a, b) => a.rank - b.rank));
       } catch (parseError) {
         console.error("Failed to parse AI response:", parseError);
-        // Fallback: create simple evaluations
-        const fallbackEvals = conceptNotes.map((note, i) => ({
+        // Fallback: create simple evaluations from selected notes
+        const selectedNotes = state.selectedConceptIds
+          .map((id) => conceptNotes.find((n) => n.id === id))
+          .filter((note) => note !== undefined) as typeof conceptNotes;
+
+        const fallbackEvals = selectedNotes.map((note, i) => ({
           noteId: note.id,
           rank: i + 1,
           score: 7,

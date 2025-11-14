@@ -51,6 +51,8 @@ export interface SessionState {
   concepts: Concept[];
   evaluations: ConceptEvaluation[];
   currentPhase: "hmw" | "canvas" | "review" | "final";
+  selectedConceptIds: string[];
+  tokenAllocation: Record<string, number>;
   createdAt: number;
 }
 
@@ -62,6 +64,8 @@ export const INITIAL_SESSION_STATE: SessionState = {
   concepts: [],
   evaluations: [],
   currentPhase: "hmw",
+  selectedConceptIds: [],
+  tokenAllocation: {},
   createdAt: Date.now(),
 };
 

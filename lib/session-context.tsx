@@ -15,6 +15,7 @@ interface SessionContextType {
   updateConcept: (id: string, updates: Partial<Concept>) => void
   addEvaluation: (evaluation: ConceptEvaluation) => void
   setPhase: (phase: SessionState['currentPhase']) => void
+  setSelectedConcepts: (conceptIds: string[], tokenAllocation: Record<string, number>) => void
   resetSession: () => void
 }
 
@@ -123,6 +124,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setState(prev => ({ ...prev, currentPhase: phase }))
   }
 
+  const setSelectedConcepts = (conceptIds: string[], tokenAllocation: Record<string, number>) => {
+    setState(prev => ({
+      ...prev,
+      selectedConceptIds: conceptIds,
+      tokenAllocation,
+    }))
+  }
+
   const resetSession = () => {
     setState({
       ...INITIAL_SESSION_STATE,
@@ -148,6 +157,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         updateConcept,
         addEvaluation,
         setPhase,
+        setSelectedConcepts,
         resetSession,
       }}
     >
