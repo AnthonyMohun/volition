@@ -12,7 +12,7 @@ import {
   useSensors,
   PointerSensor,
 } from "@dnd-kit/core";
-import { Plus, ArrowRight, Home, RotateCcw } from "lucide-react";
+import { Plus, ArrowRight, RotateCcw } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 
 export default function CanvasPage() {
@@ -105,13 +105,6 @@ export default function CanvasPage() {
       {/* Header */}
       <div className="glass border-b border-gray-800 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push("/")}
-            className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors"
-            title="Back to home"
-          >
-            <Home className="w-5 h-5 text-gray-300" />
-          </button>
           <button
             onClick={handleStartNewProject}
             className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors group"
