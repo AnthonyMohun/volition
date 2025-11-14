@@ -334,7 +334,7 @@ export default function ReviewPage() {
 
           {/* Selection Step */}
           <div className="glass rounded-xl p-6 mb-6 border border-gray-700/50">
-              <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex-1">
                 <h2 className="text-xl font-semibold text-gray-100 mb-2">
                   Select 3 Concepts to Review
@@ -352,7 +352,8 @@ export default function ReviewPage() {
               {selectedConcepts.length === 3 && (
                 <CheckCircle2 className="w-6 h-6 text-green-400 ml-4 flex-shrink-0" />
               )}
-            </div>            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            </div>{" "}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
               {conceptNotes.map((note) => {
                 const isSelected = selectedConcepts.includes(note.id);
                 const quality = assessConceptQuality(note);
@@ -528,6 +529,25 @@ export default function ReviewPage() {
                               </button>
                             </div>
                           </div>
+
+                          {/* Show attached image if available */}
+                          {note.image && (
+                            <div className="mb-4 p-3 glass-light rounded-lg border border-gray-700/50">
+                              <p className="text-xs font-medium text-gray-400 mb-2">
+                                Attached Sketch/Image
+                              </p>
+                              <img
+                                src={note.image.dataUrl}
+                                alt={note.image.caption || "Concept sketch"}
+                                className="w-full max-h-48 object-contain rounded border border-gray-700"
+                              />
+                              {note.image.caption && (
+                                <p className="text-xs text-gray-400 mt-2 italic">
+                                  {note.image.caption}
+                                </p>
+                              )}
+                            </div>
+                          )}
 
                           <div className="space-y-4">
                             {/* Title */}

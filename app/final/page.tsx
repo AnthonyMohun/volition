@@ -69,7 +69,9 @@ export default function FinalPage() {
           }
 
           if (note.image) {
-            text += `\nVisual Reference Attached: ${note.image.caption || "Sketch/diagram included"}\n`;
+            text += `\nVisual Reference Attached: ${
+              note.image.caption || "Sketch/diagram included"
+            }\n`;
             text += `[IMAGE: See attached visual for Concept ${i + 1}]\n`;
           }
 
@@ -186,7 +188,10 @@ Respond ONLY with valid JSON:
 }`;
 
       // Prepare messages with images for vision models
-      const userContent: Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }> = [
+      const userContent: Array<
+        | { type: "text"; text: string }
+        | { type: "image_url"; image_url: { url: string } }
+      > = [
         {
           type: "text",
           text: evaluationPrompt,
@@ -204,7 +209,9 @@ Respond ONLY with valid JSON:
           });
           userContent.push({
             type: "text",
-            text: `^ Image for Concept ${i + 1}: ${note.text}${note.image.caption ? ` (${note.image.caption})` : ""}`,
+            text: `^ Image for Concept ${i + 1}: ${note.text}${
+              note.image.caption ? ` (${note.image.caption})` : ""
+            }`,
           });
         }
       });

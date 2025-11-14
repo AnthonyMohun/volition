@@ -12,7 +12,9 @@ export interface MessageContentImage {
   };
 }
 
-export type MessageContent = string | (MessageContentText | MessageContentImage)[];
+export type MessageContent =
+  | string
+  | (MessageContentText | MessageContentImage)[];
 
 export interface Message {
   role: "system" | "user" | "assistant";
