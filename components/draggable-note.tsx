@@ -26,18 +26,13 @@ export function DraggableNote({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="touch-none"
-      {...listeners}
-      {...attributes}
-    >
+    <div ref={setNodeRef} style={style} className="touch-none">
       <StickyNote
         note={note}
         onUpdate={onUpdate}
         onDelete={onDelete}
         isDragging={isDragging}
+        dragHandleProps={{ ...listeners, ...attributes }}
       />
     </div>
   );

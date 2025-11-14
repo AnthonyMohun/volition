@@ -17,6 +17,7 @@ interface StickyNoteProps {
   onUpdate: (updates: Partial<StickyNoteType>) => void;
   onDelete: () => void;
   isDragging?: boolean;
+  dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
 }
 
 export function StickyNote({
@@ -24,6 +25,7 @@ export function StickyNote({
   onUpdate,
   onDelete,
   isDragging,
+  dragHandleProps,
 }: StickyNoteProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(note.text);
@@ -115,8 +117,9 @@ export function StickyNote({
   return (
     <>
       <div
+        {...dragHandleProps}
         className={cn(
-          "w-64 p-4 rounded-lg cursor-move transition-all pointer-events-none",
+          "w-64 p-4 rounded-lg transition-all cursor-move",
           "backdrop-blur-sm",
           isDragging && "opacity-50 scale-95",
           note.isConcept &&
@@ -131,17 +134,12 @@ export function StickyNote({
         }}
       >
         {/* Header */}
-        <div
-          className="flex items-center justify-between mb-2 pointer-events-auto"
-          onPointerDown={(e) => e.stopPropagation()}
-          onPointerUp={(e) => e.stopPropagation()}
-        >
+        <div className="flex items-center justify-between mb-2">
           <button
             onClick={toggleConcept}
             onPointerDown={(e) => e.stopPropagation()}
-            onPointerUp={(e) => e.stopPropagation()}
             className={cn(
-              "p-1.5 rounded hover:bg-white/15 transition-all pointer-events-auto",
+              "p-1.5 rounded hover:bg-white/15 transition-all",
               note.isConcept
                 ? "text-yellow-400 bg-yellow-400/10"
                 : "text-gray-400"
@@ -155,12 +153,11 @@ export function StickyNote({
               )}
             />
           </button>
-          <div className="flex gap-1 pointer-events-auto">
+          <div className="flex gap-1">
             <button
               onClick={() => fileInputRef.current?.click()}
               onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => e.stopPropagation()}
-              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100 pointer-events-auto"
+              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100"
               title="Attach image"
             >
               <ImageIcon className="w-4 h-4" />
@@ -172,8 +169,7 @@ export function StickyNote({
                   setDetailsText(note.details || "");
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
-                onPointerUp={(e) => e.stopPropagation()}
-                className="p-1.5 rounded hover:bg-white/15 transition-all text-purple-300 hover:text-purple-100 pointer-events-auto"
+                className="p-1.5 rounded hover:bg-white/15 transition-all text-purple-300 hover:text-purple-100"
                 title="Edit concept details"
               >
                 <FileText className="w-4 h-4" />
@@ -185,8 +181,7 @@ export function StickyNote({
                 setEditText(note.text);
               }}
               onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => e.stopPropagation()}
-              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100 pointer-events-auto"
+              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100"
               title="Edit note"
             >
               <Edit2 className="w-4 h-4" />
@@ -194,8 +189,7 @@ export function StickyNote({
             <button
               onClick={onDelete}
               onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => e.stopPropagation()}
-              className="p-1.5 rounded hover:bg-red-500/30 text-red-400 hover:text-red-300 transition-all pointer-events-auto"
+              className="p-1.5 rounded hover:bg-red-500/30 text-red-400 hover:text-red-300 transition-all"
               title="Delete note"
             >
               <Trash2 className="w-4 h-4" />
@@ -205,19 +199,17 @@ export function StickyNote({
 
         {/* Image */}
         {note.image && (
-          <div className="mb-3 relative group pointer-events-auto">
+          <div className="mb-3 relative group">
             <img
               src={note.image.dataUrl}
               alt={note.image.caption || "Note attachment"}
               className="w-full h-32 object-cover rounded cursor-pointer border border-gray-600/50 hover:border-gray-500/70 transition-colors"
               onClick={() => setShowImagePreview(true)}
               onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => e.stopPropagation()}
             />
             <button
               onClick={handleRemoveImage}
               onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => e.stopPropagation()}
               className="absolute top-1.5 right-1.5 p-1 bg-red-500/90 hover:bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg"
             >
               <X className="w-3 h-3" />
@@ -232,11 +224,7 @@ export function StickyNote({
 
         {/* Text Content */}
         {isEditing ? (
-          <div
-            className="space-y-2 pointer-events-auto"
-            onPointerDown={(e) => e.stopPropagation()}
-            onPointerUp={(e) => e.stopPropagation()}
-          >
+          <div className="space-y-2" onPointerDown={(e) => e.stopPropagation()}>
             <textarea
               ref={textareaRef}
               value={editText}
@@ -258,10 +246,9 @@ export function StickyNote({
           </div>
         ) : (
           <p
-            className="text-sm text-gray-100 whitespace-pre-wrap break-words cursor-text leading-relaxed pointer-events-auto"
+            className="text-sm text-gray-100 whitespace-pre-wrap break-words cursor-text leading-relaxed"
             onClick={() => setIsEditing(true)}
             onPointerDown={(e) => e.stopPropagation()}
-            onPointerUp={(e) => e.stopPropagation()}
           >
             {note.text}
           </p>
