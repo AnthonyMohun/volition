@@ -116,7 +116,7 @@ export function StickyNote({
     <>
       <div
         className={cn(
-          "w-64 p-4 rounded-lg cursor-move transition-all",
+          "w-64 p-4 rounded-lg cursor-move transition-all pointer-events-none",
           "backdrop-blur-sm",
           isDragging && "opacity-50 scale-95",
           note.isConcept &&
@@ -131,12 +131,17 @@ export function StickyNote({
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-2">
+        <div
+          className="flex items-center justify-between mb-2 pointer-events-auto"
+          onPointerDown={(e) => e.stopPropagation()}
+          onPointerUp={(e) => e.stopPropagation()}
+        >
           <button
             onClick={toggleConcept}
             onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
             className={cn(
-              "p-1.5 rounded hover:bg-white/15 transition-all",
+              "p-1.5 rounded hover:bg-white/15 transition-all pointer-events-auto",
               note.isConcept
                 ? "text-yellow-400 bg-yellow-400/10"
                 : "text-gray-400"
@@ -150,11 +155,12 @@ export function StickyNote({
               )}
             />
           </button>
-          <div className="flex gap-1">
+          <div className="flex gap-1 pointer-events-auto">
             <button
               onClick={() => fileInputRef.current?.click()}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100"
+              onPointerUp={(e) => e.stopPropagation()}
+              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100 pointer-events-auto"
               title="Attach image"
             >
               <ImageIcon className="w-4 h-4" />
@@ -166,7 +172,8 @@ export function StickyNote({
                   setDetailsText(note.details || "");
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
-                className="p-1.5 rounded hover:bg-white/15 transition-all text-purple-300 hover:text-purple-100"
+                onPointerUp={(e) => e.stopPropagation()}
+                className="p-1.5 rounded hover:bg-white/15 transition-all text-purple-300 hover:text-purple-100 pointer-events-auto"
                 title="Edit concept details"
               >
                 <FileText className="w-4 h-4" />
@@ -178,7 +185,8 @@ export function StickyNote({
                 setEditText(note.text);
               }}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100"
+              onPointerUp={(e) => e.stopPropagation()}
+              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100 pointer-events-auto"
               title="Edit note"
             >
               <Edit2 className="w-4 h-4" />
@@ -186,7 +194,8 @@ export function StickyNote({
             <button
               onClick={onDelete}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-1.5 rounded hover:bg-red-500/30 text-red-400 hover:text-red-300 transition-all"
+              onPointerUp={(e) => e.stopPropagation()}
+              className="p-1.5 rounded hover:bg-red-500/30 text-red-400 hover:text-red-300 transition-all pointer-events-auto"
               title="Delete note"
             >
               <Trash2 className="w-4 h-4" />
@@ -196,15 +205,19 @@ export function StickyNote({
 
         {/* Image */}
         {note.image && (
-          <div className="mb-3 relative group">
+          <div className="mb-3 relative group pointer-events-auto">
             <img
               src={note.image.dataUrl}
               alt={note.image.caption || "Note attachment"}
               className="w-full h-32 object-cover rounded cursor-pointer border border-gray-600/50 hover:border-gray-500/70 transition-colors"
               onClick={() => setShowImagePreview(true)}
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => e.stopPropagation()}
             />
             <button
               onClick={handleRemoveImage}
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => e.stopPropagation()}
               className="absolute top-1.5 right-1.5 p-1 bg-red-500/90 hover:bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg"
             >
               <X className="w-3 h-3" />
@@ -219,7 +232,11 @@ export function StickyNote({
 
         {/* Text Content */}
         {isEditing ? (
-          <div className="space-y-2" onPointerDown={(e) => e.stopPropagation()}>
+          <div
+            className="space-y-2 pointer-events-auto"
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
+          >
             <textarea
               ref={textareaRef}
               value={editText}
@@ -241,9 +258,10 @@ export function StickyNote({
           </div>
         ) : (
           <p
-            className="text-sm text-gray-100 whitespace-pre-wrap break-words cursor-text leading-relaxed"
+            className="text-sm text-gray-100 whitespace-pre-wrap break-words cursor-text leading-relaxed pointer-events-auto"
             onClick={() => setIsEditing(true)}
             onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
           >
             {note.text}
           </p>
@@ -282,12 +300,14 @@ export function StickyNote({
 
       {/* Concept Details Modal */}
       {showDetailsModal && (
-        <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-          onClick={() => setShowDetailsModal(false)}
-        >
+        <>
           <div
-            className="glass border border-purple-500/30 rounded-lg p-6 max-w-md w-full shadow-2xl"
+            className="fixed inset-0 z-40"
+            onClick={() => setShowDetailsModal(false)}
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          />
+          <div
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass border border-purple-500/30 rounded-lg p-6 max-w-md w-full shadow-2xl z-50"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-semibold text-gray-100 mb-2">
@@ -320,7 +340,7 @@ export function StickyNote({
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );
