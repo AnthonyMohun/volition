@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --surface: #1a1a1a;
+  --surface-elevated: #2a2a2a;
+  --foreground: #f5f5f5;
+  --foreground-secondary: #a0a0a0;
+  --border: #333333;
+  --accent-purple: #a855f7;
+  --accent-pink: #ec4899;
 }
 
 @theme inline {
@@ -12,15 +18,158 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Glassmorphism utilities */
+.glass {
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-light {
+  background: rgba(42, 42, 42, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Silver gradient border effect */
+.silver-border {
+  position: relative;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.silver-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, 
+    #a8a8a8 0%, 
+    #e8e8e8 25%, 
+    #ffffff 50%, 
+    #e8e8e8 75%, 
+    #a8a8a8 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.6;
+}
+
+.silver-border-animated {
+  position: relative;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.silver-border-animated::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, 
+    #a8a8a8 0%, 
+    #e8e8e8 25%, 
+    #ffffff 50%, 
+    #e8e8e8 75%, 
+    #a8a8a8 100%
+  );
+  background-size: 200% 200%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.6;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Silver glow effect for hover states */
+.silver-glow {
+  box-shadow: 0 0 20px rgba(200, 200, 200, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.silver-glow:hover {
+  box-shadow: 0 0 30px rgba(200, 200, 200, 0.4);
+}
+
+/* Dark gradient backgrounds */
+.dark-gradient-radial {
+  background: radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+              #0a0a0a;
+}
+
+.dark-gradient-angular {
+  background: linear-gradient(135deg, 
+    rgba(168, 85, 247, 0.05) 0%,
+    transparent 50%,
+    rgba(236, 72, 153, 0.05) 100%
+  ), #0a0a0a;
+}
+
+/* Improved scrollbar for dark mode */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-elevated);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+/* Text contrast utilities */
+.text-high-contrast {
+  color: var(--foreground);
+}
+
+.text-medium-contrast {
+  color: var(--foreground-secondary);
+}
+
+/* Card elevation */
+.card-elevated {
+  background: var(--surface-elevated);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Subtle texture overlay */
+.texture-overlay {
+  position: relative;
+}
+
+.texture-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.5;
 }

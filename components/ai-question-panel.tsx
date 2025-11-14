@@ -109,13 +109,13 @@ export function AIQuestionPanel() {
   }
 
   return (
-    <div className="bg-white border-l border-gray-200 w-80 flex flex-col">
-      <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+    <div className="glass border-l border-gray-800 w-80 flex flex-col">
+      <div className="p-4 border-b border-gray-800 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
         <div className="flex items-center gap-2 mb-1">
-          <Bot className="w-5 h-5 text-purple-600" />
-          <h2 className="font-semibold text-gray-900">AI Guide</h2>
+          <Bot className="w-5 h-5 text-purple-400" />
+          <h2 className="font-semibold text-gray-100">AI Guide</h2>
         </div>
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-gray-400">
           Socratic questioning to guide your exploration
         </p>
       </div>
@@ -123,7 +123,7 @@ export function AIQuestionPanel() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {state.questions.length === 0 && !isLoading && (
           <div className="text-center text-gray-500 text-sm py-8">
-            <Sparkles className="w-8 h-8 mx-auto mb-2 text-purple-300" />
+            <Sparkles className="w-8 h-8 mx-auto mb-2 text-purple-400/50" />
             <p>Your AI mentor will ask you questions to guide your ideation</p>
           </div>
         )}
@@ -133,13 +133,13 @@ export function AIQuestionPanel() {
             key={question.id}
             className={`p-3 rounded-lg ${
               question.fromAI
-                ? 'bg-purple-50 border border-purple-100'
-                : 'bg-gray-50 border border-gray-200'
+                ? 'glass-light border border-purple-500/20'
+                : 'glass-light border border-gray-700'
             }`}
           >
             <div className="flex items-start gap-2">
-              {question.fromAI && <Bot className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />}
-              <p className="text-sm text-gray-800">{question.text}</p>
+              {question.fromAI && <Bot className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />}
+              <p className="text-sm text-gray-200">{question.text}</p>
             </div>
             <p className="text-xs text-gray-500 mt-2">
               {new Date(question.timestamp).toLocaleTimeString()}
@@ -148,24 +148,24 @@ export function AIQuestionPanel() {
         ))}
 
         {isLoading && (
-          <div className="flex items-center justify-center gap-2 text-purple-600 py-4">
+          <div className="flex items-center justify-center gap-2 text-purple-400 py-4">
             <Loader2 className="w-5 h-5 animate-spin" />
             <span className="text-sm">Thinking...</span>
           </div>
         )}
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-700">{error}</p>
+          <div className="p-3 glass-light border border-red-500/30 rounded-lg">
+            <p className="text-sm text-red-400">{error}</p>
           </div>
         )}
       </div>
 
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
+      <div className="p-4 border-t border-gray-800 glass-light">
         <button
           onClick={askNextQuestion}
           disabled={isLoading || state.notes.length === 0}
-          className="w-full bg-purple-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium py-2 px-4 rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2 silver-glow"
         >
           <Sparkles className="w-4 h-4" />
           {isLoading ? 'Thinking...' : 'Ask Next Question'}
