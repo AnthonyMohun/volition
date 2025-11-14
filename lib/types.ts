@@ -1,0 +1,75 @@
+// Core data types for the application
+
+export interface ImageAttachment {
+  dataUrl: string
+  name: string
+  type: string
+  size: number
+  caption?: string
+}
+
+export interface StickyNote {
+  id: string
+  text: string
+  x: number
+  y: number
+  color: string
+  isConcept: boolean
+  image?: ImageAttachment
+  createdAt: number
+}
+
+export interface AIQuestion {
+  id: string
+  text: string
+  fromAI: boolean
+  answered: boolean
+  timestamp: number
+}
+
+export interface Concept {
+  id: string
+  title: string
+  noteIds: string[]
+  description: string
+  createdAt: number
+}
+
+export interface ConceptEvaluation {
+  conceptId: string
+  aiScore: number
+  aiReasons: string[]
+  studentScore?: number
+  studentNotes?: string
+}
+
+export interface SessionState {
+  projectId: string
+  hmwStatement: string
+  notes: StickyNote[]
+  questions: AIQuestion[]
+  concepts: Concept[]
+  evaluations: ConceptEvaluation[]
+  currentPhase: 'hmw' | 'canvas' | 'review' | 'final'
+  createdAt: number
+}
+
+export const INITIAL_SESSION_STATE: SessionState = {
+  projectId: '',
+  hmwStatement: '',
+  notes: [],
+  questions: [],
+  concepts: [],
+  evaluations: [],
+  currentPhase: 'hmw',
+  createdAt: Date.now(),
+}
+
+export const STICKY_COLORS = [
+  '#FEF3C7', // yellow
+  '#DBEAFE', // blue
+  '#D1FAE5', // green
+  '#FCE7F3', // pink
+  '#E0E7FF', // indigo
+  '#FED7AA', // orange
+]

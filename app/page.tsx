@@ -1,65 +1,89 @@
-import Image from "next/image";
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from '@/lib/session-context'
+import { Lightbulb, Sparkles } from 'lucide-react'
 
 export default function Home() {
+  const router = useRouter()
+  const { updateHMW, setPhase } = useSession()
+  const [hmwInput, setHmwInput] = useState('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (hmwInput.trim()) {
+      updateHMW(hmwInput.trim())
+      setPhase('canvas')
+      router.push('/canvas')
+    }
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Lightbulb className="w-12 h-12 text-purple-600" />
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Socratic Design Studio
+            </h1>
+          </div>
+          <p className="text-gray-600 text-lg">
+            Discover concepts through guided exploration
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          <div className="flex items-start gap-3 mb-6 p-4 bg-purple-50 rounded-lg border border-purple-100">
+            <Sparkles className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h2 className="font-semibold text-purple-900 mb-1">
+                Start with a "How Might We" statement
+              </h2>
+              <p className="text-sm text-purple-700">
+                Frame your design challenge as an open-ended question. This helps focus your ideation.
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="mb-6">
+              <label htmlFor="hmw" className="block text-sm font-medium text-gray-700 mb-2">
+                Your Design Challenge
+              </label>
+              <textarea
+                id="hmw"
+                value={hmwInput}
+                onChange={(e) => setHmwInput(e.target.value)}
+                placeholder="How might we help students manage their time more effectively?"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-gray-900 placeholder:text-gray-400"
+                rows={4}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={!hmwInput.trim()}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+            >
+              Begin Exploration
+            </button>
+          </form>
+
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-medium text-gray-900 mb-2 text-sm">What happens next?</h3>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Answer guided questions with sticky notes</li>
+              <li>• Attach images to your notes for richer ideas</li>
+              <li>• Mark promising ideas as concepts</li>
+              <li>• Self-evaluate and refine your top concepts</li>
+              <li>• Get AI feedback on your final designs</li>
+            </ul>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
-  );
+  )
 }
