@@ -8,11 +8,25 @@ import {
   buildConversationContext,
   MessageRole,
 } from "@/lib/ai-client";
-import { Bot, Sparkles, Loader2, Check, Plus, Flag } from "lucide-react";
+import {
+  Bot,
+  Sparkles,
+  Loader2,
+  Check,
+  Plus,
+  Flag,
+  RotateCcw,
+} from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 
 export function AIQuestionPanel() {
-  const { state, addQuestion, addNote, markQuestionAnswered } = useSession();
+  const {
+    state,
+    addQuestion,
+    addNote,
+    markQuestionAnswered,
+    toggleQuestionAnswered,
+  } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasAskedFirstQuestion = useRef(false);
@@ -165,10 +179,7 @@ export function AIQuestionPanel() {
                 : "glass-light border border-gray-700"
             }`}
           >
-            <div className="flex items-start gap-2">
-              {question.fromAI && (
-                <Bot className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />
-              )}
+            <div className="flex items-start">
               <p className="text-sm text-gray-200">{question.text}</p>
             </div>
             <div className="flex items-center justify-between mt-2">
@@ -179,13 +190,20 @@ export function AIQuestionPanel() {
               </p>
               <div className="flex items-center gap-2">
                 {question.answered ? (
-                  <div className="text-xs text-green-400 border border-green-400/10 bg-green-500/5 px-2 py-0.5 rounded-full">
-                    Answered
-                  </div>
+                  <button
+                    title="Mark as unanswered"
+                    aria-label="Mark as unanswered"
+                    onClick={() => toggleQuestionAnswered(question.id)}
+                    className="text-xs flex items-center gap-2 text-green-400 border border-green-400/10 bg-green-500/5 px-2 py-0.5 rounded-full hover:bg-green-500/10 transition-all"
+                  >
+                    <RotateCcw className="w-3 h-3 text-green-300" />
+                    <span>Answered</span>
+                  </button>
                 ) : (
                   <button
                     onClick={() => markQuestionAnswered(question.id)}
                     title="Mark as answered"
+                    aria-label="Mark as answered"
                     className="p-1.5 rounded hover:bg-white/10 transition-all text-gray-400"
                   >
                     <Check className="w-4 h-4" />
@@ -194,6 +212,7 @@ export function AIQuestionPanel() {
 
                 <button
                   title="Create note from question"
+                  aria-label="Create note from question"
                   onClick={() => {
                     addNote({
                       id: `note-${Date.now()}`,
@@ -215,6 +234,7 @@ export function AIQuestionPanel() {
 
                 <button
                   title="Pin"
+                  aria-label="Pin question"
                   className="p-1.5 rounded hover:bg-white/10 transition-all text-gray-400"
                 >
                   <Flag className="w-4 h-4" />
