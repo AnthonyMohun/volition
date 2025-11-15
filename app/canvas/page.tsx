@@ -73,6 +73,17 @@ export default function CanvasPage() {
     })
   );
 
+  // Initialize pan to center of canvas on mount
+  useEffect(() => {
+    if (containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      // Center the canvas: show canvas center (CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
+      // at viewport center (containerRect.width/2, containerRect.height/2)
+      setPanX(containerRect.width / 2 - CANVAS_WIDTH / 2);
+      setPanY(containerRect.height / 2 - CANVAS_HEIGHT / 2);
+    }
+  }, []);
+
   useEffect(() => {
     if (!state.hmwStatement) {
       router.push("/");
