@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { askAI, SOCRATIC_SYSTEM_PROMPT } from "@/lib/ai-client";
@@ -27,6 +27,8 @@ export default function FinalPage() {
   const { state, resetSession } = useSession();
   const [evaluations, setEvaluations] = useState<ConceptEvaluation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  // Prevent duplicate calls to the AI (e.g. React strict mode double-invoke or rapid re-renders)
+  const evaluationInProgressRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
@@ -38,9 +40,16 @@ export default function FinalPage() {
     }
 
     evaluateConcepts();
-  }, [state.selectedConceptIds]);
+  }, [JSON.stringify(state.selectedConceptIds), state.hmwStatement]);
 
   const evaluateConcepts = async () => {
+    // Guard: prevent concurrent/effective duplicate calls
+    if (evaluationInProgressRef.current) {
+      console.debug("Evaluation already in progress, skipping duplicate call");
+      return;
+    }
+    evaluationInProgressRef.current = true;
+
     setIsLoading(true);
     setError(null);
 
@@ -276,6 +285,8 @@ When images/sketches are provided, also evaluate:
         "Failed to get AI evaluation. Please check your LM Studio connection."
       );
     } finally {
+      // Allow future evaluations again
+      evaluationInProgressRef.current = false;
       setIsLoading(false);
     }
   };
