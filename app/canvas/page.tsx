@@ -124,14 +124,20 @@ export default function CanvasPage() {
     const newZoom = Math.min(Math.min(zoomX, zoomY, 1), 2);
 
     setZoom(newZoom);
-    setPanX(-(minX - padding));
-    setPanY(-(minY - padding));
+    // Center the content in the viewport
+    const contentCenterX = minX + contentWidth / 2 - padding;
+    const contentCenterY = minY + contentHeight / 2 - padding;
+    setPanX(containerRect.width / 2 - contentCenterX * newZoom);
+    setPanY(containerRect.height / 2 - contentCenterY * newZoom);
   }, [state.notes]);
 
   const handleResetView = useCallback(() => {
-    setZoom(1);
-    setPanX(0);
-    setPanY(0);
+    if (containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      setZoom(1);
+      setPanX(containerRect.width / 2 - CANVAS_WIDTH / 2);
+      setPanY(containerRect.height / 2 - CANVAS_HEIGHT / 2);
+    }
   }, []);
 
   // Pan with mouse wheel + drag

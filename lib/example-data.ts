@@ -9,8 +9,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-1",
       text: "Students often feel overwhelmed with multiple exams happening at once",
-      x: 120,
-      y: 100,
+      x: 1720,
+      y: 1300,
       color: "#fef3c7", // yellow
       isConcept: false,
       createdAt: Date.now() - 10000,
@@ -18,8 +18,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-2",
       text: "Study Planner with Pomodoro Timer",
-      x: 450,
-      y: 120,
+      x: 2050,
+      y: 1320,
       color: "#bfdbfe", // blue
       isConcept: true,
       details:
@@ -29,8 +29,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-3",
       text: "Peer support groups struggle to coordinate meeting times",
-      x: 150,
-      y: 320,
+      x: 1750,
+      y: 1520,
       color: "#fecaca", // red
       isConcept: false,
       createdAt: Date.now() - 8000,
@@ -38,8 +38,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-4",
       text: "Virtual Study Rooms with Accountability Partners",
-      x: 780,
-      y: 140,
+      x: 2380,
+      y: 1340,
       color: "#bbf7d0", // green
       isConcept: true,
       details:
@@ -49,8 +49,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-5",
       text: "Students don't know effective study techniques for different subjects",
-      x: 140,
-      y: 520,
+      x: 1740,
+      y: 1720,
       color: "#fef3c7", // yellow
       isConcept: false,
       createdAt: Date.now() - 6000,
@@ -58,8 +58,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-6",
       text: "Mindfulness breaks are often forgotten during intense study sessions",
-      x: 480,
-      y: 360,
+      x: 2080,
+      y: 1560,
       color: "#fbcfe8", // pink
       isConcept: false,
       createdAt: Date.now() - 5000,
@@ -67,8 +67,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-7",
       text: "Mindful Study Break App",
-      x: 800,
-      y: 380,
+      x: 2400,
+      y: 1580,
       color: "#e9d5ff", // purple
       isConcept: true,
       details:
@@ -78,8 +78,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-8",
       text: "Library spaces are often too crowded during exam season",
-      x: 160,
-      y: 720,
+      x: 1760,
+      y: 1920,
       color: "#bfdbfe", // blue
       isConcept: false,
       createdAt: Date.now() - 3000,
@@ -87,8 +87,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-9",
       text: "Students lose track of their materials across different courses",
-      x: 520,
-      y: 560,
+      x: 2120,
+      y: 1760,
       color: "#bbf7d0", // green
       isConcept: false,
       createdAt: Date.now() - 2000,
