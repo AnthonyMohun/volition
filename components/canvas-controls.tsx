@@ -22,19 +22,19 @@ export function CanvasControls({
   onToggleMinimap,
 }: CanvasControlsProps) {
   return (
-    <div className="fixed bottom-24 right-6 glass rounded-lg p-2 flex flex-col gap-2 z-20 border border-gray-700/50">
+    <div className="fixed bottom-24 right-6 w-14 glass rounded-lg p-2 flex flex-col items-start gap-2 z-20 border border-gray-700/50">
       {/* Zoom In */}
       <button
         onClick={onZoomIn}
         disabled={zoom >= 2}
-        className="p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-start pl-2 p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
         title="Zoom in (Ctrl/Cmd + +)"
       >
         <ZoomIn className="w-5 h-5" />
       </button>
 
       {/* Zoom Level Display */}
-      <div className="px-2 py-1 text-xs font-medium text-gray-400 text-center min-w-[3rem]">
+      <div className="w-full px-2 py-1 text-xs font-medium text-gray-400 text-center">
         {Math.round(zoom * 100)}%
       </div>
 
@@ -42,18 +42,18 @@ export function CanvasControls({
       <button
         onClick={onZoomOut}
         disabled={zoom <= 0.25}
-        className="p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-start pl-2 p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
         title="Zoom out (Ctrl/Cmd + -)"
       >
         <ZoomOut className="w-5 h-5" />
       </button>
 
-      <div className="border-t border-gray-700/50 my-1" />
+      <div className="w-full border-t border-gray-700/60 my-1" />
 
       {/* Fit to Content */}
       <button
         onClick={onFitToContent}
-        className="p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100"
+        className="w-full flex items-center justify-start pl-2 p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100"
         title="Fit to content (Ctrl/Cmd + 0)"
       >
         <Maximize2 className="w-5 h-5" />
@@ -62,18 +62,18 @@ export function CanvasControls({
       {/* Reset View */}
       <button
         onClick={onResetView}
-        className="p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100"
+        className="w-full flex items-center justify-start pl-2 p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100"
         title="Reset view (Ctrl/Cmd + R)"
       >
         <RotateCcw className="w-5 h-5" />
       </button>
 
-      <div className="border-t border-gray-700/50 my-1" />
+      <div className="w-full border-t border-gray-700/60 my-1" />
 
       {/* Toggle Minimap */}
       <button
         onClick={onToggleMinimap}
-        className={`p-2 rounded transition-all ${
+        className={`w-full flex items-center justify-start pl-2 p-2 rounded transition-all ${
           showMinimap
             ? "bg-purple-500/20 text-purple-300"
             : "text-gray-400 hover:bg-white/10 hover:text-gray-100"
