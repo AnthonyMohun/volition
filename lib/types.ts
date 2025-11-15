@@ -62,6 +62,7 @@ export interface SessionState {
     zoom: number;
   };
   createdAt: number;
+  isExampleSession?: boolean;
 }
 
 export const INITIAL_SESSION_STATE: SessionState = {
@@ -76,6 +77,7 @@ export const INITIAL_SESSION_STATE: SessionState = {
   tokenAllocation: {},
   viewport: { centerX: 0, centerY: 0, zoom: 1 },
   createdAt: Date.now(),
+  isExampleSession: false,
 };
 
 // Original light colors for reference/mapping

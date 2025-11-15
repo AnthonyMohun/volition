@@ -41,6 +41,7 @@ export default function CanvasPage() {
     canUndo,
     canRedo,
     setViewport,
+    clearExampleSessionFlag,
   } = useSession();
   const [selectedColor, setSelectedColor] = useState(STICKY_COLORS[0]);
   const [isDragging, setIsDragging] = useState(false);
@@ -147,6 +148,15 @@ export default function CanvasPage() {
     setPanX(containerRect.width / 2 - contentCenterX * newZoom);
     setPanY(containerRect.height / 2 - contentCenterY * newZoom);
   }, [state.notes]);
+
+  // Fit to content when loading example session
+  useEffect(() => {
+    if (state.isExampleSession && state.notes.length > 0 && containerRef.current) {
+      handleFitToContent();
+      // Reset the flag to avoid triggering again
+      clearExampleSessionFlag();
+    }
+  }, [state.isExampleSession, state.notes.length, containerRef.current, clearExampleSessionFlag, handleFitToContent]);
 
   const handleResetView = useCallback(() => {
     if (containerRef.current) {

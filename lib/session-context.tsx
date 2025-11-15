@@ -37,6 +37,7 @@ interface SessionContextType {
   ) => void;
   resetSession: () => void;
   loadExampleSession: (exampleState: Partial<SessionState>) => void;
+  clearExampleSessionFlag: () => void;
   // viewport setter: center X/Y in world coords and zoom
   setViewport: (v: { centerX: number; centerY: number; zoom: number }) => void;
   undo: () => void;
@@ -225,9 +226,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       ...exampleState,
       projectId: `proj-${Date.now()}`,
       createdAt: Date.now(),
+      isExampleSession: true,
     }));
     setUndoStack([]);
     setRedoStack([]);
+  };
+
+  const clearExampleSessionFlag = () => {
+    setState((prev) => ({ ...prev, isExampleSession: false }));
   };
 
   const setViewport = (v: {
@@ -260,6 +266,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         setSelectedConcepts,
         resetSession,
         loadExampleSession,
+        clearExampleSessionFlag,
         setViewport,
         undo,
         redo,
