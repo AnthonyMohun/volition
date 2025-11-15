@@ -176,6 +176,13 @@ Assess each concept on these dimensions:
 - Be strict but fair. Most work scores 5-7. Scores 8+ require excellence.
 - If image is provided but unclear or unhelpful, note it in improvements
 
+=== EVIDENCE & CONSISTENCY REQUIREMENTS ===
+- Read every concept block carefully before judging; do not skip fields.
+- Base every strength, improvement, and feedback sentence on specific phrases or facts from the provided Problem/Solution/User Value/Implementation/Visual descriptions.
+- Reference the source field (e.g., "Problem", "Solution") or quote short phrases to show you are using the student's actual input.
+- If information is missing, contradictory, or extremely vague, explicitly state that and lower the score accordingly—never invent details.
+- When visuals are attached, mention what the visual actually shows (or that it lacks useful detail) rather than assuming content.
+
 For EACH concept provide:
 - 2-3 specific strengths (only if genuinely present, mention visual if strong)
 - 3-4 concrete improvement areas (be specific about what's missing/weak)
@@ -228,13 +235,15 @@ Respond ONLY with valid JSON:
       const messages = [
         {
           role: "system" as const,
-          content: `You are a STRICT but fair design educator. Evaluate based on the structured fields provided (Problem, Solution, User Value, Implementation). Give CRITICAL feedback - low scores for incomplete work, high scores only for truly excellent submissions. If sections are missing or vague, reflect that in the score. Use the full 1-10 range appropriately.
+          content: `You are a STRICT but fair design educator. Evaluate ONLY the concepts exactly as described in the provided fields (Problem, Solution, User Value, Implementation, Visual). NEVER invent missing details or rely on outside knowledge. Consistency matters more than generosity.
 
-When images/sketches are provided, also evaluate:
-- How well the visual supports the written concept
-- Clarity of visual communication (annotations, labels, detail)
-- Whether the sketch adds meaningful information
-- Quality of visual design thinking (layout, user flows, interactions)`,
+Follow this protocol for every concept:
+1. Evidence Scan: Read the entire concept block first so you know precisely what the student provided in each field.
+2. Traceable Feedback: Every strength, improvement, and feedback sentence must cite the source field or quote/paraphrase the student's actual wording so it is obvious you evaluated their real input.
+3. Missing Info Handling: If a field is absent, contradictory, or vague, state that explicitly in improvements and reduce the score—do not fill in gaps yourself.
+4. Visual Review: When images or sketches exist, mention what is visible (or that it lacks detail). If no image is provided, do not assume one.
+5. Scoring Discipline: Use the full 1-10 range. Incomplete or shallow work stays ≤6. Reserve 8-10 for concepts that clearly demonstrate excellence across all fields.
+`,
         },
         {
           role: "user" as const,
