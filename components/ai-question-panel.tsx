@@ -195,18 +195,18 @@ export function AIQuestionPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
                 transition={{ duration: 0.14 }}
-                className={`p-3 rounded-lg ${
+                className={`p-3 rounded-lg flex items-start gap-3 ${
                   question.fromAI
                     ? "glass-light border border-purple-500/20"
                     : "glass-light border border-gray-700"
                 } ${question.pinned ? "border-l-4 border-yellow-500/40" : ""}`}
               >
-                <div className="flex items-start gap-2 w-full">
-                  <p className="text-sm text-gray-200">{question.text}</p>
-                  {question.pinned && <span className="sr-only">Pinned</span>}
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <p className="text-xs text-gray-500">
+                <div className="flex-1">
+                  <div className="flex items-start gap-2 w-full">
+                    <p className="text-sm text-gray-200">{question.text}</p>
+                    {question.pinned && <span className="sr-only">Pinned</span>}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
                     <span
                       title={new Date(question.timestamp).toLocaleString()}
                       aria-hidden="true"
@@ -215,103 +215,103 @@ export function AIQuestionPanel() {
                       {timeAgo(question.timestamp)}
                     </span>
                   </p>
-                  <div className="flex items-center gap-2">
-                    <motion.button
-                      onClick={() => toggleQuestionAnswered(question.id)}
-                      title={
-                        question.answered
-                          ? "Mark as unanswered"
-                          : "Mark as answered"
-                      }
-                      aria-label={
-                        question.answered
-                          ? "Mark as unanswered"
-                          : "Mark as answered"
-                      }
-                      whileTap={{ scale: 0.92 }}
-                      initial={{ scale: 1, opacity: 1 }}
-                      animate={
-                        question.answered
-                          ? { scale: 1.05, opacity: 1 }
-                          : { scale: 1, opacity: 1 }
-                      }
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 24,
-                      }}
-                      className={`p-1.5 rounded transition-all ${
-                        question.answered
-                          ? "text-green-400"
-                          : "text-gray-400 hover:bg-white/10"
-                      }`}
-                    >
-                      <Check className="w-4 h-4" />
-                    </motion.button>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <motion.button
+                    onClick={() => toggleQuestionAnswered(question.id)}
+                    title={
+                      question.answered
+                        ? "Mark as unanswered"
+                        : "Mark as answered"
+                    }
+                    aria-label={
+                      question.answered
+                        ? "Mark as unanswered"
+                        : "Mark as answered"
+                    }
+                    whileTap={{ scale: 0.92 }}
+                    initial={{ scale: 1, opacity: 1 }}
+                    animate={
+                      question.answered
+                        ? { scale: 1.05, opacity: 1 }
+                        : { scale: 1, opacity: 1 }
+                    }
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 24,
+                    }}
+                    className={`p-1.5 rounded transition-all ${
+                      question.answered
+                        ? "text-green-400"
+                        : "text-gray-400 hover:bg-white/10"
+                    }`}
+                  >
+                    <Check className="w-4 h-4" />
+                  </motion.button>
 
-                    <button
-                      title="Create note from question"
-                      aria-label="Create note from question"
-                      onClick={() => {
-                        addNote({
-                          id: `note-${Date.now()}`,
-                          text: question.text,
-                          x: 80 + Math.floor(Math.random() * 200),
-                          y: 80 + Math.floor(Math.random() * 120),
-                          color:
-                            STICKY_COLORS[
-                              Math.floor(Math.random() * STICKY_COLORS.length)
-                            ],
-                          isConcept: false,
-                          createdAt: Date.now(),
-                        });
-                      }}
-                      className="p-1.5 rounded hover:bg-white/10 transition-all text-gray-400"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
+                  <button
+                    title="Create note from question"
+                    aria-label="Create note from question"
+                    onClick={() => {
+                      addNote({
+                        id: `note-${Date.now()}`,
+                        text: question.text,
+                        x: 80 + Math.floor(Math.random() * 200),
+                        y: 80 + Math.floor(Math.random() * 120),
+                        color:
+                          STICKY_COLORS[
+                            Math.floor(Math.random() * STICKY_COLORS.length)
+                          ],
+                        isConcept: false,
+                        createdAt: Date.now(),
+                      });
+                    }}
+                    className="p-1.5 rounded hover:bg-white/10 transition-all text-gray-400"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
 
-                    <motion.button
-                      title={
-                        question.pinned ? "Unpin question" : "Pin question"
-                      }
-                      aria-label={
-                        question.pinned ? "Unpin question" : "Pin question"
-                      }
-                      aria-pressed={question.pinned}
-                      onClick={() => toggleQuestionPinned(question.id)}
-                      className={`p-1.5 rounded hover:bg-white/10 transition-all ${
-                        question.pinned ? "text-yellow-300" : "text-gray-400"
-                      }`}
-                      whileTap={{ scale: 0.92 }}
-                    >
-                      <AnimatePresence mode="wait">
-                        {question.pinned ? (
-                          <motion.span
-                            key="pinned"
-                            initial={{ scale: 0, rotate: -10, opacity: 0 }}
-                            animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                            exit={{ scale: 0, rotate: 10, opacity: 0 }}
-                            transition={{ duration: 0.18 }}
-                            className="flex items-center"
-                          >
-                            <Pin className="w-4 h-4" />
-                          </motion.span>
-                        ) : (
-                          <motion.span
-                            key="unpinned"
-                            initial={{ scale: 0, rotate: 10, opacity: 0 }}
-                            animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                            exit={{ scale: 0, rotate: -10, opacity: 0 }}
-                            transition={{ duration: 0.18 }}
-                            className="flex items-center"
-                          >
-                            <Pin className="w-4 h-4 opacity-70" />
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </motion.button>
-                  </div>
+                  <motion.button
+                    title={
+                      question.pinned ? "Unpin question" : "Pin question"
+                    }
+                    aria-label={
+                      question.pinned ? "Unpin question" : "Pin question"
+                    }
+                    aria-pressed={question.pinned}
+                    onClick={() => toggleQuestionPinned(question.id)}
+                    className={`p-1.5 rounded hover:bg-white/10 transition-all ${
+                      question.pinned ? "text-yellow-300" : "text-gray-400"
+                    }`}
+                    whileTap={{ scale: 0.92 }}
+                  >
+                    <AnimatePresence mode="wait">
+                      {question.pinned ? (
+                        <motion.span
+                          key="pinned"
+                          initial={{ scale: 0, rotate: -10, opacity: 0 }}
+                          animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                          exit={{ scale: 0, rotate: 10, opacity: 0 }}
+                          transition={{ duration: 0.18 }}
+                          className="flex items-center"
+                        >
+                          <Pin className="w-4 h-4" />
+                        </motion.span>
+                      ) : (
+                        <motion.span
+                          key="unpinned"
+                          initial={{ scale: 0, rotate: 10, opacity: 0 }}
+                          animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                          exit={{ scale: 0, rotate: -10, opacity: 0 }}
+                          transition={{ duration: 0.18 }}
+                          className="flex items-center"
+                        >
+                          <Pin className="w-4 h-4 opacity-70" />
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
                 </div>
               </motion.div>
             ));
