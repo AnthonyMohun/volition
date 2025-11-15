@@ -4,11 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { HMWHelperModal } from "@/components/hmw-helper-modal";
-import { Lightbulb, Sparkles, HelpCircle } from "lucide-react";
+import { EXAMPLE_SESSION_DATA } from "@/lib/example-data";
+import { Lightbulb, Sparkles, HelpCircle, PlayCircle } from "lucide-react";
+
+const EXAMPLE_HMWS = [
+  "How might we help students manage their time more effectively?",
+  "How might we help people with hearing impairments access our mobile app when they can't receive audio notifications?",
+  "How might we help busy professionals accomplish managing emails so they can spend less than 10 minutes per day?",
+  "How might we help remote team members feel more like a team around same projects or interests?",
+  "How might we help online shoppers reduce single-use packaging by using reusable packaging?",
+];
 
 export default function Home() {
   const router = useRouter();
-  const { updateHMW, setPhase } = useSession();
+  const { updateHMW, setPhase, loadExampleSession } = useSession();
   const [hmwInput, setHmwInput] = useState("");
   const [showHelper, setShowHelper] = useState(false);
 
@@ -24,6 +33,16 @@ export default function Home() {
   const handleSelectTemplate = (template: string) => {
     setHmwInput(template);
     setShowHelper(false);
+  };
+
+  const handleRandomExample = () => {
+    const randomIndex = Math.floor(Math.random() * EXAMPLE_HMWS.length);
+    setHmwInput(EXAMPLE_HMWS[randomIndex]);
+  };
+
+  const handleTryExample = () => {
+    loadExampleSession(EXAMPLE_SESSION_DATA);
+    router.push("/canvas");
   };
 
   return (
@@ -64,15 +83,25 @@ export default function Home() {
                 >
                   Your Design Challenge
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setShowHelper(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors"
-                  title="Get help formulating your statement"
-                >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>Need help?</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowHelper(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors"
+                    title="Get help formulating your statement"
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                    <span>Need help?</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRandomExample}
+                    className="text-2xl hover:scale-110 transition-transform"
+                    title="Try a random example"
+                  >
+                    🎲
+                  </button>
+                </div>
               </div>
               <textarea
                 id="hmw"
@@ -92,23 +121,25 @@ export default function Home() {
             >
               Begin Exploration
             </button>
-          </form>
 
-          <div className="mt-4">
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-[#0a0a0a] text-gray-500">or</span>
+              </div>
+            </div>
+
             <button
               type="button"
-              onClick={() => {
-                const exampleHMW =
-                  "How might we help students manage their time more effectively?";
-                updateHMW(exampleHMW);
-                setPhase("canvas");
-                router.push("/canvas");
-              }}
-              className="w-full text-gray-300 font-semibold py-3 px-6 rounded-lg border border-gray-600 hover:border-purple-500 hover:text-purple-300 hover:bg-purple-500/10 transition-all"
+              onClick={handleTryExample}
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg hover:shadow-emerald-500/50 hover:shadow-xl flex items-center justify-center gap-2"
             >
+              <PlayCircle className="w-5 h-5" />
               Try with an Example
             </button>
-          </div>
+          </form>
 
           <div className="mt-6 p-4 glass-light rounded-lg border border-gray-700/50">
             <h3 className="font-medium text-gray-200 mb-2 text-sm">
