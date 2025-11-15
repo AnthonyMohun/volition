@@ -17,13 +17,24 @@ import {
   useSensors,
   PointerSensor,
 } from "@dnd-kit/core";
-import { Plus, ArrowRight, RotateCcw, Menu } from "lucide-react";
+import { Plus, ArrowRight, RotateCcw, RotateCw, Menu } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 
 export default function CanvasPage() {
   const router = useRouter();
-  const { state, addNote, updateNote, deleteNote, setPhase, resetSession } =
-    useSession();
+  const {
+    state,
+    addNote,
+    updateNote,
+    deleteNote,
+    setPhase,
+    resetSession,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useSession();
+  useSession();
   const [selectedColor, setSelectedColor] = useState(STICKY_COLORS[0]);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
@@ -166,6 +177,18 @@ export default function CanvasPage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
+          case "z":
+            e.preventDefault();
+            if (e.shiftKey) {
+              redo();
+            } else {
+              undo();
+            }
+            break;
+          case "y":
+            e.preventDefault();
+            redo();
+            break;
           case "=":
           case "+":
             e.preventDefault();
@@ -568,6 +591,32 @@ export default function CanvasPage() {
                   />
                 );
               })}
+            </div>
+            <div className="flex items-center gap-2 ml-2">
+              <button
+                onClick={undo}
+                disabled={!canUndo}
+                className={`p-2 rounded-lg transition-all ${
+                  canUndo
+                    ? "text-gray-300 hover:bg-white/10"
+                    : "text-gray-500/40"
+                }`}
+                title="Undo (Ctrl/Cmd + Z)"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </button>
+              <button
+                onClick={redo}
+                disabled={!canRedo}
+                className={`p-2 rounded-lg transition-all ${
+                  canRedo
+                    ? "text-gray-300 hover:bg-white/10"
+                    : "text-gray-500/40"
+                }`}
+                title="Redo (Ctrl/Cmd + Y / Shift + Cmd + Z)"
+              >
+                <RotateCw className="w-5 h-5" />
+              </button>
             </div>
             <div className="border-l border-gray-700 h-8 mx-1" />
             <button

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/lib/session-context";
+import { ToastProvider } from "@/lib/toast-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Socratic Design Studio",
-  description: "AI-powered interaction design ideation tool using Socratic learning",
+  description:
+    "AI-powered interaction design ideation tool using Socratic learning",
 };
 
 export default function RootLayout({
@@ -28,9 +30,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>
-          {children}
-        </SessionProvider>
+        <ToastProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </ToastProvider>
       </body>
     </html>
   );
