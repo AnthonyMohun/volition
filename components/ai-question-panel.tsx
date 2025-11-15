@@ -8,15 +8,27 @@ import {
   buildConversationContext,
   MessageRole,
 } from "@/lib/ai-client";
-import { Bot, Sparkles, Loader2 } from "lucide-react";
+import { Bot, Sparkles, Loader2, Check, Plus, Flag } from "lucide-react";
+import { STICKY_COLORS } from "@/lib/types";
 
 export function AIQuestionPanel() {
-  const { state, addQuestion } = useSession();
+  const { state, addQuestion, addNote, markQuestionAnswered } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasAskedFirstQuestion = useRef(false);
 
   const currentQuestion = state.questions[state.questions.length - 1];
+
+  const timeAgo = (timestamp: number) => {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
 
   useEffect(() => {
     // Auto-ask first question when canvas loads (only once)
@@ -128,6 +140,12 @@ export function AIQuestionPanel() {
         <p className="text-xs text-gray-400">
           Socratic questioning to guide your exploration
         </p>
+        <div className="text-xs text-gray-400 mt-2 flex items-center gap-3">
+          <span>{state.questions.length} questions</span>
+          <span className="text-purple-300">
+            {state.questions.filter((q) => !q.answered).length} unanswered
+          </span>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -153,9 +171,56 @@ export function AIQuestionPanel() {
               )}
               <p className="text-sm text-gray-200">{question.text}</p>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              {new Date(question.timestamp).toLocaleTimeString()}
-            </p>
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-xs text-gray-500">
+                <span title={new Date(question.timestamp).toLocaleString()}>
+                  {timeAgo(question.timestamp)}
+                </span>
+              </p>
+              <div className="flex items-center gap-2">
+                {question.answered ? (
+                  <div className="text-xs text-green-400 border border-green-400/10 bg-green-500/5 px-2 py-0.5 rounded-full">
+                    Answered
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => markQuestionAnswered(question.id)}
+                    title="Mark as answered"
+                    className="p-1.5 rounded hover:bg-white/10 transition-all text-gray-400"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
+                )}
+
+                <button
+                  title="Create note from question"
+                  onClick={() => {
+                    addNote({
+                      id: `note-${Date.now()}`,
+                      text: question.text,
+                      x: 80 + Math.floor(Math.random() * 200),
+                      y: 80 + Math.floor(Math.random() * 120),
+                      color:
+                        STICKY_COLORS[
+                          Math.floor(Math.random() * STICKY_COLORS.length)
+                        ],
+                      isConcept: false,
+                      createdAt: Date.now(),
+                    });
+                  }}
+                  className="p-1.5 rounded hover:bg-white/10 transition-all text-gray-400"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+
+                <button
+                  title="Pin"
+                  className="p-1.5 rounded hover:bg-white/10 transition-all text-gray-400"
+                >
+                  <Flag className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
         ))}
 
