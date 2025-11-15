@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { HMWHelperModal } from "@/components/hmw-helper-modal";
 import { EXAMPLE_SESSION_DATA } from "@/lib/example-data";
-import { Lightbulb, Sparkles, HelpCircle, PlayCircle } from "lucide-react";
+import {
+  Lightbulb,
+  Sparkles,
+  HelpCircle,
+  PlayCircle,
+  Info,
+} from "lucide-react";
 
 const EXAMPLE_HMWS = [
   "How might we help students manage their time more effectively?",
@@ -20,6 +26,7 @@ export default function Home() {
   const { updateHMW, setPhase, loadExampleSession } = useSession();
   const [hmwInput, setHmwInput] = useState("");
   const [showHelper, setShowHelper] = useState(false);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,39 +54,28 @@ export default function Home() {
 
   return (
     <div className="min-h-screen dark-gradient-radial texture-overlay flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Lightbulb className="w-12 h-12 text-purple-400" />
+      <div className="max-w-3xl w-full">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <Lightbulb className="w-10 h-10 text-purple-400" />
             <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Socratic Design Studio
             </h1>
           </div>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-lg mb-2">
             Discover concepts through guided exploration
           </p>
         </div>
 
-        <div className="glass rounded-2xl p-8 border border-gray-700/50">
-          <div className="flex items-start gap-3 mb-6 p-4 glass-light rounded-lg">
-            <Sparkles className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <h2 className="font-semibold text-gray-100 mb-1">
-                Start with a "How Might We" statement
-              </h2>
-              <p className="text-sm text-gray-400">
-                Frame your design challenge as an open-ended question. This
-                helps focus your ideation.
-              </p>
-            </div>
-          </div>
-
+        {/* Main Card */}
+        <div className="glass rounded-2xl p-8 border border-gray-700/50 mb-8">
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <label
                   htmlFor="hmw"
-                  className="block text-sm font-medium text-gray-300"
+                  className="text-sm font-medium text-gray-300"
                 >
                   Your Design Challenge
                 </label>
@@ -87,16 +83,16 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setShowHelper(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors"
                     title="Get help formulating your statement"
                   >
-                    <HelpCircle className="w-4 h-4" />
-                    <span>Need help?</span>
+                    <HelpCircle className="w-3.5 h-3.5" />
+                    <span>Help</span>
                   </button>
                   <button
                     type="button"
                     onClick={handleRandomExample}
-                    className="text-2xl hover:scale-110 transition-transform"
+                    className="text-xl hover:scale-110 transition-transform"
                     title="Try a random example"
                   >
                     🎲
@@ -107,75 +103,94 @@ export default function Home() {
                 id="hmw"
                 value={hmwInput}
                 onChange={(e) => setHmwInput(e.target.value)}
-                placeholder="How might we help students manage their time more effectively?"
-                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-gray-100 placeholder:text-gray-500 transition-all"
-                rows={4}
+                placeholder="Frame your challenge as a 'How Might We' statement to begin..."
+                className="w-full px-4 py-4 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-gray-100 placeholder:text-gray-500 transition-all text-base"
+                rows={3}
                 required
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={!hmwInput.trim()}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-purple-500/50 hover:shadow-xl silver-glow"
-            >
-              Begin Exploration
-            </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <button
+                type="submit"
+                disabled={!hmwInput.trim()}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3.5 px-6 rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-purple-500/50 hover:shadow-xl silver-glow"
+              >
+                Begin Exploration
+              </button>
 
-            <div className="flex items-center my-4">
-              <div className="flex-1 border-t border-gray-700"></div>
-              <span className="px-4 text-gray-500">or</span>
-              <div className="flex-1 border-t border-gray-700"></div>
+              <button
+                type="button"
+                onClick={handleTryExample}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3.5 px-6 rounded-lg hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg hover:shadow-emerald-500/50 hover:shadow-xl flex items-center justify-center gap-2"
+              >
+                <PlayCircle className="w-4 h-4" />
+                Try Example
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* How it works - Simplified */}
+        <div className="text-center mt-8">
+          <button
+            onClick={() => setShowHowItWorks(true)}
+            className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-gray-300 transition-colors"
+          >
+            <Info className="w-4 h-4" />
+            How it works
+          </button>
+        </div>
+      </div>
+
+      {/* How It Works Modal */}
+      {showHowItWorks && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="glass rounded-2xl p-8 border border-gray-700/50 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-100">How It Works</h2>
+              <button
+                onClick={() => setShowHowItWorks(false)}
+                className="text-gray-400 hover:text-gray-300 transition-colors"
+              >
+                ✕
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={handleTryExample}
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg hover:shadow-emerald-500/50 hover:shadow-xl flex items-center justify-center gap-2"
-            >
-              <PlayCircle className="w-5 h-5" />
-              Try with an Example
-            </button>
-          </form>
-
-          <div className="mt-6 p-4 glass-light rounded-lg border border-gray-700/50">
-            <h3 className="font-medium text-gray-200 mb-4 text-sm text-center">
-              How it works
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 glass-light rounded-lg border border-gray-700/30">
-                <Lightbulb className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                <h4 className="font-semibold text-gray-100 mb-1 text-sm">
-                  Ideate
-                </h4>
-                <p className="text-xs text-gray-400">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="glass-light rounded-lg p-6 mb-4">
+                  <Lightbulb className="w-12 h-12 text-purple-400 mx-auto" />
+                </div>
+                <h3 className="font-semibold text-gray-100 mb-2">Ideate</h3>
+                <p className="text-sm text-gray-400">
                   Answer guided questions with sticky notes and attach images
                   for richer ideas
                 </p>
               </div>
-              <div className="text-center p-4 glass-light rounded-lg border border-gray-700/30">
-                <Sparkles className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                <h4 className="font-semibold text-gray-100 mb-1 text-sm">
-                  Refine
-                </h4>
-                <p className="text-xs text-gray-400">
+              <div className="text-center">
+                <div className="glass-light rounded-lg p-6 mb-4">
+                  <Sparkles className="w-12 h-12 text-purple-400 mx-auto" />
+                </div>
+                <h3 className="font-semibold text-gray-100 mb-2">Refine</h3>
+                <p className="text-sm text-gray-400">
                   Mark promising ideas as concepts and self-evaluate your top
                   ones
                 </p>
               </div>
-              <div className="text-center p-4 glass-light rounded-lg border border-gray-700/30">
-                <HelpCircle className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                <h4 className="font-semibold text-gray-100 mb-1 text-sm">
-                  Feedback
-                </h4>
-                <p className="text-xs text-gray-400">
+              <div className="text-center">
+                <div className="glass-light rounded-lg p-6 mb-4">
+                  <HelpCircle className="w-12 h-12 text-purple-400 mx-auto" />
+                </div>
+                <h3 className="font-semibold text-gray-100 mb-2">Feedback</h3>
+                <p className="text-sm text-gray-400">
                   Get AI insights on your final designs
                 </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       <HMWHelperModal
         isOpen={showHelper}
