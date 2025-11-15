@@ -79,35 +79,35 @@ export default function Home() {
                 >
                   Your Design Challenge
                 </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowHelper(true)}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors"
-                    title="Get help formulating your statement"
-                  >
-                    <HelpCircle className="w-3.5 h-3.5" />
-                    <span>Help</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleRandomExample}
-                    className="text-xl hover:scale-110 transition-transform"
-                    title="Try a random example"
-                  >
-                    🎲
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowHelper(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors"
+                  title="Browse example HMW statements"
+                >
+                  <Lightbulb className="w-3.5 h-3.5" />
+                  <span>Examples</span>
+                </button>
               </div>
-              <textarea
-                id="hmw"
-                value={hmwInput}
-                onChange={(e) => setHmwInput(e.target.value)}
-                placeholder="Frame your challenge as a 'How Might We' statement to begin..."
-                className="w-full px-4 py-4 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-gray-100 placeholder:text-gray-500 transition-all text-base"
-                rows={3}
-                required
-              />
+              <div className="relative">
+                <textarea
+                  id="hmw"
+                  value={hmwInput}
+                  onChange={(e) => setHmwInput(e.target.value)}
+                  placeholder="Frame your challenge as a 'How Might We' statement to begin..."
+                  className="w-full px-4 py-4 pr-12 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-gray-100 placeholder:text-gray-500 transition-all text-base"
+                  rows={3}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={handleRandomExample}
+                  className="absolute bottom-3 right-3 text-gray-400 hover:text-gray-300 transition-colors p-1 hover:bg-gray-700/50 rounded"
+                  title="Try a random example"
+                >
+                  🎲
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
