@@ -58,9 +58,8 @@ export default function Home() {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <Lightbulb className="w-10 h-10 text-purple-400" />
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Socratic Design Studio
+            <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Volition
             </h1>
           </div>
           <p className="text-gray-400 text-lg mb-2">

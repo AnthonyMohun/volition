@@ -80,7 +80,7 @@ export function CanvasControls({
       <button
         onClick={onResetView}
         className="w-full flex items-center justify-start pl-2 p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100"
-        title="Fullscreen"
+        title="Reset view (Ctrl/Cmd + R)"
       >
         <Maximize className="w-5 h-5" />
       </button>
