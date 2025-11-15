@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
-import { askAI, SOCRATIC_SYSTEM_PROMPT } from "@/lib/ai-client";
+import { askAI } from "@/lib/ai-client";
 import {
   Home,
   Loader2,
@@ -11,27 +11,134 @@ import {
   TrendingUp,
   Lightbulb,
   Target,
+  Sparkles,
+  ListChecks,
+  BarChart3,
 } from "lucide-react";
 
-interface ConceptEvaluation {
-  noteId: string;
+interface CriteriaScores {
+  problemUnderstanding: number;
+  solutionClarity: number;
+  userValue: number;
+  feasibility: number;
+  innovation: number;
+  visualCommunication: number;
+}
+
+interface EvaluationSummary {
+  topConceptNumber: number;
+  topConceptReason: string;
+  keyThemes: string[];
+  nextSteps: string[];
+}
+
+interface AIConceptPayload {
+  conceptNumber: number;
   rank: number;
   score: number;
+  criteria?: Partial<CriteriaScores>;
   strengths: string[];
   improvements: string[];
   feedback: string;
 }
 
+interface EvaluationResponsePayload {
+  summary?: EvaluationSummary;
+  concepts: AIConceptPayload[];
+}
+
+interface ConceptEvaluation {
+  conceptNumber: number;
+  noteId: string;
+  rank: number;
+  score: number;
+  criteria: CriteriaScores;
+  strengths: string[];
+  improvements: string[];
+  feedback: string;
+}
+
+const CRITERIA_DISPLAY: Array<{
+  key: keyof CriteriaScores;
+  label: string;
+  accent: string;
+}> = [
+  {
+    key: "problemUnderstanding",
+    label: "Problem Clarity",
+    accent: "from-pink-500 to-orange-500",
+  },
+  {
+    key: "solutionClarity",
+    label: "Solution Depth",
+    accent: "from-orange-500 to-yellow-500",
+  },
+  {
+    key: "userValue",
+    label: "User Value",
+    accent: "from-yellow-500 to-lime-500",
+  },
+  {
+    key: "feasibility",
+    label: "Feasibility",
+    accent: "from-teal-500 to-blue-500",
+  },
+  {
+    key: "innovation",
+    label: "Innovation",
+    accent: "from-purple-500 to-pink-500",
+  },
+  {
+    key: "visualCommunication",
+    label: "Visual Comms",
+    accent: "from-sky-500 to-indigo-500",
+  },
+];
+
 export default function FinalPage() {
   const router = useRouter();
   const { state, resetSession } = useSession();
   const [evaluations, setEvaluations] = useState<ConceptEvaluation[]>([]);
+  const [summary, setSummary] = useState<EvaluationSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   // Prevent duplicate calls to the AI (e.g. React strict mode double-invoke or rapid re-renders)
   const evaluationInProgressRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
+  const topEvaluation = summary
+    ? evaluations.find(
+        (evaluation) => evaluation.conceptNumber === summary.topConceptNumber
+      )
+    : null;
+  const topConceptNote = topEvaluation
+    ? conceptNotes.find((n) => n.id === topEvaluation.noteId)
+    : null;
+  const scoreValues = evaluations.map((evaluation) => evaluation.score);
+  const scoreStats =
+    scoreValues.length > 0
+      ? {
+          avg: (
+            scoreValues.reduce((total, value) => total + value, 0) /
+            scoreValues.length
+          ).toFixed(1),
+          high: Math.max(...scoreValues),
+          low: Math.min(...scoreValues),
+        }
+      : null;
+  const leadingConcept = evaluations[0];
+  const trailingConcept =
+    evaluations.length > 0 ? evaluations[evaluations.length - 1] : null;
+  const leadingConceptNote = leadingConcept
+    ? conceptNotes.find((n) => n.id === leadingConcept.noteId)
+    : null;
+  const trailingConceptNote = trailingConcept
+    ? conceptNotes.find((n) => n.id === trailingConcept.noteId)
+    : null;
+  const previewText = (text?: string) => {
+    if (!text) return "";
+    return text.length > 60 ? `${text.slice(0, 57)}...` : text;
+  };
 
   useEffect(() => {
     if (!state.hmwStatement || conceptNotes.length < 3) {
@@ -52,6 +159,8 @@ export default function FinalPage() {
 
     setIsLoading(true);
     setError(null);
+    setSummary(null);
+    setEvaluations([]);
 
     try {
       // Only evaluate the selected concepts
@@ -188,14 +297,35 @@ For EACH concept provide:
 - 3-4 concrete improvement areas (be specific about what's missing/weak)
 - Honest 2-3 sentence feedback
 - Score that reflects actual development level
+- A six-part criteria scorecard (integers 1-10) using keys: problemUnderstanding, solutionClarity, userValue, feasibility, innovation, visualCommunication
+
+After evaluating all concepts, append a SUMMARY object with:
+- topConceptNumber (the concept # with the highest overall impact)
+- topConceptReason (why it leads)
+- keyThemes (2-3 cross-concept insights)
+- nextSteps (2-3 actionable items referencing the evaluations)
 
 Respond ONLY with valid JSON:
 {
+  "summary": {
+    "topConceptNumber": 1,
+    "topConceptReason": "short justification tied to evaluation",
+    "keyThemes": ["theme 1", "theme 2"],
+    "nextSteps": ["action 1", "action 2"]
+  },
   "concepts": [
     {
       "conceptNumber": 1,
       "rank": 1,
       "score": 6,
+      "criteria": {
+        "problemUnderstanding": 6,
+        "solutionClarity": 6,
+        "userValue": 6,
+        "feasibility": 6,
+        "innovation": 6,
+        "visualCommunication": 6
+      },
       "strengths": ["specific strength 1", "specific strength 2"],
       "improvements": ["specific gap 1", "specific gap 2", "specific gap 3"],
       "feedback": "Honest assessment referencing what they did well and what needs work"
@@ -259,16 +389,39 @@ Follow this protocol for every concept:
         const jsonMatch = response.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error("No JSON found in response");
 
-        const parsed = JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(jsonMatch[0]) as EvaluationResponsePayload;
 
-        const evals: ConceptEvaluation[] = parsed.concepts.map((c: any) => ({
-          noteId: selectedNotes[c.conceptNumber - 1]?.id || "",
-          rank: c.rank,
-          score: c.score,
-          strengths: c.strengths,
-          improvements: c.improvements,
-          feedback: c.feedback,
-        }));
+        const summaryData: EvaluationSummary | null = parsed.summary
+          ? {
+              topConceptNumber: parsed.summary.topConceptNumber,
+              topConceptReason: parsed.summary.topConceptReason,
+              keyThemes: parsed.summary.keyThemes || [],
+              nextSteps: parsed.summary.nextSteps || [],
+            }
+          : null;
+
+        const evals: ConceptEvaluation[] = (parsed.concepts || []).map(
+          (concept: AIConceptPayload) => ({
+            conceptNumber: concept.conceptNumber,
+            noteId: selectedNotes[concept.conceptNumber - 1]?.id || "",
+            rank: concept.rank,
+            score: concept.score,
+            criteria: {
+              problemUnderstanding:
+                concept.criteria?.problemUnderstanding ?? concept.score,
+              solutionClarity:
+                concept.criteria?.solutionClarity ?? concept.score,
+              userValue: concept.criteria?.userValue ?? concept.score,
+              feasibility: concept.criteria?.feasibility ?? concept.score,
+              innovation: concept.criteria?.innovation ?? concept.score,
+              visualCommunication:
+                concept.criteria?.visualCommunication ?? concept.score,
+            },
+            strengths: concept.strengths,
+            improvements: concept.improvements,
+            feedback: concept.feedback,
+          })
+        );
 
         // Sort by score descending (highest score first) and assign correct ranks
         const sortedEvals = evals.sort((a, b) => b.score - a.score);
@@ -277,6 +430,7 @@ Follow this protocol for every concept:
         });
 
         setEvaluations(sortedEvals);
+        setSummary(summaryData);
       } catch (parseError) {
         console.error(
           "Failed to parse AI response:",
@@ -360,6 +514,88 @@ Follow this protocol for every concept:
           </div>
         ) : (
           <div className="space-y-6">
+            {summary && (
+              <div className="grid gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-2 rounded-2xl border border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-pink-500/10 p-6 relative overflow-hidden">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-yellow-200/80">
+                        Top Concept Spotlight
+                      </p>
+                      <h3 className="mt-2 text-2xl font-bold text-gray-100">
+                        Concept #
+                        {topEvaluation?.conceptNumber ??
+                          summary.topConceptNumber}
+                      </h3>
+                      <p className="mt-3 text-sm text-gray-100/80">
+                        {summary.topConceptReason}
+                      </p>
+                      {topConceptNote && (
+                        <p className="mt-4 text-sm text-gray-200/90">
+                          {topConceptNote.text}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm uppercase text-gray-200/70">
+                        Score
+                      </p>
+                      <p className="text-4xl font-black text-white">
+                        {topEvaluation?.score ?? "—"}
+                      </p>
+                      <p className="text-xs text-gray-200/70">
+                        Rank #{topEvaluation?.rank ?? "?"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4 lg:col-span-1">
+                  <div className="glass rounded-xl p-4 border border-purple-500/20 h-full">
+                    <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-purple-300 mb-3">
+                      <Sparkles className="w-4 h-4" />
+                      Key Themes
+                    </div>
+                    {summary.keyThemes.length > 0 ? (
+                      <ul className="space-y-2 text-sm text-gray-200">
+                        {summary.keyThemes.map((theme, index) => (
+                          <li key={index} className="flex gap-2">
+                            <span className="text-purple-400">
+                              {index + 1}.
+                            </span>
+                            <span>{theme}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-gray-400">
+                        Themes will appear once the AI response includes them.
+                      </p>
+                    )}
+                  </div>
+                  <div className="glass rounded-xl p-4 border border-green-500/20">
+                    <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-green-300 mb-3">
+                      <ListChecks className="w-4 h-4" />
+                      Suggested Next Steps
+                    </div>
+                    {summary.nextSteps.length > 0 ? (
+                      <ul className="space-y-2 text-sm text-gray-200">
+                        {summary.nextSteps.map((step, index) => (
+                          <li key={index} className="flex gap-2">
+                            <span className="text-green-400">{index + 1}.</span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-gray-400">
+                        Tailored next steps will appear with the next AI run.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {evaluations.map((evaluation) => {
               const note = conceptNotes.find((n) => n.id === evaluation.noteId);
               if (!note) return null;
@@ -380,26 +616,30 @@ Follow this protocol for every concept:
                   {/* Rank Header */}
                   <div
                     className={`bg-gradient-to-r ${
-                      rankColors[evaluation.rank - 1]
+                      rankColors[evaluation.rank - 1] ||
+                      "from-gray-700 to-gray-800"
                     } px-6 py-4 flex items-center justify-between`}
                   >
                     <div className="flex items-center gap-3">
                       <RankIcon className="w-6 h-6 text-white" />
                       <div>
+                        <p className="text-xs uppercase tracking-wide text-white/80">
+                          Concept #{evaluation.conceptNumber}
+                        </p>
                         <h3 className="text-white font-bold text-lg">
                           Rank #{evaluation.rank}
                         </h3>
-                        <p className="text-white/90 text-sm">
-                          Score: {evaluation.score}/10
-                        </p>
                       </div>
                     </div>
+                    <p className="text-white/90 text-sm">
+                      {evaluation.score}/10
+                    </p>
                   </div>
 
                   {/* Concept Content */}
                   <div className="p-6">
-                    <div className="mb-4">
-                      <div className="flex gap-4">
+                    <div className="mb-6">
+                      <div className="flex flex-col gap-4 md:flex-row">
                         {note.image && (
                           <img
                             src={note.image.dataUrl}
@@ -408,12 +648,48 @@ Follow this protocol for every concept:
                           />
                         )}
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-100 mb-2">
+                          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">
                             Your Concept
+                          </p>
+                          <h4 className="font-semibold text-gray-100 text-lg mb-2">
+                            {note.text}
                           </h4>
-                          <p className="text-gray-300">{note.text}</p>
+                          {note.details && (
+                            <p className="text-sm text-gray-400 whitespace-pre-line">
+                              {note.details}
+                            </p>
+                          )}
                         </div>
                       </div>
+                    </div>
+
+                    {/* Criteria Breakdown */}
+                    <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                      {CRITERIA_DISPLAY.map((criterion) => {
+                        const value = evaluation.criteria[criterion.key];
+                        const progress = Math.min(
+                          100,
+                          Math.max(0, (value / 10) * 100)
+                        );
+
+                        return (
+                          <div
+                            key={criterion.key}
+                            className="glass-light rounded-lg p-3 border border-gray-700/40"
+                          >
+                            <div className="flex items-center justify-between text-xs uppercase tracking-wide text-gray-400">
+                              <span>{criterion.label}</span>
+                              <span className="text-gray-200">{value}/10</span>
+                            </div>
+                            <div className="mt-2 h-2 rounded-full bg-gray-800 overflow-hidden">
+                              <div
+                                className={`h-full rounded-full bg-gradient-to-r ${criterion.accent}`}
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
 
                     {/* Feedback Grid */}
@@ -471,39 +747,57 @@ Follow this protocol for every concept:
               );
             })}
 
-            {/* Next Steps */}
-            <div className="glass rounded-xl p-6 border border-gray-700/50">
-              <h3 className="text-xl font-bold text-gray-100 mb-3">
-                Next Steps
-              </h3>
-              <ul className="space-y-2 text-gray-300">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-400 font-bold">1.</span>
-                  <span>
-                    Review the feedback and identify patterns across your
-                    concepts
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-400 font-bold">2.</span>
-                  <span>
-                    Refine your top-ranked concept based on the suggestions
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-400 font-bold">3.</span>
-                  <span>
-                    Create prototypes or sketches to test key assumptions
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-400 font-bold">4.</span>
-                  <span>
-                    Gather user feedback to validate your design direction
-                  </span>
-                </li>
-              </ul>
-            </div>
+            {scoreStats && (
+              <div className="glass rounded-xl p-6 border border-gray-700/50">
+                <div className="flex items-center gap-3 text-gray-100 mb-6">
+                  <BarChart3 className="w-5 h-5 text-orange-400" />
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400">
+                      Score Snapshot
+                    </p>
+                    <p className="text-lg font-semibold">
+                      How your concepts compare
+                    </p>
+                  </div>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3 text-center">
+                  <div>
+                    <p className="text-sm text-gray-400">Average</p>
+                    <p className="text-3xl font-bold text-gray-100">
+                      {scoreStats.avg}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Highest</p>
+                    <p className="text-3xl font-bold text-gray-100">
+                      {scoreStats.high}
+                    </p>
+                    {leadingConcept && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Concept #{leadingConcept.conceptNumber}
+                        {leadingConceptNote
+                          ? ` · ${previewText(leadingConceptNote.text)}`
+                          : ""}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Lowest</p>
+                    <p className="text-3xl font-bold text-gray-100">
+                      {scoreStats.low}
+                    </p>
+                    {trailingConcept && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Concept #{trailingConcept.conceptNumber}
+                        {trailingConceptNote
+                          ? ` · ${previewText(trailingConceptNote.text)}`
+                          : ""}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
