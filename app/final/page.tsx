@@ -241,18 +241,25 @@ Assess each concept on these dimensions:
 
 === STRICT SCORING (1-10) ===
 
-1-3: INADEQUATE
-- Missing key elements (no problem, solution, value, or implementation)
+1: EMPTY/NO CONTENT
+- Concept has only a title with "[No structured details provided]"
+- No problem, solution, value, or implementation described
+- Completely blank or placeholder concept
+- Absolutely no substance to evaluate
+
+2-3: INADEQUATE
+- Missing 3-4 key elements (problem, solution, value, implementation)
+- Only 1-2 sentences total across all fields
 - Placeholder text or incoherent
 - Doesn't address HMW at all
-- Under 50 words total with no substance
+- Under 50 words total with minimal substance
 
 4-5: UNDERDEVELOPED
 - Vague or minimal detail in most sections
 - Generic solution without specificity
 - Weak or missing connection to HMW
 - Shows limited thinking or planning
-- Missing 2+ structured fields
+- Missing 2 structured fields
 
 6-7: ADEQUATE/DEVELOPING
 - Has most structured elements but some are thin
@@ -278,19 +285,24 @@ Assess each concept on these dimensions:
 - Visual communication (if included) is clear, detailed, and insightful
 
 === CRITICAL RULES ===
-- Missing structured details (Problem/Solution/Value/Implementation) = MAX SCORE 5
+- "[No structured details provided]" or completely empty = SCORE 1
+- Only title with no other content = SCORE 1
+- Missing 3+ structured fields (Problem/Solution/Value/Implementation) = SCORE 2-3
+- Missing 2 structured fields or very sparse = MAX SCORE 5
 - Vague one-liners in each field = MAX SCORE 6
 - Generic solutions without specificity = MAX SCORE 6
 - No connection to HMW = SCORE 1-4
-- Be strict but fair. Most work scores 5-7. Scores 8+ require excellence.
+- Be strict but fair. Empty work = 1, minimal work = 2-5. Most developed work scores 5-7. Scores 8+ require excellence.
 - If image is provided but unclear or unhelpful, note it in improvements
 
 === EVIDENCE & CONSISTENCY REQUIREMENTS ===
 - Read every concept block carefully before judging; do not skip fields.
 - Base every strength, improvement, and feedback sentence on specific phrases or facts from the provided Problem/Solution/User Value/Implementation/Visual descriptions.
 - Reference the source field (e.g., "Problem", "Solution") or quote short phrases to show you are using the student's actual input.
-- If information is missing, contradictory, or extremely vague, explicitly state that and lower the score accordingly—never invent details.
+- If you see "[No structured details provided]" with only a title, the concept is EMPTY - score it 1.
+- If information is missing, contradictory, or extremely vague, explicitly state that and lower the score accordingly—never invent details or be generous.
 - When visuals are attached, mention what the visual actually shows (or that it lacks useful detail) rather than assuming content.
+- DO NOT give credit for potential or imagination—only evaluate what is actually written.
 
 For EACH concept provide:
 - 2-3 specific strengths (only if genuinely present, mention visual if strong)
@@ -369,10 +381,13 @@ Respond ONLY with valid JSON:
 
 Follow this protocol for every concept:
 1. Evidence Scan: Read the entire concept block first so you know precisely what the student provided in each field.
-2. Traceable Feedback: Every strength, improvement, and feedback sentence must cite the source field or quote/paraphrase the student's actual wording so it is obvious you evaluated their real input.
-3. Missing Info Handling: If a field is absent, contradictory, or vague, state that explicitly in improvements and reduce the score—do not fill in gaps yourself.
-4. Visual Review: When images or sketches exist, mention what is visible (or that it lacks detail). If no image is provided, do not assume one.
-5. Scoring Discipline: Use the full 1-10 range. Incomplete or shallow work stays ≤6. Reserve 8-10 for concepts that clearly demonstrate excellence across all fields.
+2. Empty Concept Check: If you see "[No structured details provided]" with only a title, immediately score it 1 with feedback explaining nothing was submitted.
+3. Traceable Feedback: Every strength, improvement, and feedback sentence must cite the source field or quote/paraphrase the student's actual wording so it is obvious you evaluated their real input.
+4. Missing Info Handling: If a field is absent, contradictory, or vague, state that explicitly in improvements and reduce the score—do not fill in gaps yourself or imagine what they might have meant.
+5. Visual Review: When images or sketches exist, mention what is visible (or that it lacks detail). If no image is provided, do not assume one.
+6. Scoring Discipline: Use the full 1-10 range ruthlessly. Empty concepts = 1. Incomplete or shallow work stays ≤5. Reserve 6-7 for adequate work, and 8-10 for concepts that clearly demonstrate excellence across all fields.
+
+CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it's minimal, score it 2-5. Only well-developed concepts deserve 6+.
 `,
         },
         {
