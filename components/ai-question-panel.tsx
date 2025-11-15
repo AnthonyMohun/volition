@@ -218,9 +218,7 @@ export function AIQuestionPanel() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <motion.button
-                    title={
-                      question.pinned ? "Unpin question" : "Pin question"
-                    }
+                    title={question.pinned ? "Unpin question" : "Pin question"}
                     aria-label={
                       question.pinned ? "Unpin question" : "Pin question"
                     }
