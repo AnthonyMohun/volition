@@ -116,14 +116,14 @@ export default function SelectPage() {
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-6xl mx-auto">
           {/* HMW Statement Display */}
-          <div className="glass rounded-xl p-5 mb-6 border border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-purple-500/5">
+          <div className="glass rounded-xl p-5 mb-6 border border-purple-500/40 bg-gradient-to-br from-purple-500/10 to-pink-500/5">
             <div className="flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <Lightbulb className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h3 className="text-sm font-semibold text-blue-300 mb-1">
-                  Your Challenge
+                <h3 className="text-sm font-semibold text-purple-300 mb-2">
+                  DESIGN CHALLENGE
                 </h3>
-                <p className="text-base text-gray-100 font-medium">
+                <p className="text-base text-gray-100 font-medium leading-relaxed">
                   {state.hmwStatement}
                 </p>
               </div>

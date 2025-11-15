@@ -391,8 +391,8 @@ export default function CanvasPage() {
             <h1 className="text-lg font-semibold text-gray-100">
               Ideation Canvas
             </h1>
-            <p className="text-sm text-gray-400 max-w-2xl truncate">
-              {state.hmwStatement}
+            <p className="text-xs text-gray-400 mt-1">
+              Organize your ideas and concepts on the canvas
             </p>
           </div>
         </div>

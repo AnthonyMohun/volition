@@ -304,9 +304,11 @@ When images/sketches are provided, also evaluate:
               Start New Project
             </button>
           </div>
-          <div className="glass rounded-lg p-4 border border-gray-700">
-            <p className="text-sm text-gray-300">
-              <strong className="text-gray-100">Project:</strong>{" "}
+          <div className="mb-6 p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
+            <h3 className="text-xs font-semibold text-purple-300 uppercase tracking-wider mb-2">
+              DESIGN CHALLENGE
+            </h3>
+            <p className="text-gray-100 font-medium leading-relaxed">
               {state.hmwStatement}
             </p>
           </div>

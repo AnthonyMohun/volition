@@ -141,15 +141,29 @@ export function AIQuestionPanel() {
 
   return (
     <div className="glass border-r border-gray-800 w-80 flex flex-col order-first">
-      <div className="p-4 border-b border-gray-800 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
-        <div className="flex items-center gap-2 mb-1">
-          <Bot className="w-5 h-5 text-purple-400" />
-          <h2 className="font-semibold text-gray-100">AI Guide</h2>
+      <div className="p-4 border-b border-gray-800 space-y-3">
+        {/* Bot Identifier */}
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Bot className="w-5 h-5 text-purple-400" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full"></span>
+          </div>
+          <h2 className="font-semibold text-gray-100">Socratic AI</h2>
+          <span className="text-xs text-gray-400 ml-auto">Active</span>
         </div>
-        <p className="text-xs text-gray-400">
-          Socratic questioning to guide your exploration
-        </p>
-        <div className="text-xs text-gray-400 mt-2 flex items-center gap-3">
+
+        {/* HMW Statement */}
+        <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-lg p-3 space-y-1">
+          <p className="text-xs uppercase tracking-wide text-purple-300 font-medium">
+            Design Challenge
+          </p>
+          <p className="text-sm text-gray-100 line-clamp-3 leading-relaxed">
+            {state.hmwStatement}
+          </p>
+        </div>
+
+        {/* Stats */}
+        <div className="text-xs text-gray-400 flex items-center gap-3 pt-1">
           <span>{state.questions.length} questions</span>
           <span className="text-purple-300">
             {state.questions.filter((q) => !q.answered).length} unanswered
