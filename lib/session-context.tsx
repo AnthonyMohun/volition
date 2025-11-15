@@ -1,6 +1,13 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useToast } from "./toast-context";
+import {
+  ICommand,
+  AddNoteCommand,
+  DeleteNoteCommand,
+  UpdateNoteCommand,
+} from "./commands";
 import {
   SessionState,
   INITIAL_SESSION_STATE,
@@ -30,6 +37,10 @@ interface SessionContextType {
   ) => void;
   resetSession: () => void;
   loadExampleSession: (exampleState: Partial<SessionState>) => void;
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -39,6 +50,39 @@ const STORAGE_KEY = "socratic-design-session";
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<SessionState>(INITIAL_SESSION_STATE);
   const [isHydrated, setIsHydrated] = useState(false);
+  const { showToast } = useToast();
+
+  // Command stacks used for undo/redo
+  const [undoStack, setUndoStack] = useState<ICommand[]>([]);
+  const [redoStack, setRedoStack] = useState<ICommand[]>([]);
+
+  const canUndo = undoStack.length > 0;
+  const canRedo = redoStack.length > 0;
+
+  const pushCommand = (cmd: ICommand) => {
+    // Execute the command and push it to undo stack, clear redo
+    cmd.execute(setState);
+    setUndoStack((prev) => [...prev, cmd]);
+    setRedoStack([]);
+  };
+
+  const undo = () => {
+    const last = undoStack[undoStack.length - 1];
+    if (!last) return;
+    last.undo(setState);
+    setUndoStack((prev) => prev.slice(0, -1));
+    setRedoStack((prev) => [...prev, last]);
+    showToast(last.label ? `Undid: ${last.label}` : "Undid action");
+  };
+
+  const redo = () => {
+    const last = redoStack[redoStack.length - 1];
+    if (!last) return;
+    last.execute(setState);
+    setRedoStack((prev) => prev.slice(0, -1));
+    setUndoStack((prev) => [...prev, last]);
+    showToast(last.label ? `Redid: ${last.label}` : "Redid action");
+  };
 
   // Load from sessionStorage on mount
   useEffect(() => {
@@ -72,26 +116,20 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addNote = (note: StickyNote) => {
-    setState((prev) => ({
-      ...prev,
-      notes: [...prev.notes, note],
-    }));
+    pushCommand(new AddNoteCommand(note));
   };
 
   const updateNote = (id: string, updates: Partial<StickyNote>) => {
-    setState((prev) => ({
-      ...prev,
-      notes: prev.notes.map((note) =>
-        note.id === id ? { ...note, ...updates } : note
-      ),
-    }));
+    const prevNote = state.notes.find((n) => n.id === id);
+    if (!prevNote) return;
+    const nextNote: StickyNote = { ...prevNote, ...updates };
+    pushCommand(new UpdateNoteCommand(prevNote, nextNote));
   };
 
   const deleteNote = (id: string) => {
-    setState((prev) => ({
-      ...prev,
-      notes: prev.notes.filter((note) => note.id !== id),
-    }));
+    const note = state.notes.find((n) => n.id === id);
+    if (!note) return;
+    pushCommand(new DeleteNoteCommand(note));
   };
 
   const addQuestion = (question: AIQuestion) => {
@@ -175,6 +213,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       sessionStorage.removeItem(STORAGE_KEY);
     }
+    setUndoStack([]);
+    setRedoStack([]);
   };
 
   const loadExampleSession = (exampleState: Partial<SessionState>) => {
@@ -184,6 +224,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       projectId: `proj-${Date.now()}`,
       createdAt: Date.now(),
     }));
+    setUndoStack([]);
+    setRedoStack([]);
   };
 
   return (
@@ -205,6 +247,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         setSelectedConcepts,
         resetSession,
         loadExampleSession,
+        undo,
+        redo,
+        canUndo,
+        canRedo,
       }}
     >
       {children}
