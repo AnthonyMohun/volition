@@ -140,7 +140,7 @@ export function AIQuestionPanel() {
   };
 
   return (
-    <div className="glass border-l border-gray-800 w-80 flex flex-col">
+    <div className="glass border-r border-gray-800 w-80 flex flex-col order-first">
       <div className="p-4 border-b border-gray-800 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
         <div className="flex items-center gap-2 mb-1">
           <Bot className="w-5 h-5 text-purple-400" />

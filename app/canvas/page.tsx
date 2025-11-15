@@ -1,18 +1,23 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { DraggableNote } from "@/components/draggable-note";
 import { AIQuestionPanel } from "@/components/ai-question-panel";
+import { CanvasControls } from "@/components/canvas-controls";
+import { CanvasMinimap } from "@/components/canvas-minimap";
+import { snapToGrid, calculateAlignmentGuides } from "@/components/canvas-grid";
 import {
   DndContext,
   DragEndEvent,
+  DragStartEvent,
+  DragMoveEvent,
   useSensor,
   useSensors,
   PointerSensor,
 } from "@dnd-kit/core";
-import { Plus, ArrowRight, RotateCcw } from "lucide-react";
+import { Plus, ArrowRight, RotateCcw, Grid3x3 } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 
 export default function CanvasPage() {
@@ -23,6 +28,24 @@ export default function CanvasPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Canvas navigation state
+  const [zoom, setZoom] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const [gridSnap, setGridSnap] = useState(false);
+  const [showMinimap, setShowMinimap] = useState(true);
+  const [alignmentGuides, setAlignmentGuides] = useState<{
+    vertical: number[];
+    horizontal: number[];
+  }>({ vertical: [], horizontal: [] });
+
+  const GRID_SIZE = 40;
+  const CANVAS_WIDTH = 4000;
+  const CANVAS_HEIGHT = 3000;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -38,22 +61,178 @@ export default function CanvasPage() {
     }
   }, [state.hmwStatement, router]);
 
+  // Zoom functions
+  const handleZoomIn = useCallback(() => {
+    setZoom((prev) => Math.min(prev + 0.25, 2));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setZoom((prev) => Math.max(prev - 0.25, 0.25));
+  }, []);
+
+  const handleFitToContent = useCallback(() => {
+    if (state.notes.length === 0 || !containerRef.current) return;
+
+    const padding = 100;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    state.notes.forEach((note) => {
+      minX = Math.min(minX, note.x);
+      minY = Math.min(minY, note.y);
+      maxX = Math.max(maxX, note.x + 256); // note width
+      maxY = Math.max(maxY, note.y + 200); // approximate note height
+    });
+
+    const contentWidth = maxX - minX + padding * 2;
+    const contentHeight = maxY - minY + padding * 2;
+    const containerRect = containerRef.current.getBoundingClientRect();
+
+    const zoomX = containerRect.width / contentWidth;
+    const zoomY = containerRect.height / contentHeight;
+    const newZoom = Math.min(Math.min(zoomX, zoomY, 1), 2);
+
+    setZoom(newZoom);
+    setPanX(-(minX - padding));
+    setPanY(-(minY - padding));
+  }, [state.notes]);
+
+  const handleResetView = useCallback(() => {
+    setZoom(1);
+    setPanX(0);
+    setPanY(0);
+  }, []);
+
+  // Pan with mouse wheel + drag
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+
+    if (e.ctrlKey || e.metaKey) {
+      // Zoom with ctrl/cmd + wheel
+      const delta = -e.deltaY * 0.01;
+      setZoom((prev) => Math.max(0.25, Math.min(2, prev + delta)));
+    } else {
+      // Pan with wheel
+      setPanX((prev) => prev - e.deltaX);
+      setPanY((prev) => prev - e.deltaY);
+    }
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, [handleWheel]);
+
+  // Pan with space + drag or middle mouse button
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+        e.preventDefault();
+        setIsPanning(true);
+        setPanStart({ x: e.clientX - panX, y: e.clientY - panY });
+      }
+    },
+    [panX, panY]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (isPanning) {
+        setPanX(e.clientX - panStart.x);
+        setPanY(e.clientY - panStart.y);
+      }
+    },
+    [isPanning, panStart]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case "=":
+          case "+":
+            e.preventDefault();
+            handleZoomIn();
+            break;
+          case "-":
+            e.preventDefault();
+            handleZoomOut();
+            break;
+          case "0":
+            e.preventDefault();
+            handleFitToContent();
+            break;
+          case "r":
+            e.preventDefault();
+            handleResetView();
+            break;
+          case "m":
+            e.preventDefault();
+            setShowMinimap((prev) => !prev);
+            break;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleZoomIn, handleZoomOut, handleFitToContent, handleResetView]);
+
   const handleAddNote = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const canvasRect = canvas.getBoundingClientRect();
-    const x = Math.random() * (canvasRect.width - 300) + 50;
-    const y = Math.random() * (canvasRect.height - 200) + 50;
+    // Calculate position accounting for zoom and pan
+    const centerX = (canvasRect.width / 2 - panX * zoom) / zoom;
+    const centerY = (canvasRect.height / 2 - panY * zoom) / zoom;
+
+    const x = centerX + (Math.random() - 0.5) * 300;
+    const y = centerY + (Math.random() - 0.5) * 200;
 
     addNote({
       id: `note-${Date.now()}`,
       text: "New note...",
-      x,
-      y,
+      x: gridSnap ? snapToGrid(x, GRID_SIZE, true) : x,
+      y: gridSnap ? snapToGrid(y, GRID_SIZE, true) : y,
       color: selectedColor,
       isConcept: false,
       createdAt: Date.now(),
+    });
+  };
+
+  const handleDragMove = (event: DragMoveEvent) => {
+    if (!draggedNoteId || !gridSnap) return;
+
+    const draggedNote = state.notes.find((n) => n.id === draggedNoteId);
+    if (!draggedNote) return;
+
+    const newX = draggedNote.x + event.delta.x / zoom;
+    const newY = draggedNote.y + event.delta.y / zoom;
+
+    const otherNotes = state.notes
+      .filter((n) => n.id !== draggedNoteId)
+      .map((n) => ({ x: n.x, y: n.y, width: 256, height: 200 }));
+
+    const guides = calculateAlignmentGuides(
+      { x: newX, y: newY, width: 256, height: 200 },
+      otherNotes,
+      15 / zoom
+    );
+
+    setAlignmentGuides({
+      vertical: guides.verticalGuides,
+      horizontal: guides.horizontalGuides,
     });
   };
 
@@ -63,17 +242,25 @@ export default function CanvasPage() {
 
     const note = state.notes.find((n) => n.id === noteId);
     if (note) {
-      updateNote(noteId, {
-        x: note.x + delta.x,
-        y: note.y + delta.y,
-      });
+      let newX = note.x + delta.x / zoom;
+      let newY = note.y + delta.y / zoom;
+
+      // Apply grid snapping if enabled - snap to nearest grid point
+      if (gridSnap) {
+        newX = Math.round(newX / GRID_SIZE) * GRID_SIZE;
+        newY = Math.round(newY / GRID_SIZE) * GRID_SIZE;
+      }
+      // When grid snap is disabled, no snapping - free placement
+
+      updateNote(noteId, { x: newX, y: newY });
     }
 
     setIsDragging(false);
     setDraggedNoteId(null);
+    setAlignmentGuides({ vertical: [], horizontal: [] });
   };
 
-  const handleDragStart = (event: { active: { id: string | number } }) => {
+  const handleDragStart = (event: DragStartEvent) => {
     setIsDragging(true);
     setDraggedNoteId(event.active.id as string);
   };
@@ -140,17 +327,66 @@ export default function CanvasPage() {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
+        {/* AI Question Panel */}
+        <AIQuestionPanel />
+
         {/* Main Canvas */}
         <div
-          className="flex-1 relative overflow-auto texture-overlay"
-          ref={canvasRef}
+          ref={containerRef}
+          className="flex-1 relative overflow-hidden texture-overlay"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          style={{ cursor: isPanning ? "grabbing" : "default" }}
         >
-          <DndContext
-            sensors={sensors}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
+          <div
+            ref={canvasRef}
+            className="absolute"
+            style={{
+              width: CANVAS_WIDTH,
+              height: CANVAS_HEIGHT,
+              transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,
+              transformOrigin: "0 0",
+            }}
           >
-            <div className="min-h-full min-w-full relative p-8">
+            {/* Alignment Guides */}
+            {isDragging && (
+              <>
+                {alignmentGuides.vertical.map((x, i) => (
+                  <div
+                    key={`v-${i}`}
+                    className="absolute bg-purple-400/50"
+                    style={{
+                      left: x,
+                      top: 0,
+                      width: 2,
+                      height: CANVAS_HEIGHT,
+                      pointerEvents: "none",
+                    }}
+                  />
+                ))}
+                {alignmentGuides.horizontal.map((y, i) => (
+                  <div
+                    key={`h-${i}`}
+                    className="absolute bg-purple-400/50"
+                    style={{
+                      left: 0,
+                      top: y,
+                      width: CANVAS_WIDTH,
+                      height: 2,
+                      pointerEvents: "none",
+                    }}
+                  />
+                ))}
+              </>
+            )}
+
+            <DndContext
+              sensors={sensors}
+              onDragStart={handleDragStart}
+              onDragMove={handleDragMove}
+              onDragEnd={handleDragEnd}
+            >
               {state.notes.map((note) => (
                 <div
                   key={note.id}
@@ -163,8 +399,22 @@ export default function CanvasPage() {
                   />
                 </div>
               ))}
-            </div>
-          </DndContext>
+            </DndContext>
+
+            {state.notes.length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center text-gray-500">
+                  <Plus className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg">
+                    Click the + button to add your first sticky note
+                  </p>
+                  <p className="text-sm mt-2">
+                    Respond to the AI's questions with your ideas
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Floating toolbar */}
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 glass rounded-full px-4 py-3 flex items-center gap-4 z-20 border border-gray-700/50">
@@ -222,25 +472,51 @@ export default function CanvasPage() {
                 );
               })}
             </div>
+            <div className="border-l border-gray-700 h-8 mx-1" />
+            <button
+              onClick={() => setGridSnap(!gridSnap)}
+              className={`p-2 rounded-lg transition-all ${
+                gridSnap
+                  ? "bg-purple-500/20 text-purple-300"
+                  : "text-gray-400 hover:bg-gray-700/30"
+              }`}
+              title={`Grid snap ${
+                gridSnap ? "enabled" : "disabled"
+              } (Ctrl/Cmd + G)`}
+            >
+              <Grid3x3 className="w-5 h-5" />
+            </button>
           </div>
 
-          {state.notes.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="text-center text-gray-500">
-                <Plus className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p className="text-lg">
-                  Click the + button to add your first sticky note
-                </p>
-                <p className="text-sm mt-2">
-                  Respond to the AI's questions with your ideas
-                </p>
-              </div>
-            </div>
+          {/* Canvas Controls */}
+          <CanvasControls
+            zoom={zoom}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onFitToContent={handleFitToContent}
+            onResetView={handleResetView}
+            showMinimap={showMinimap}
+            onToggleMinimap={() => setShowMinimap(!showMinimap)}
+          />
+
+          {/* Minimap */}
+          {showMinimap && containerRef.current && (
+            <CanvasMinimap
+              notes={state.notes}
+              canvasWidth={CANVAS_WIDTH}
+              canvasHeight={CANVAS_HEIGHT}
+              viewportX={-panX / zoom}
+              viewportY={-panY / zoom}
+              viewportWidth={containerRef.current.clientWidth}
+              viewportHeight={containerRef.current.clientHeight}
+              zoom={zoom}
+              onViewportMove={(x, y) => {
+                setPanX(-x * zoom);
+                setPanY(-y * zoom);
+              }}
+            />
           )}
         </div>
-
-        {/* AI Question Panel */}
-        <AIQuestionPanel />
       </div>
     </div>
   );
