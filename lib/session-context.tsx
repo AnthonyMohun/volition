@@ -19,6 +19,7 @@ interface SessionContextType {
   addQuestion: (question: AIQuestion) => void;
   markQuestionAnswered: (id: string) => void;
   toggleQuestionAnswered: (id: string) => void;
+  toggleQuestionPinned: (id: string) => void;
   addConcept: (concept: Concept) => void;
   updateConcept: (id: string, updates: Partial<Concept>) => void;
   addEvaluation: (evaluation: ConceptEvaluation) => void;
@@ -96,7 +97,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const addQuestion = (question: AIQuestion) => {
     setState((prev) => ({
       ...prev,
-      questions: [...prev.questions, question],
+      questions: [...prev.questions, { ...question, pinned: false }],
     }));
   };
 
@@ -114,6 +115,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       questions: prev.questions.map((q) =>
         q.id === id ? { ...q, answered: !q.answered } : q
+      ),
+    }));
+  };
+
+  const toggleQuestionPinned = (id: string) => {
+    setState((prev) => ({
+      ...prev,
+      questions: prev.questions.map((q) =>
+        q.id === id ? { ...q, pinned: !q.pinned } : q
       ),
     }));
   };
@@ -187,6 +197,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         addQuestion,
         markQuestionAnswered,
         toggleQuestionAnswered,
+        toggleQuestionPinned,
         addConcept,
         updateConcept,
         addEvaluation,

@@ -25,6 +25,7 @@ export interface AIQuestion {
   text: string;
   fromAI: boolean;
   answered: boolean;
+  pinned?: boolean;
   timestamp: number;
 }
 
