@@ -16,8 +16,10 @@ import {
   Plus,
   Flag,
   RotateCcw,
+  X,
 } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function AIQuestionPanel() {
   const {
@@ -29,6 +31,9 @@ export function AIQuestionPanel() {
   } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hoveredQuestionId, setHoveredQuestionId] = useState<string | null>(
+    null
+  );
   const hasAskedFirstQuestion = useRef(false);
 
   const currentQuestion = state.questions[state.questions.length - 1];
@@ -190,15 +195,41 @@ export function AIQuestionPanel() {
               </p>
               <div className="flex items-center gap-2">
                 {question.answered ? (
-                  <button
-                    title="Mark as unanswered"
-                    aria-label="Mark as unanswered"
-                    onClick={() => toggleQuestionAnswered(question.id)}
-                    className="text-xs flex items-center gap-2 text-green-400 border border-green-400/10 bg-green-500/5 px-2 py-0.5 rounded-full hover:bg-green-500/10 transition-all"
+                  <motion.div
+                    className="relative"
+                    onHoverStart={() => setHoveredQuestionId(question.id)}
+                    onHoverEnd={() => setHoveredQuestionId(null)}
                   >
-                    <RotateCcw className="w-3 h-3 text-green-300" />
-                    <span>Answered</span>
-                  </button>
+                    <AnimatePresence mode="wait">
+                      {hoveredQuestionId === question.id ? (
+                        <motion.button
+                          key="undo"
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: "easeInOut" }}
+                          onClick={() => toggleQuestionAnswered(question.id)}
+                          className="flex items-center gap-1.5 text-xs text-orange-400 border border-orange-400/30 bg-orange-500/10 px-2 py-1 rounded-full hover:bg-orange-500/20 transition-all"
+                          title="Mark as unanswered"
+                          aria-label="Mark as unanswered"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          <span className="whitespace-nowrap">Undo</span>
+                        </motion.button>
+                      ) : (
+                        <motion.div
+                          key="checkmark"
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: "easeInOut" }}
+                          className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 border border-green-400/30"
+                        >
+                          <Check className="w-3.5 h-3.5 text-green-400" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
                 ) : (
                   <button
                     onClick={() => markQuestionAnswered(question.id)}
