@@ -1,7 +1,5 @@
-"use client";
-
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Accessibility, Heart, Zap, Leaf, Users } from "lucide-react";
 
 interface HMWHelperModalProps {
   isOpen: boolean;
@@ -12,6 +10,7 @@ interface HMWHelperModalProps {
 const TEMPLATES = [
   {
     id: "accessibility",
+    icon: Accessibility,
     label: "Accessibility",
     description: "Help a specific group access something",
     blanks: [
@@ -38,6 +37,7 @@ const TEMPLATES = [
   },
   {
     id: "experience",
+    icon: Heart,
     label: "Experience",
     description: "Improve how someone feels about a task",
     blanks: [
@@ -64,6 +64,7 @@ const TEMPLATES = [
   },
   {
     id: "efficiency",
+    icon: Zap,
     label: "Efficiency",
     description: "Help someone do something faster or easier",
     blanks: [
@@ -90,6 +91,7 @@ const TEMPLATES = [
   },
   {
     id: "sustainability",
+    icon: Leaf,
     label: "Sustainability",
     description: "Reduce waste or environmental impact",
     blanks: [
@@ -116,6 +118,7 @@ const TEMPLATES = [
   },
   {
     id: "connection",
+    icon: Users,
     label: "Connection",
     description: "Help people connect or feel part of a community",
     blanks: [
@@ -196,23 +199,31 @@ export function HMWHelperModal({
                 you through filling in the blanks.
               </p>
               <div className="grid grid-cols-1 gap-3">
-                {TEMPLATES.map((tmpl) => (
-                  <button
-                    key={tmpl.id}
-                    onClick={() => {
-                      setSelectedTemplate(tmpl.id);
-                      setBlanks({});
-                    }}
-                    className="group p-4 glass-light rounded-lg border border-gray-700/50 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all text-left"
-                  >
-                    <h3 className="font-semibold text-gray-200 group-hover:text-purple-300 transition-colors">
-                      {tmpl.label}
-                    </h3>
-                    <p className="text-sm text-gray-400 mt-1">
-                      {tmpl.description}
-                    </p>
-                  </button>
-                ))}
+                {TEMPLATES.map((tmpl) => {
+                  const IconComponent = tmpl.icon;
+                  return (
+                    <button
+                      key={tmpl.id}
+                      onClick={() => {
+                        setSelectedTemplate(tmpl.id);
+                        setBlanks({});
+                      }}
+                      className="group p-4 glass-light rounded-lg border border-gray-700/50 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <IconComponent className="w-8 h-8 text-gray-400 group-hover:text-purple-300 transition-colors" />
+                        <div>
+                          <h3 className="font-semibold text-gray-200 group-hover:text-purple-300 transition-colors">
+                            {tmpl.label}
+                          </h3>
+                          <p className="text-sm text-gray-400 mt-1">
+                            {tmpl.description}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </>
           ) : (
