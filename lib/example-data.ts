@@ -1,16 +1,52 @@
 import { SessionState, StickyNote, AIQuestion } from "./types";
 
+// Layout helpers: compute positions for example notes in a tidy radial layout
+const CANVAS_CENTER_X = 2000;
+const CANVAS_CENTER_Y = 1500;
+
+function positionedNotes(rawNotes: Omit<StickyNote, "x" | "y">[]) {
+  const conceptNotes = rawNotes.filter((n) => n.isConcept);
+  const otherNotes = rawNotes.filter((n) => !n.isConcept);
+
+  const innerRadius = 240; // concept ring
+  const outerRadius = 520; // other notes ring
+
+  const positionedConcepts: StickyNote[] = conceptNotes.map((note, i) => {
+    const angle = (i / conceptNotes.length) * Math.PI * 2 - Math.PI / 2; // start at top
+    const x = Math.round(CANVAS_CENTER_X + Math.cos(angle) * innerRadius);
+    const y = Math.round(CANVAS_CENTER_Y + Math.sin(angle) * innerRadius);
+    return { ...note, x, y } as StickyNote;
+  });
+
+  const positionedOthers: StickyNote[] = otherNotes.map((note, i) => {
+    const angle = (i / otherNotes.length) * Math.PI * 2 + Math.PI / 6; // offset to avoid overlap
+    const x = Math.round(CANVAS_CENTER_X + Math.cos(angle) * outerRadius);
+    const y = Math.round(CANVAS_CENTER_Y + Math.sin(angle) * outerRadius);
+    return { ...note, x, y } as StickyNote;
+  });
+
+  const merged: StickyNote[] = [];
+  rawNotes.forEach((n) => {
+    const c = positionedConcepts.find((c) => c.id === n.id);
+    if (c) merged.push(c);
+    else {
+      const o = positionedOthers.find((o) => o.id === n.id);
+      if (o) merged.push(o);
+    }
+  });
+
+  return merged;
+}
+
 // Example data for "Try with an example" feature
 export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
   hmwStatement:
     "How might we help college students manage stress during exam periods?",
   currentPhase: "canvas",
-  notes: [
+  notes: positionedNotes([
     {
       id: "note-1",
       text: "Students often feel overwhelmed with multiple exams happening at once",
-      x: 1720,
-      y: 1300,
       color: "#fef3c7", // yellow
       isConcept: false,
       createdAt: Date.now() - 10000,
@@ -18,8 +54,6 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-2",
       text: "Study Planner with Pomodoro Timer",
-      x: 2050,
-      y: 1320,
       color: "#bfdbfe", // blue
       isConcept: true,
       details:
@@ -29,8 +63,6 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-3",
       text: "Peer support groups struggle to coordinate meeting times",
-      x: 1750,
-      y: 1520,
       color: "#fecaca", // red
       isConcept: false,
       createdAt: Date.now() - 8000,
@@ -38,8 +70,6 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-4",
       text: "Virtual Study Rooms with Accountability Partners",
-      x: 2380,
-      y: 1340,
       color: "#bbf7d0", // green
       isConcept: true,
       details:
@@ -49,8 +79,6 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-5",
       text: "Students don't know effective study techniques for different subjects",
-      x: 1740,
-      y: 1720,
       color: "#fef3c7", // yellow
       isConcept: false,
       createdAt: Date.now() - 6000,
@@ -58,8 +86,6 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-6",
       text: "Mindfulness breaks are often forgotten during intense study sessions",
-      x: 2080,
-      y: 1560,
       color: "#fbcfe8", // pink
       isConcept: false,
       createdAt: Date.now() - 5000,
@@ -67,8 +93,6 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-7",
       text: "Mindful Study Break App",
-      x: 2400,
-      y: 1580,
       color: "#e9d5ff", // purple
       isConcept: true,
       details:
@@ -78,8 +102,6 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-8",
       text: "Library spaces are often too crowded during exam season",
-      x: 1760,
-      y: 1920,
       color: "#bfdbfe", // blue
       isConcept: false,
       createdAt: Date.now() - 3000,
@@ -87,13 +109,11 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-9",
       text: "Students lose track of their materials across different courses",
-      x: 2120,
-      y: 1760,
       color: "#bbf7d0", // green
       isConcept: false,
       createdAt: Date.now() - 2000,
     },
-  ] as StickyNote[],
+  ]) as StickyNote[],
   questions: [
     {
       id: "q-1",
