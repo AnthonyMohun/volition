@@ -17,7 +17,7 @@ import {
   useSensors,
   PointerSensor,
 } from "@dnd-kit/core";
-import { Plus, ArrowRight, RotateCcw, Grid3x3 } from "lucide-react";
+import { Plus, ArrowRight, RotateCcw, Menu } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 
 export default function CanvasPage() {
@@ -39,6 +39,7 @@ export default function CanvasPage() {
   const [gridSnap, setGridSnap] = useState(false);
   const [showMinimap, setShowMinimap] = useState(true);
   const [showAlignment, setShowAlignment] = useState(true);
+  const [showControls, setShowControls] = useState(true);
   const [previewNote, setPreviewNote] = useState<{
     id: string;
     x: number;
@@ -185,6 +186,10 @@ export default function CanvasPage() {
           case "m":
             e.preventDefault();
             setShowMinimap((prev) => !prev);
+            break;
+          case "g":
+            e.preventDefault();
+            setGridSnap((prev) => !prev);
             break;
           case "a":
             e.preventDefault();
@@ -566,32 +571,34 @@ export default function CanvasPage() {
             </div>
             <div className="border-l border-gray-700 h-8 mx-1" />
             <button
-              onClick={() => setGridSnap(!gridSnap)}
+              onClick={() => setShowControls((prev) => !prev)}
               className={`p-2 rounded-lg transition-all ${
-                gridSnap
+                showControls
                   ? "bg-purple-500/20 text-purple-300"
                   : "text-gray-400 hover:bg-gray-700/30"
               }`}
-              title={`Grid snap ${
-                gridSnap ? "enabled" : "disabled"
-              } (Ctrl/Cmd + G)`}
+              title={`Toggle toolbar ${showControls ? "shown" : "hidden"}`}
             >
-              <Grid3x3 className="w-5 h-5" />
+              <Menu className="w-5 h-5" />
             </button>
           </div>
 
           {/* Canvas Controls */}
-          <CanvasControls
-            zoom={zoom}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onFitToContent={handleFitToContent}
-            onResetView={handleResetView}
-            showMinimap={showMinimap}
-            onToggleMinimap={() => setShowMinimap(!showMinimap)}
-            showAlignment={showAlignment}
-            onToggleAlignment={() => setShowAlignment(!showAlignment)}
-          />
+          {showControls && (
+            <CanvasControls
+              zoom={zoom}
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              onFitToContent={handleFitToContent}
+              onResetView={handleResetView}
+              showMinimap={showMinimap}
+              onToggleMinimap={() => setShowMinimap(!showMinimap)}
+              showAlignment={showAlignment}
+              onToggleAlignment={() => setShowAlignment(!showAlignment)}
+              gridSnap={gridSnap}
+              onToggleGridSnap={() => setGridSnap(!gridSnap)}
+            />
+          )}
 
           {/* Minimap */}
           {showMinimap && containerRef.current && (
