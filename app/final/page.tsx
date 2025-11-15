@@ -252,7 +252,13 @@ When images/sketches are provided, also evaluate:
           feedback: c.feedback,
         }));
 
-        setEvaluations(evals.sort((a, b) => a.rank - b.rank));
+        // Sort by score descending (highest score first) and assign correct ranks
+        const sortedEvals = evals.sort((a, b) => b.score - a.score);
+        sortedEvals.forEach((evaluation, index) => {
+          evaluation.rank = index + 1;
+        });
+
+        setEvaluations(sortedEvals);
       } catch (parseError) {
         console.error(
           "Failed to parse AI response:",
