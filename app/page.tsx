@@ -81,12 +81,12 @@ export default function Home() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setShowHelper(true)}
+                  onClick={handleTryExample}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors"
-                  title="Browse example HMW statements"
+                  title="Load a complete example session"
                 >
-                  <Lightbulb className="w-3.5 h-3.5" />
-                  <span>Examples</span>
+                  <PlayCircle className="w-3.5 h-3.5" />
+                  <span>Try Example</span>
                 </button>
               </div>
               <div className="relative">
@@ -103,29 +103,34 @@ export default function Home() {
                   type="button"
                   onClick={handleRandomExample}
                   className="absolute bottom-3 right-3 text-gray-400 hover:text-gray-300 transition-colors p-1 hover:bg-gray-700/50 rounded"
-                  title="Try a random example"
+                  title="Insert a random example 'How Might We' statement"
+                  aria-label="Insert a random example How Might We statement"
                 >
-                  🎲
+                  <span aria-hidden>🎲</span>
+                  <span className="sr-only">
+                    Insert a random example How Might We statement
+                  </span>
                 </button>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <button
+                type="button"
+                onClick={() => setShowHelper(true)}
+                aria-label="Open HMW Builder - guided template to craft a How Might We statement"
+                title="Open guided builder to craft a 'How Might We' statement"
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3.5 px-6 rounded-lg hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg hover:shadow-emerald-500/50 hover:shadow-xl flex items-center justify-center"
+              >
+                Open HMW Builder
+              </button>
+
+              <button
                 type="submit"
                 disabled={!hmwInput.trim()}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3.5 px-6 rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-purple-500/50 hover:shadow-xl silver-glow"
               >
                 Begin Exploration
-              </button>
-
-              <button
-                type="button"
-                onClick={handleTryExample}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3.5 px-6 rounded-lg hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg hover:shadow-emerald-500/50 hover:shadow-xl flex items-center justify-center gap-2"
-              >
-                <PlayCircle className="w-4 h-4" />
-                Try Example
               </button>
             </div>
           </form>

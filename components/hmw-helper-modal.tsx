@@ -174,9 +174,12 @@ export function HMWHelperModal({
       <div className="bg-[#1a1a1a] rounded-2xl border border-gray-700/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="sticky top-0 bg-[#1a1a1a] border-b border-gray-700/50 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-100">
-            Build Your "How Might We" Statement
-          </h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-100">HMW Builder</h2>
+            <p className="text-sm text-gray-400 mt-0.5">
+              Build your "How Might We" statement with guided templates
+            </p>
+          </div>
           <button
             onClick={onClose}
             className="p-1.5 rounded hover:bg-gray-700/50 transition-colors text-gray-400 hover:text-gray-200"
