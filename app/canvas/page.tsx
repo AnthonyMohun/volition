@@ -17,7 +17,14 @@ import {
   useSensors,
   PointerSensor,
 } from "@dnd-kit/core";
-import { Plus, ArrowRight, RotateCcw, RotateCw, Menu } from "lucide-react";
+import {
+  Plus,
+  ArrowRight,
+  RotateCcw,
+  RotateCw,
+  Menu,
+  ListRestart,
+} from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 
 export default function CanvasPage() {
@@ -413,7 +420,7 @@ export default function CanvasPage() {
             className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors group"
             title="Start a new project"
           >
-            <RotateCcw className="w-5 h-5 text-gray-300 group-hover:text-orange-400 transition-colors" />
+            <ListRestart className="w-5 h-5 text-gray-300 group-hover:text-orange-400 transition-colors" />
           </button>
           <div>
             <h1 className="text-lg font-semibold text-gray-100">
@@ -620,6 +627,7 @@ export default function CanvasPage() {
                 );
               })}
             </div>
+            <div className="border-l border-gray-700 h-8 mx-1" />
             <div className="flex items-center gap-2 ml-2">
               <button
                 onClick={undo}

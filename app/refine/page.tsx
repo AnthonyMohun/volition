@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import {
   ArrowLeft,
-  RotateCcw,
+  ListRestart,
   Lightbulb,
   ArrowRight,
   Edit3,
@@ -199,7 +199,7 @@ export default function RefinePage() {
               className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors group"
               title="Start a new project"
             >
-              <RotateCcw className="w-5 h-5 text-gray-300 group-hover:text-orange-400 transition-colors" />
+              <ListRestart className="w-5 h-5 text-gray-300 group-hover:text-orange-400 transition-colors" />
             </button>
             <div>
               <h1 className="text-lg font-semibold text-gray-100">

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { askAI } from "@/lib/ai-client";
 import {
-  Home,
+  ListRestart,
   Loader2,
   Trophy,
   TrendingUp,
@@ -495,7 +495,7 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
               onClick={handleStartOver}
               className="flex items-center gap-2 px-4 py-2 glass-light border border-gray-700 rounded-lg hover:bg-gray-800/50 transition-colors text-gray-200 group"
             >
-              <Home className="w-4 h-4 group-hover:text-orange-400 transition-colors" />
+              <ListRestart className="w-4 h-4 group-hover:text-orange-400 transition-colors" />
               Start New Project
             </button>
           </div>

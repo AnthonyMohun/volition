@@ -4,6 +4,7 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
+  Maximize,
   RotateCcw,
   Map,
   AlignJustify,
@@ -79,9 +80,9 @@ export function CanvasControls({
       <button
         onClick={onResetView}
         className="w-full flex items-center justify-start pl-2 p-2 rounded hover:bg-white/10 transition-all text-gray-300 hover:text-gray-100"
-        title="Reset view (Ctrl/Cmd + R)"
+        title="Fullscreen"
       >
-        <RotateCcw className="w-5 h-5" />
+        <Maximize className="w-5 h-5" />
       </button>
 
       <div className="w-full border-t border-gray-700/60 my-1" />
