@@ -154,10 +154,19 @@ export function AIQuestionPanel() {
           <span className="text-purple-300">
             {state.questions.filter((q) => !q.answered).length} unanswered
           </span>
-          <span className="ml-auto flex items-center gap-1 text-yellow-300 text-xs">
-            <Pin className="w-3.5 h-3.5 opacity-90" />
-            {state.questions.filter((q) => q.pinned).length} pinned
-          </span>
+          {(() => {
+            const pinnedCount = state.questions.filter((q) => q.pinned).length;
+            return (
+              <span
+                className="ml-auto flex items-center gap-1 text-yellow-300 text-xs"
+                aria-label={`${pinnedCount} pinned questions`}
+              >
+                <Pin className="w-3.5 h-3.5 opacity-90" />
+                <span aria-hidden="true">{pinnedCount}</span>
+                <span className="sr-only">{pinnedCount} pinned</span>
+              </span>
+            );
+          })()}
         </div>
       </div>
 
@@ -194,15 +203,15 @@ export function AIQuestionPanel() {
               >
                 <div className="flex items-start gap-2 w-full">
                   <p className="text-sm text-gray-200">{question.text}</p>
-                  {question.pinned && (
-                    <span className="ml-auto text-xs text-yellow-300 bg-yellow-900/10 px-2 py-0.5 rounded-full">
-                      Pinned
-                    </span>
-                  )}
+                  {question.pinned && <span className="sr-only">Pinned</span>}
                 </div>
                 <div className="flex items-center justify-between mt-2">
                   <p className="text-xs text-gray-500">
-                    <span title={new Date(question.timestamp).toLocaleString()}>
+                    <span
+                      title={new Date(question.timestamp).toLocaleString()}
+                      aria-hidden="true"
+                      className="text-transparent"
+                    >
                       {timeAgo(question.timestamp)}
                     </span>
                   </p>
@@ -269,6 +278,7 @@ export function AIQuestionPanel() {
                       aria-label={
                         question.pinned ? "Unpin question" : "Pin question"
                       }
+                      aria-pressed={question.pinned}
                       onClick={() => toggleQuestionPinned(question.id)}
                       className={`p-1.5 rounded hover:bg-white/10 transition-all ${
                         question.pinned ? "text-yellow-300" : "text-gray-400"
