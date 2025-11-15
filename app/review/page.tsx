@@ -349,14 +349,23 @@ export default function ReviewPage() {
                   )}
                 </p>
               </div>
-              {selectedConcepts.length === 3 && (
-                <CheckCircle2 className="w-6 h-6 text-green-400 ml-4 flex-shrink-0" />
-              )}
+              <div className="ml-4 flex flex-col items-end">
+                <div
+                  aria-live="polite"
+                  className="text-sm text-gray-300 font-medium"
+                >
+                  Selected {selectedConcepts.length}/3
+                </div>
+                {selectedConcepts.length === 3 && (
+                  <CheckCircle2 className="w-6 h-6 text-green-400 mt-1 flex-shrink-0" />
+                )}
+              </div>
             </div>{" "}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
               {conceptNotes.map((note) => {
                 const isSelected = selectedConcepts.includes(note.id);
                 const quality = assessConceptQuality(note);
+                const selectionDisabled = !isSelected && selectedConcepts.length >= 3;
                 const getDarkenedColor = (color: string) => {
                   const colorMap: Record<string, string> = {
                     "#fef3c7": "#3a3420",
@@ -373,6 +382,13 @@ export default function ReviewPage() {
                   <div key={note.id}>
                     <button
                       onClick={() => toggleConceptSelection(note.id)}
+                      disabled={selectionDisabled}
+                      title={
+                        selectionDisabled
+                          ? "You can only select up to 3 concepts"
+                          : undefined
+                      }
+                      aria-pressed={isSelected}
                       className={`w-full p-4 rounded-lg border-2 transition-all text-left h-full ${
                         isSelected
                           ? "border-purple-500 glass shadow-lg shadow-purple-500/20"
