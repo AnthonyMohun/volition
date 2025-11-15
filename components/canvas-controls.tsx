@@ -1,6 +1,13 @@
 "use client";
 
-import { ZoomIn, ZoomOut, Maximize2, RotateCcw, Map } from "lucide-react";
+import {
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  RotateCcw,
+  Map,
+  AlignJustify,
+} from "lucide-react";
 
 interface CanvasControlsProps {
   zoom: number;
@@ -10,6 +17,8 @@ interface CanvasControlsProps {
   onResetView: () => void;
   showMinimap: boolean;
   onToggleMinimap: () => void;
+  showAlignment: boolean;
+  onToggleAlignment: () => void;
 }
 
 export function CanvasControls({
@@ -20,6 +29,8 @@ export function CanvasControls({
   onResetView,
   showMinimap,
   onToggleMinimap,
+  showAlignment,
+  onToggleAlignment,
 }: CanvasControlsProps) {
   return (
     <div className="fixed bottom-24 right-6 w-14 glass rounded-lg p-2 flex flex-col items-start gap-2 z-20 border border-gray-700/50">
@@ -81,6 +92,18 @@ export function CanvasControls({
         title="Toggle minimap (Ctrl/Cmd + M)"
       >
         <Map className="w-5 h-5" />
+      </button>
+      {/* Toggle Alignment Guides */}
+      <button
+        onClick={onToggleAlignment}
+        className={`w-full flex items-center justify-start pl-2 p-2 rounded transition-all ${
+          showAlignment
+            ? "bg-purple-500/20 text-purple-300"
+            : "text-gray-400 hover:bg-white/10 hover:text-gray-100"
+        }`}
+        title="Toggle alignment guides"
+      >
+        <AlignJustify className="w-5 h-5" />
       </button>
     </div>
   );

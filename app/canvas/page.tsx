@@ -38,6 +38,12 @@ export default function CanvasPage() {
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [gridSnap, setGridSnap] = useState(false);
   const [showMinimap, setShowMinimap] = useState(true);
+  const [showAlignment, setShowAlignment] = useState(true);
+  const [previewNote, setPreviewNote] = useState<{
+    id: string;
+    x: number;
+    y: number;
+  } | null>(null);
   const [alignmentGuides, setAlignmentGuides] = useState<{
     vertical: number[];
     horizontal: number[];
@@ -180,6 +186,10 @@ export default function CanvasPage() {
             e.preventDefault();
             setShowMinimap((prev) => !prev);
             break;
+          case "a":
+            e.preventDefault();
+            setShowAlignment((prev) => !prev);
+            break;
         }
       }
     };
@@ -212,7 +222,7 @@ export default function CanvasPage() {
   };
 
   const handleDragMove = (event: DragMoveEvent) => {
-    if (!draggedNoteId || !gridSnap) return;
+    if (!draggedNoteId) return;
 
     const draggedNote = state.notes.find((n) => n.id === draggedNoteId);
     if (!draggedNote) return;
@@ -224,16 +234,44 @@ export default function CanvasPage() {
       .filter((n) => n.id !== draggedNoteId)
       .map((n) => ({ x: n.x, y: n.y, width: 256, height: 200 }));
 
-    const guides = calculateAlignmentGuides(
-      { x: newX, y: newY, width: 256, height: 200 },
-      otherNotes,
-      15 / zoom
-    );
+    let guides = {
+      snapX: null as number | null,
+      snapY: null as number | null,
+      verticalGuides: [] as number[],
+      horizontalGuides: [] as number[],
+    };
+    // Compute alignment guides only if alignment toggled on
+    if (showAlignment) {
+      const calculated = calculateAlignmentGuides(
+        { x: newX, y: newY, width: 256, height: 200 },
+        otherNotes,
+        15 / zoom
+      );
+      guides = { ...calculated };
+      setAlignmentGuides({
+        vertical: calculated.verticalGuides,
+        horizontal: calculated.horizontalGuides,
+      });
+    } else {
+      setAlignmentGuides({ vertical: [], horizontal: [] });
+    }
 
-    setAlignmentGuides({
-      vertical: guides.verticalGuides,
-      horizontal: guides.horizontalGuides,
-    });
+    // If alignment snap found, use it for preview; otherwise if gridSnap -> snap to grid
+    let px: number | null = null;
+    let py: number | null = null;
+    if (showAlignment && (guides.snapX !== null || guides.snapY !== null)) {
+      px = guides.snapX ?? newX;
+      py = guides.snapY ?? newY;
+    } else if (gridSnap) {
+      px = Math.round(newX / GRID_SIZE) * GRID_SIZE;
+      py = Math.round(newY / GRID_SIZE) * GRID_SIZE;
+    }
+
+    if (px !== null && py !== null) {
+      setPreviewNote({ id: draggedNoteId, x: px, y: py });
+    } else {
+      setPreviewNote(null);
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -250,27 +288,31 @@ export default function CanvasPage() {
         .filter((n) => n.id !== noteId)
         .map((n) => ({ x: n.x, y: n.y, width: 256, height: 200 }));
 
+      let finalX = newX;
+      let finalY = newY;
+
       const guides = calculateAlignmentGuides(
         { x: newX, y: newY, width: 256, height: 200 },
         otherNotes,
         15 / zoom
       );
 
-      // If alignment guides exist, prefer them over grid snapping to avoid jumps
-      const hasAlignmentSnap = guides.snapX !== null || guides.snapY !== null;
+      // If alignment guides exist and toggle is on, prefer them
+      const hasAlignmentSnap =
+        showAlignment && (guides.snapX !== null || guides.snapY !== null);
       if (hasAlignmentSnap) {
-        if (guides.snapX !== null) newX = guides.snapX;
-        if (guides.snapY !== null) newY = guides.snapY;
+        if (guides.snapX !== null) finalX = guides.snapX;
+        if (guides.snapY !== null) finalY = guides.snapY;
       } else if (gridSnap) {
         // Apply grid snapping if enabled and no alignment snap found
-        newX = Math.round(newX / GRID_SIZE) * GRID_SIZE;
-        newY = Math.round(newY / GRID_SIZE) * GRID_SIZE;
+        finalX = Math.round(newX / GRID_SIZE) * GRID_SIZE;
+        finalY = Math.round(newY / GRID_SIZE) * GRID_SIZE;
       }
-
       // Round values to avoid fractional pixel jumps
-      newX = Math.round(newX * 100) / 100;
-      newY = Math.round(newY * 100) / 100;
-      updateNote(noteId, { x: newX, y: newY });
+      finalX = Math.round(finalX * 100) / 100;
+      finalY = Math.round(finalY * 100) / 100;
+      updateNote(noteId, { x: finalX, y: finalY });
+      setPreviewNote(null);
     }
 
     setIsDragging(false);
@@ -399,6 +441,38 @@ export default function CanvasPage() {
               </>
             )}
 
+            {/* Preview ghost for snapping */}
+            {previewNote &&
+              (() => {
+                const noteObj = state.notes.find(
+                  (n) => n.id === previewNote.id
+                );
+                const color = noteObj?.color || "#1a1a1a";
+                const getDarkModeColor = (c: string) => {
+                  const colorMap: Record<string, string> = {
+                    "#fef3c7": "#2a2520",
+                    "#fecaca": "#2a2020",
+                    "#bbf7d0": "#1e2a23",
+                    "#bfdbfe": "#1e2328",
+                    "#e9d5ff": "#252028",
+                    "#fbcfe8": "#2a2025",
+                  };
+                  return colorMap[c] || "#1a1a1a";
+                };
+
+                return (
+                  <div
+                    className="absolute pointer-events-none opacity-80"
+                    style={{ left: previewNote.x, top: previewNote.y }}
+                  >
+                    <div
+                      className="w-64 p-3 rounded-lg border border-purple-400/60"
+                      style={{ backgroundColor: getDarkModeColor(color) }}
+                    />
+                  </div>
+                );
+              })()}
+
             <DndContext
               sensors={sensors}
               onDragStart={handleDragStart}
@@ -515,6 +589,8 @@ export default function CanvasPage() {
             onResetView={handleResetView}
             showMinimap={showMinimap}
             onToggleMinimap={() => setShowMinimap(!showMinimap)}
+            showAlignment={showAlignment}
+            onToggleAlignment={() => setShowAlignment(!showAlignment)}
           />
 
           {/* Minimap */}
