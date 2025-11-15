@@ -142,16 +142,40 @@ export default function Home() {
           </form>
 
           <div className="mt-6 p-4 glass-light rounded-lg border border-gray-700/50">
-            <h3 className="font-medium text-gray-200 mb-2 text-sm">
-              What happens next?
+            <h3 className="font-medium text-gray-200 mb-4 text-sm text-center">
+              How it works
             </h3>
-            <ul className="text-sm text-gray-400 space-y-1">
-              <li>• Answer guided questions with sticky notes</li>
-              <li>• Attach images to your notes for richer ideas</li>
-              <li>• Mark promising ideas as concepts</li>
-              <li>• Self-evaluate and refine your top concepts</li>
-              <li>• Get AI feedback on your final designs</li>
-            </ul>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 glass-light rounded-lg border border-gray-700/30">
+                <Lightbulb className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                <h4 className="font-semibold text-gray-100 mb-1 text-sm">
+                  Ideate
+                </h4>
+                <p className="text-xs text-gray-400">
+                  Answer guided questions with sticky notes and attach images
+                  for richer ideas
+                </p>
+              </div>
+              <div className="text-center p-4 glass-light rounded-lg border border-gray-700/30">
+                <Sparkles className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                <h4 className="font-semibold text-gray-100 mb-1 text-sm">
+                  Refine
+                </h4>
+                <p className="text-xs text-gray-400">
+                  Mark promising ideas as concepts and self-evaluate your top
+                  ones
+                </p>
+              </div>
+              <div className="text-center p-4 glass-light rounded-lg border border-gray-700/30">
+                <HelpCircle className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                <h4 className="font-semibold text-gray-100 mb-1 text-sm">
+                  Feedback
+                </h4>
+                <p className="text-xs text-gray-400">
+                  Get AI insights on your final designs
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
