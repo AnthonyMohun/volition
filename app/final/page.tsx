@@ -38,7 +38,7 @@ export default function FinalPage() {
     }
 
     evaluateConcepts();
-  }, []);
+  }, [state.selectedConceptIds]);
 
   const evaluateConcepts = async () => {
     setIsLoading(true);

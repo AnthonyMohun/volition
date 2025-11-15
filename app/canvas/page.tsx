@@ -355,10 +355,10 @@ export default function CanvasPage() {
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
 
-  const handleProceedToReview = () => {
+  const handleProceedToSelect = () => {
     if (conceptNotes.length >= 3) {
-      setPhase("review");
-      router.push("/review");
+      setPhase("canvas");
+      router.push("/select");
     }
   };
 
@@ -404,11 +404,11 @@ export default function CanvasPage() {
             </span>
           </div>
           <button
-            onClick={handleProceedToReview}
+            onClick={handleProceedToSelect}
             disabled={conceptNotes.length < 3}
             className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium silver-glow"
           >
-            Review Concepts
+            Select Concepts
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

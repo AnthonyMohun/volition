@@ -52,7 +52,7 @@ export interface SessionState {
   questions: AIQuestion[];
   concepts: Concept[];
   evaluations: ConceptEvaluation[];
-  currentPhase: "hmw" | "canvas" | "review" | "final";
+  currentPhase: "hmw" | "canvas" | "select" | "refine" | "final";
   selectedConceptIds: string[];
   tokenAllocation: Record<string, number>;
   createdAt: number;
