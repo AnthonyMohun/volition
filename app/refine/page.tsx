@@ -24,9 +24,13 @@ interface ConceptEditForm {
 
 export default function RefinePage() {
   const router = useRouter();
-  const { state, setPhase, updateNote, setSelectedConcepts: saveSelectedConcepts } =
-    useSession();
-  
+  const {
+    state,
+    setPhase,
+    updateNote,
+    setSelectedConcepts: saveSelectedConcepts,
+  } = useSession();
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<ConceptEditForm>({
     title: "",
@@ -47,10 +51,11 @@ export default function RefinePage() {
     }
 
     // Get selected concepts from route params or state
-    const selectedIds = state.selectedConceptIds.length > 0 
-      ? state.selectedConceptIds
-      : conceptNotes.slice(0, 3).map(n => n.id);
-    
+    const selectedIds =
+      state.selectedConceptIds.length > 0
+        ? state.selectedConceptIds
+        : conceptNotes.slice(0, 3).map((n) => n.id);
+
     // If we have selected concepts, start the wizard immediately
     if (selectedIds.length === 3) {
       const firstNote = conceptNotes.find((n) => n.id === selectedIds[0]);
@@ -58,11 +63,17 @@ export default function RefinePage() {
         startEditingConcept(firstNote);
       }
     }
-  }, [state.hmwStatement, conceptNotes.length, router, state.selectedConceptIds]);
+  }, [
+    state.hmwStatement,
+    conceptNotes.length,
+    router,
+    state.selectedConceptIds,
+  ]);
 
-  const selectedNotes = (state.selectedConceptIds.length > 0 
-    ? state.selectedConceptIds
-    : conceptNotes.slice(0, 3)
+  const selectedNotes = (
+    state.selectedConceptIds.length > 0
+      ? state.selectedConceptIds
+      : conceptNotes.slice(0, 3)
   )
     .map((id) => conceptNotes.find((n) => n.id === id))
     .filter((n) => n !== undefined) as typeof conceptNotes;
@@ -238,8 +249,8 @@ export default function RefinePage() {
 
               <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                 <p className="text-sm text-blue-300">
-                  💡 Let's refine this concept together. Fill in what you can
-                  - you can always come back to this later.
+                  💡 Let's refine this concept together. Fill in what you can -
+                  you can always come back to this later.
                 </p>
                 <div className="flex gap-2 mt-3">
                   {selectedNotes.map((_, idx) => (
@@ -386,8 +397,8 @@ export default function RefinePage() {
                         {/* Optional fields hint */}
                         <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-lg">
                           <p className="text-xs text-blue-300">
-                            💡 <strong>Pro tip:</strong> The fields below
-                            are optional but will strengthen your concept
+                            💡 <strong>Pro tip:</strong> The fields below are
+                            optional but will strengthen your concept
                           </p>
                         </div>
 
@@ -484,7 +495,9 @@ export default function RefinePage() {
                           onClick={() => {
                             setWizardComplete(false);
                             startEditingConcept(note);
-                            const idx = selectedNotes.findIndex(n => n.id === note.id);
+                            const idx = selectedNotes.findIndex(
+                              (n) => n.id === note.id
+                            );
                             setGuidedIndex(idx);
                           }}
                           className="p-2 hover:bg-purple-500/20 rounded-lg transition-colors group flex-shrink-0"

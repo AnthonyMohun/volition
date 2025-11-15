@@ -15,7 +15,11 @@ import {
 
 export default function SelectPage() {
   const router = useRouter();
-  const { state, setPhase, setSelectedConcepts: saveSelectedConcepts } = useSession();
+  const {
+    state,
+    setPhase,
+    setSelectedConcepts: saveSelectedConcepts,
+  } = useSession();
   const [selectedConcepts, setSelectedConcepts] = useState<string[]>([]);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
@@ -229,9 +233,9 @@ export default function SelectPage() {
           {/* Info Box */}
           <div className="mt-6 glass rounded-lg p-4 border border-blue-500/20 bg-blue-500/5">
             <p className="text-sm text-blue-300">
-              💡 <strong>Tip:</strong> Don't worry about picking perfect concepts
-              now—you'll have a chance to develop and refine them in the next
-              step. Focus on picking ideas with the most potential.
+              💡 <strong>Tip:</strong> Don't worry about picking perfect
+              concepts now—you'll have a chance to develop and refine them in
+              the next step. Focus on picking ideas with the most potential.
             </p>
           </div>
         </div>
