@@ -8,17 +8,7 @@ import {
   buildConversationContext,
   MessageRole,
 } from "@/lib/ai-client";
-import {
-  Bot,
-  Sparkles,
-  Loader2,
-  Check,
-  Plus,
-  Flag,
-  MapPin,
-  RotateCcw,
-  X,
-} from "lucide-react";
+import { Bot, Sparkles, Loader2, Check, Plus, Pin } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -33,9 +23,7 @@ export function AIQuestionPanel() {
   } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hoveredQuestionId, setHoveredQuestionId] = useState<string | null>(
-    null
-  );
+  // removed hover-based undo — replaced with a direct toggle and green transition
   const hasAskedFirstQuestion = useRef(false);
 
   const currentQuestion = state.questions[state.questions.length - 1];
@@ -167,7 +155,7 @@ export function AIQuestionPanel() {
             {state.questions.filter((q) => !q.answered).length} unanswered
           </span>
           <span className="ml-auto flex items-center gap-1 text-yellow-300 text-xs">
-            <MapPin className="w-3.5 h-3.5 opacity-90" />
+            <Pin className="w-3.5 h-3.5 opacity-90" />
             {state.questions.filter((q) => q.pinned).length} pinned
           </span>
         </div>
@@ -219,54 +207,38 @@ export function AIQuestionPanel() {
                     </span>
                   </p>
                   <div className="flex items-center gap-2">
-                    {question.answered ? (
-                      <motion.div
-                        className="relative"
-                        onHoverStart={() => setHoveredQuestionId(question.id)}
-                        onHoverEnd={() => setHoveredQuestionId(null)}
-                      >
-                        <AnimatePresence mode="wait">
-                          {hoveredQuestionId === question.id ? (
-                            <motion.button
-                              key="undo"
-                              initial={{ scale: 0, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              exit={{ scale: 0, opacity: 0 }}
-                              transition={{ duration: 0.2, ease: "easeInOut" }}
-                              onClick={() =>
-                                toggleQuestionAnswered(question.id)
-                              }
-                              className="flex items-center gap-1.5 text-xs text-orange-400 border border-orange-400/30 bg-orange-500/10 px-2 py-1 rounded-full hover:bg-orange-500/20 transition-all"
-                              title="Mark as unanswered"
-                              aria-label="Mark as unanswered"
-                            >
-                              <RotateCcw className="w-3 h-3" />
-                              <span className="whitespace-nowrap">Undo</span>
-                            </motion.button>
-                          ) : (
-                            <motion.div
-                              key="checkmark"
-                              initial={{ scale: 0, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              exit={{ scale: 0, opacity: 0 }}
-                              transition={{ duration: 0.2, ease: "easeInOut" }}
-                              className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 border border-green-400/30"
-                            >
-                              <Check className="w-3.5 h-3.5 text-green-400" />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    ) : (
-                      <button
-                        onClick={() => markQuestionAnswered(question.id)}
-                        title="Mark as answered"
-                        aria-label="Mark as answered"
-                        className="p-1.5 rounded hover:bg-white/10 transition-all text-gray-400"
-                      >
-                        <Check className="w-4 h-4" />
-                      </button>
-                    )}
+                    <motion.button
+                      onClick={() => toggleQuestionAnswered(question.id)}
+                      title={
+                        question.answered
+                          ? "Mark as unanswered"
+                          : "Mark as answered"
+                      }
+                      aria-label={
+                        question.answered
+                          ? "Mark as unanswered"
+                          : "Mark as answered"
+                      }
+                      whileTap={{ scale: 0.92 }}
+                      initial={{ scale: 1, opacity: 1 }}
+                      animate={
+                        question.answered
+                          ? { scale: 1.05, opacity: 1 }
+                          : { scale: 1, opacity: 1 }
+                      }
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 24,
+                      }}
+                      className={`p-1.5 rounded transition-all ${
+                        question.answered
+                          ? "text-green-400"
+                          : "text-gray-400 hover:bg-white/10"
+                      }`}
+                    >
+                      <Check className="w-4 h-4" />
+                    </motion.button>
 
                     <button
                       title="Create note from question"
@@ -313,7 +285,7 @@ export function AIQuestionPanel() {
                             transition={{ duration: 0.18 }}
                             className="flex items-center"
                           >
-                            <MapPin className="w-4 h-4" />
+                            <Pin className="w-4 h-4" />
                           </motion.span>
                         ) : (
                           <motion.span
@@ -324,7 +296,7 @@ export function AIQuestionPanel() {
                             transition={{ duration: 0.18 }}
                             className="flex items-center"
                           >
-                            <Flag className="w-4 h-4" />
+                            <Pin className="w-4 h-4 opacity-70" />
                           </motion.span>
                         )}
                       </AnimatePresence>
