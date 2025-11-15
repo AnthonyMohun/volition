@@ -227,13 +227,14 @@ export default function CanvasPage() {
   }, [handleZoomIn, handleZoomOut, handleFitToContent, handleResetView]);
 
   const handleAddNote = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    const canvasRect = canvas.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
     // Calculate position accounting for zoom and pan
-    const centerX = (canvasRect.width / 2 - panX * zoom) / zoom;
-    const centerY = (canvasRect.height / 2 - panY * zoom) / zoom;
+    // Screen center to canvas coordinates: (screenX - panX) / zoom
+    const centerX = (containerRect.width / 2 - panX) / zoom;
+    const centerY = (containerRect.height / 2 - panY) / zoom;
 
     const x = centerX + (Math.random() - 0.5) * 300;
     const y = centerY + (Math.random() - 0.5) * 200;
