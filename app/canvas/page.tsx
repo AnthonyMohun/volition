@@ -245,13 +245,31 @@ export default function CanvasPage() {
       let newX = note.x + delta.x / zoom;
       let newY = note.y + delta.y / zoom;
 
-      // Apply grid snapping if enabled - snap to nearest grid point
-      if (gridSnap) {
+      // Compute alignment guides (use same threshold as during drag)
+      const otherNotes = state.notes
+        .filter((n) => n.id !== noteId)
+        .map((n) => ({ x: n.x, y: n.y, width: 256, height: 200 }));
+
+      const guides = calculateAlignmentGuides(
+        { x: newX, y: newY, width: 256, height: 200 },
+        otherNotes,
+        15 / zoom
+      );
+
+      // If alignment guides exist, prefer them over grid snapping to avoid jumps
+      const hasAlignmentSnap = guides.snapX !== null || guides.snapY !== null;
+      if (hasAlignmentSnap) {
+        if (guides.snapX !== null) newX = guides.snapX;
+        if (guides.snapY !== null) newY = guides.snapY;
+      } else if (gridSnap) {
+        // Apply grid snapping if enabled and no alignment snap found
         newX = Math.round(newX / GRID_SIZE) * GRID_SIZE;
         newY = Math.round(newY / GRID_SIZE) * GRID_SIZE;
       }
-      // When grid snap is disabled, no snapping - free placement
 
+      // Round values to avoid fractional pixel jumps
+      newX = Math.round(newX * 100) / 100;
+      newY = Math.round(newY * 100) / 100;
       updateNote(noteId, { x: newX, y: newY });
     }
 
