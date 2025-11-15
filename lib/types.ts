@@ -55,6 +55,12 @@ export interface SessionState {
   currentPhase: "hmw" | "canvas" | "select" | "refine" | "final";
   selectedConceptIds: string[];
   tokenAllocation: Record<string, number>;
+  // Viewport: world (canvas) center coordinates and zoom level
+  viewport?: {
+    centerX: number;
+    centerY: number;
+    zoom: number;
+  };
   createdAt: number;
 }
 
@@ -68,6 +74,7 @@ export const INITIAL_SESSION_STATE: SessionState = {
   currentPhase: "hmw",
   selectedConceptIds: [],
   tokenAllocation: {},
+  viewport: { centerX: 0, centerY: 0, zoom: 1 },
   createdAt: Date.now(),
 };
 

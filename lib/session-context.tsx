@@ -37,6 +37,8 @@ interface SessionContextType {
   ) => void;
   resetSession: () => void;
   loadExampleSession: (exampleState: Partial<SessionState>) => void;
+  // viewport setter: center X/Y in world coords and zoom
+  setViewport: (v: { centerX: number; centerY: number; zoom: number }) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -228,6 +230,17 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setRedoStack([]);
   };
 
+  const setViewport = (v: {
+    centerX: number;
+    centerY: number;
+    zoom: number;
+  }) => {
+    setState((prev) => ({
+      ...prev,
+      viewport: { centerX: v.centerX, centerY: v.centerY, zoom: v.zoom },
+    }));
+  };
+
   return (
     <SessionContext.Provider
       value={{
@@ -247,6 +260,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         setSelectedConcepts,
         resetSession,
         loadExampleSession,
+        setViewport,
         undo,
         redo,
         canUndo,

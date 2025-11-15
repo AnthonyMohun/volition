@@ -274,11 +274,28 @@ export function AIQuestionPanel() {
                     title="Create note from question"
                     aria-label="Create note from question"
                     onClick={() => {
+                      // Place note near the user's current viewport center (if available)
+                      // Using a subtle random offset to avoid strict stacking on the exact center
+                      const viewportCenterX = state.viewport?.centerX;
+                      const viewportCenterY = state.viewport?.centerY;
+
+                      const offsetX = (Math.random() - 0.5) * 200;
+                      const offsetY = (Math.random() - 0.5) * 120;
+
+                      const x =
+                        viewportCenterX !== undefined
+                          ? viewportCenterX + offsetX
+                          : 80 + Math.floor(Math.random() * 200);
+                      const y =
+                        viewportCenterY !== undefined
+                          ? viewportCenterY + offsetY
+                          : 80 + Math.floor(Math.random() * 120);
+
                       addNote({
                         id: `note-${Date.now()}`,
                         text: question.text,
-                        x: 80 + Math.floor(Math.random() * 200),
-                        y: 80 + Math.floor(Math.random() * 120),
+                        x,
+                        y,
                         color:
                           STICKY_COLORS[
                             Math.floor(Math.random() * STICKY_COLORS.length)

@@ -33,8 +33,8 @@ export default function CanvasPage() {
     redo,
     canUndo,
     canRedo,
+    setViewport,
   } = useSession();
-  useSession();
   const [selectedColor, setSelectedColor] = useState(STICKY_COLORS[0]);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
@@ -89,6 +89,16 @@ export default function CanvasPage() {
       router.push("/");
     }
   }, [state.hmwStatement, router]);
+
+  // Update viewport info in session whenever pan/zoom changes
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const containerRect = container.getBoundingClientRect();
+    const centerX = (containerRect.width / 2 - panX) / zoom;
+    const centerY = (containerRect.height / 2 - panY) / zoom;
+    setViewport?.({ centerX, centerY, zoom });
+  }, [panX, panY, zoom, containerRef.current, setViewport]);
 
   // Zoom functions
   const handleZoomIn = useCallback(() => {
