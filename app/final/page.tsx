@@ -653,7 +653,7 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
 
                   {/* Concept Content */}
                   <div className="p-6">
-                    <div className="mb-6">
+                    <div className="mb-4">
                       <div className="flex flex-col gap-4 md:flex-row">
                         {note.image && (
                           <img
@@ -679,7 +679,7 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
                     </div>
 
                     {/* Criteria Breakdown */}
-                    <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                       {CRITERIA_DISPLAY.map((criterion) => {
                         const value = evaluation.criteria[criterion.key];
                         const progress = Math.min(

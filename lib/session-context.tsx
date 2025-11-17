@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { useToast } from "./toast-context";
 import {
   ICommand,
@@ -236,16 +242,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setState((prev) => ({ ...prev, isExampleSession: false }));
   }, []);
 
-  const setViewport = useCallback((v: {
-    centerX: number;
-    centerY: number;
-    zoom: number;
-  }) => {
-    setState((prev) => ({
-      ...prev,
-      viewport: { centerX: v.centerX, centerY: v.centerY, zoom: v.zoom },
-    }));
-  }, []);
+  const setViewport = useCallback(
+    (v: { centerX: number; centerY: number; zoom: number }) => {
+      setState((prev) => ({
+        ...prev,
+        viewport: { centerX: v.centerX, centerY: v.centerY, zoom: v.zoom },
+      }));
+    },
+    []
+  );
 
   return (
     <SessionContext.Provider
