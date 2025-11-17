@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Zap,
   Brain,
@@ -8,6 +9,8 @@ import {
   Settings,
   Flag,
   ArrowRight,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -346,8 +349,14 @@ function StageCard({
 }
 
 export default function JourneyPage() {
+  const [isPureBlack, setIsPureBlack] = useState(false);
+
   return (
-    <div className="min-h-screen dark-gradient-radial texture-overlay">
+    <div
+      className={`min-h-screen ${
+        isPureBlack ? "bg-black" : "dark-gradient-radial"
+      } texture-overlay`}
+    >
       {/* Header */}
       <div className="text-center py-12 px-4">
         <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent mb-4">
@@ -451,6 +460,25 @@ export default function JourneyPage() {
                 <p className="text-gray-300">{rec}</p>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Background Toggle */}
+        <div className="mt-16 pt-12 border-t border-gray-700/50">
+          <div className="flex items-center justify-center gap-4">
+            <button
+              onClick={() => setIsPureBlack(!isPureBlack)}
+              className="glass rounded-xl p-4 border border-gray-700/50 hover:border-gray-600/50 transition-all flex items-center gap-3 text-gray-300 hover:text-gray-100"
+            >
+              {isPureBlack ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+              <span className="text-sm font-medium">
+                {isPureBlack ? "Light Background" : "Pure Black Background"}
+              </span>
+            </button>
           </div>
         </div>
 

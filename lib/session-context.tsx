@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useToast } from "./toast-context";
 import {
   ICommand,
@@ -232,11 +232,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setRedoStack([]);
   };
 
-  const clearExampleSessionFlag = () => {
+  const clearExampleSessionFlag = useCallback(() => {
     setState((prev) => ({ ...prev, isExampleSession: false }));
-  };
+  }, []);
 
-  const setViewport = (v: {
+  const setViewport = useCallback((v: {
     centerX: number;
     centerY: number;
     zoom: number;
@@ -245,7 +245,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       viewport: { centerX: v.centerX, centerY: v.centerY, zoom: v.zoom },
     }));
-  };
+  }, []);
 
   return (
     <SessionContext.Provider

@@ -106,7 +106,7 @@ export default function CanvasPage() {
     const centerX = (containerRect.width / 2 - panX) / zoom;
     const centerY = (containerRect.height / 2 - panY) / zoom;
     setViewport?.({ centerX, centerY, zoom });
-  }, [panX, panY, zoom, containerRef.current, setViewport]);
+  }, [panX, panY, zoom, setViewport]);
 
   // Zoom functions
   const handleZoomIn = useCallback(() => {
@@ -151,12 +151,22 @@ export default function CanvasPage() {
 
   // Fit to content when loading example session
   useEffect(() => {
-    if (state.isExampleSession && state.notes.length > 0 && containerRef.current) {
+    if (
+      state.isExampleSession &&
+      state.notes.length > 0 &&
+      containerRef.current
+    ) {
       handleFitToContent();
       // Reset the flag to avoid triggering again
       clearExampleSessionFlag();
     }
-  }, [state.isExampleSession, state.notes.length, containerRef.current, clearExampleSessionFlag, handleFitToContent]);
+  }, [
+    state.isExampleSession,
+    state.notes.length,
+    containerRef.current,
+    clearExampleSessionFlag,
+    handleFitToContent,
+  ]);
 
   const handleResetView = useCallback(() => {
     if (containerRef.current) {
@@ -402,7 +412,7 @@ export default function CanvasPage() {
 
   const handleProceedToSelect = () => {
     if (conceptNotes.length >= 3) {
-      setPhase("canvas");
+      setPhase("select");
       router.push("/select");
     }
   };
