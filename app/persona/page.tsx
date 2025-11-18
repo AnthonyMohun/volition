@@ -1,6 +1,13 @@
 "use client";
 
-import { User, Target, AlertCircle, Activity, Zap, Monitor } from "lucide-react";
+import {
+  User,
+  Target,
+  AlertCircle,
+  Activity,
+  Zap,
+  Monitor,
+} from "lucide-react";
 
 export default function PersonaPage() {
   return (
@@ -28,11 +35,15 @@ export default function PersonaPage() {
                 <User className="w-6 h-6 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">Age / Role</h3>
+                <h3 className="text-lg font-semibold text-gray-100">
+                  Age / Role
+                </h3>
               </div>
             </div>
             <p className="text-3xl font-bold text-gray-100 mb-2">21</p>
-            <p className="text-gray-300 text-lg">3rd-year Interaction Design student</p>
+            <p className="text-gray-300 text-lg">
+              3rd-year Interaction Design student
+            </p>
           </div>
 
           {/* Goal */}
@@ -46,7 +57,8 @@ export default function PersonaPage() {
               </div>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Confidently generate thoughtful, high-quality concepts for college projects
+              Confidently generate thoughtful, high-quality concepts for college
+              projects
             </p>
           </div>
 
@@ -57,11 +69,14 @@ export default function PersonaPage() {
                 <AlertCircle className="w-6 h-6 text-red-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">Frustration</h3>
+                <h3 className="text-lg font-semibold text-gray-100">
+                  Frustration
+                </h3>
               </div>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Feels stuck, overwhelmed by scattered ideas, and unsure if their concepts are strong enough
+              Feels stuck, overwhelmed by scattered ideas, and unsure if their
+              concepts are strong enough
             </p>
           </div>
 
@@ -72,11 +87,14 @@ export default function PersonaPage() {
                 <Activity className="w-6 h-6 text-blue-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">Behavior</h3>
+                <h3 className="text-lg font-semibold text-gray-100">
+                  Behavior
+                </h3>
               </div>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Spends long hours sketching, researching, and iterating; seeks tools that guide rather than dictate
+              Spends long hours sketching, researching, and iterating; seeks
+              tools that guide rather than dictate
             </p>
           </div>
         </div>
@@ -90,11 +108,14 @@ export default function PersonaPage() {
                 <Zap className="w-6 h-6 text-yellow-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">Motivation</h3>
+                <h3 className="text-lg font-semibold text-gray-100">
+                  Motivation
+                </h3>
               </div>
             </div>
             <p className="text-gray-300 leading-relaxed text-lg">
-              Wants to create work they're proud of and that stands alongside the best in their class
+              Wants to create work they're proud of and that stands alongside
+              the best in their class
             </p>
           </div>
 
@@ -105,11 +126,14 @@ export default function PersonaPage() {
                 <Monitor className="w-6 h-6 text-cyan-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-100">Tech Comfort</h3>
+                <h3 className="text-lg font-semibold text-gray-100">
+                  Tech Comfort
+                </h3>
               </div>
             </div>
             <p className="text-gray-300 leading-relaxed text-lg">
-              Highly comfortable with digital tools and apps; values intuitive, supportive, and minimalist interfaces
+              Highly comfortable with digital tools and apps; values intuitive,
+              supportive, and minimalist interfaces
             </p>
           </div>
         </div>
