@@ -119,7 +119,7 @@ export function AIQuestionPanel() {
       messages.push({
         role: "user" as const,
         content:
-          "Based on my recent notes and progress, what should I explore next?",
+          "Based on my recent notes and progress, ask me a provocative, open-ended question using the SCAMPER method or another lateral thinking technique to help me expand my concepts. Focus on the most recent ideas added.",
       });
 
       const response = await askAI(messages);
@@ -310,7 +310,15 @@ export function AIQuestionPanel() {
                   </button>
 
                   <motion.button
-                    onClick={() => toggleQuestionAnswered(question.id)}
+                    onClick={() => {
+                      const wasAnswered = question.answered;
+                      toggleQuestionAnswered(question.id);
+                      if (!wasAnswered) {
+                        // If marking as answered, trigger the next question
+                        // Small delay to allow the UI to update first
+                        setTimeout(() => askNextQuestion(), 500);
+                      }
+                    }}
                     title={
                       question.answered
                         ? "Mark as unanswered"
