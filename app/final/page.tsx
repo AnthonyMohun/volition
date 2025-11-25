@@ -483,126 +483,144 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
   }
 
   return (
-    <div className="min-h-screen dark-gradient-radial texture-overlay p-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-100">
-              AI Evaluation Results
+            <h1 className="text-4xl font-black text-black flex items-center gap-3">
+              🎯 AI Evaluation Results
             </h1>
             <button
               onClick={handleStartOver}
-              className="flex items-center gap-2 px-4 py-2 glass-light border border-gray-700 rounded-lg hover:bg-gray-800/50 transition-colors text-gray-200 group"
+              className="flex items-center gap-2 px-5 py-3 fun-button-primary group"
             >
-              <ListRestart className="w-4 h-4 group-hover:text-orange-400 transition-colors" />
+              <ListRestart className="w-5 h-5" />
               Start New Project
             </button>
           </div>
-          <div className="mb-6 p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
-            <h3 className="text-xs font-semibold text-purple-300 uppercase tracking-wider mb-2">
-              DESIGN CHALLENGE
+          <div className="fun-card border-3 border-purple-300 mb-6">
+            <div className="absolute top-4 right-4 w-16 h-16 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 blur-xl opacity-50" />
+            <h3 className="text-xs font-bold text-purple-600 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+              💭 YOUR DESIGN CHALLENGE
             </h3>
-            <p className="text-gray-100 font-medium leading-relaxed">
+            <p className="text-black font-bold text-lg leading-relaxed relative z-10">
               {state.hmwStatement}
             </p>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="glass rounded-xl p-12 text-center border border-gray-700/50">
-            <Loader2 className="w-12 h-12 animate-spin text-purple-400 mx-auto mb-4" />
-            <p className="text-lg text-gray-200">
-              AI is evaluating your concepts...
+          <div className="fun-card border-3 border-purple-300 p-12 text-center">
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-100 to-pink-100 mb-6 shadow-lg">
+              <Loader2 className="w-12 h-12 animate-spin text-purple-600" />
+            </div>
+            <p className="text-2xl font-black text-black mb-2">
+              🤖 AI is evaluating your concepts...
             </p>
-            <p className="text-sm text-gray-400 mt-2">This may take a moment</p>
+            <p className="text-base text-gray-600 font-semibold">
+              This may take a moment ⏳
+            </p>
           </div>
         ) : error ? (
-          <div className="glass border border-red-500/30 rounded-xl p-8 text-center">
-            <p className="text-red-400 mb-4">{error}</p>
+          <div className="fun-card border-3 border-red-300 p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <p className="text-red-600 font-bold text-lg mb-6">{error}</p>
             <button
               onClick={evaluateConcepts}
-              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors"
+              className="px-8 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold rounded-2xl shadow-[0_8px_0_rgb(220,38,38),0_8px_20px_rgba(220,38,38,0.3)] hover:shadow-[0_4px_0_rgb(220,38,38),0_4px_15px_rgba(220,38,38,0.4)] active:shadow-[0_2px_0_rgb(220,38,38)] hover:-translate-y-1 active:translate-y-1 transition-all"
             >
-              Retry
+              🔄 Retry
             </button>
           </div>
         ) : (
           <div className="space-y-6">
             {summary && (
               <div className="grid gap-4 lg:grid-cols-3">
-                <div className="lg:col-span-2 rounded-2xl border border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-pink-500/10 p-6 relative overflow-hidden">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="lg:col-span-2 fun-card border-3 border-yellow-400 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-gradient-to-br from-yellow-200 to-orange-200 blur-3xl opacity-30" />
+                  <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-gradient-to-tr from-pink-200 to-purple-200 blur-2xl opacity-30" />
+                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between relative z-10">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-yellow-200/80">
-                        Top Concept Spotlight
-                      </p>
-                      <h3 className="mt-2 text-2xl font-bold text-gray-100">
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-300 mb-3">
+                        <Trophy className="w-4 h-4 text-yellow-600" />
+                        <span className="text-xs font-black uppercase tracking-wider text-yellow-700">
+                          🏆 Top Concept Spotlight
+                        </span>
+                      </div>
+                      <h3 className="text-3xl font-black text-black mb-3">
                         Concept #
                         {topEvaluation?.conceptNumber ??
                           summary.topConceptNumber}
                       </h3>
-                      <p className="mt-3 text-sm text-gray-100/80">
+                      <p className="text-base text-gray-700 font-semibold mb-4">
                         {summary.topConceptReason}
                       </p>
                       {topConceptNote && (
-                        <p className="mt-4 text-sm text-gray-200/90">
+                        <p className="text-base text-black font-bold">
                           {topConceptNote.text}
                         </p>
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="text-sm uppercase text-gray-200/70">
-                        Score
-                      </p>
-                      <p className="text-4xl font-black text-white">
-                        {topEvaluation?.score ?? "—"}
-                      </p>
-                      <p className="text-xs text-gray-200/70">
-                        Rank #{topEvaluation?.rank ?? "?"}
-                      </p>
+                      <div className="inline-flex flex-col items-center gap-2 px-6 py-4 rounded-2xl bg-white border-3 border-yellow-300 shadow-[0_6px_0_rgb(251,191,36),inset_0_2px_0_rgba(255,255,255,0.8)]">
+                        <p className="text-xs font-bold uppercase text-yellow-600">
+                          Score
+                        </p>
+                        <p className="text-5xl font-black text-black">
+                          {topEvaluation?.score ?? "—"}
+                        </p>
+                        <p className="text-xs font-bold text-gray-600">
+                          Rank #{topEvaluation?.rank ?? "?"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-4 lg:col-span-1">
-                  <div className="glass rounded-xl p-4 border border-purple-500/20 h-full">
-                    <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-purple-300 mb-3">
-                      <Sparkles className="w-4 h-4" />
-                      Key Themes
+                  <div className="fun-card border-3 border-purple-300 h-full">
+                    <div className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-purple-600 mb-4">
+                      <Sparkles className="w-5 h-5" />✨ Key Themes
                     </div>
                     {summary.keyThemes.length > 0 ? (
-                      <ul className="space-y-2 text-sm text-gray-200">
+                      <ul className="space-y-3 text-sm">
                         {summary.keyThemes.map((theme, index) => (
-                          <li key={index} className="flex gap-2">
-                            <span className="text-purple-400">
-                              {index + 1}.
+                          <li key={index} className="flex gap-3 items-start">
+                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 text-white font-black text-xs flex items-center justify-center shadow-md">
+                              {index + 1}
                             </span>
-                            <span>{theme}</span>
+                            <span className="font-semibold text-black">
+                              {theme}
+                            </span>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-gray-600 font-semibold">
                         Themes will appear once the AI response includes them.
                       </p>
                     )}
                   </div>
-                  <div className="glass rounded-xl p-4 border border-green-500/20">
-                    <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-green-300 mb-3">
-                      <ListChecks className="w-4 h-4" />
-                      Suggested Next Steps
+                  <div className="fun-card border-3 border-green-300">
+                    <div className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-green-600 mb-4">
+                      <ListChecks className="w-5 h-5" />
+                      🎯 Next Steps
                     </div>
                     {summary.nextSteps.length > 0 ? (
-                      <ul className="space-y-2 text-sm text-gray-200">
+                      <ul className="space-y-3 text-sm">
                         {summary.nextSteps.map((step, index) => (
-                          <li key={index} className="flex gap-2">
-                            <span className="text-green-400">{index + 1}.</span>
-                            <span>{step}</span>
+                          <li key={index} className="flex gap-3 items-start">
+                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-emerald-400 text-white font-black text-xs flex items-center justify-center shadow-md">
+                              {index + 1}
+                            </span>
+                            <span className="font-semibold text-black">
+                              {step}
+                            </span>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-gray-600 font-semibold">
                         Tailored next steps will appear with the next AI run.
                       </p>
                     )}
@@ -626,51 +644,58 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
               return (
                 <div
                   key={evaluation.noteId}
-                  className="glass rounded-xl overflow-hidden border border-gray-700/50"
+                  className="fun-card border-3 border-purple-300 overflow-hidden"
                 >
                   {/* Rank Header */}
                   <div
                     className={`bg-gradient-to-r ${
                       rankColors[evaluation.rank - 1] ||
                       "from-gray-700 to-gray-800"
-                    } px-6 py-4 flex items-center justify-between`}
+                    } px-6 py-5 flex items-center justify-between shadow-[inset_0_2px_0_rgba(255,255,255,0.3)]`}
                   >
-                    <div className="flex items-center gap-3">
-                      <RankIcon className="w-6 h-6 text-white" />
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                        <RankIcon className="w-7 h-7 text-white" />
+                      </div>
                       <div>
-                        <p className="text-xs uppercase tracking-wide text-white/80">
+                        <p className="text-xs font-black uppercase tracking-wider text-white/90">
                           Concept #{evaluation.conceptNumber}
                         </p>
-                        <h3 className="text-white font-bold text-lg">
+                        <h3 className="text-white font-black text-2xl">
                           Rank #{evaluation.rank}
                         </h3>
                       </div>
                     </div>
-                    <p className="text-white/90 text-sm">
-                      {evaluation.score}/10
-                    </p>
+                    <div className="px-4 py-2 rounded-xl bg-white/20 backdrop-blur-sm">
+                      <p className="text-white font-black text-2xl">
+                        {evaluation.score}
+                      </p>
+                      <p className="text-white/80 font-bold text-xs text-center">
+                        /10
+                      </p>
+                    </div>
                   </div>
 
                   {/* Concept Content */}
                   <div className="p-6">
-                    <div className="mb-4">
+                    <div className="mb-6">
                       <div className="flex flex-col gap-4 md:flex-row">
                         {note.image && (
                           <img
                             src={note.image.dataUrl}
                             alt={note.image.caption || "Concept"}
-                            className="w-32 h-32 object-cover rounded-lg border border-gray-700"
+                            className="w-40 h-40 object-cover rounded-2xl border-3 border-purple-200 shadow-lg"
                           />
                         )}
                         <div className="flex-1">
-                          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">
-                            Your Concept
+                          <p className="text-xs font-black uppercase tracking-[0.2em] text-purple-600 mb-2">
+                            💡 YOUR CONCEPT
                           </p>
-                          <h4 className="font-semibold text-gray-100 text-lg mb-2">
+                          <h4 className="font-black text-black text-2xl mb-3">
                             {note.text}
                           </h4>
                           {note.details && (
-                            <p className="text-sm text-gray-400 whitespace-pre-line">
+                            <p className="text-sm text-gray-700 font-semibold whitespace-pre-line leading-relaxed">
                               {note.details}
                             </p>
                           )}
@@ -679,7 +704,7 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
                     </div>
 
                     {/* Criteria Breakdown */}
-                    <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                       {CRITERIA_DISPLAY.map((criterion) => {
                         const value = evaluation.criteria[criterion.key];
                         const progress = Math.min(
@@ -690,15 +715,17 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
                         return (
                           <div
                             key={criterion.key}
-                            className="glass-light rounded-lg p-3 border border-gray-700/40"
+                            className="bg-white rounded-2xl p-4 border-3 border-gray-200 shadow-[0_4px_0_rgb(229,231,235),inset_0_2px_0_rgba(255,255,255,0.8)]"
                           >
-                            <div className="flex items-center justify-between text-xs uppercase tracking-wide text-gray-400">
+                            <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-gray-600 mb-2">
                               <span>{criterion.label}</span>
-                              <span className="text-gray-200">{value}/10</span>
+                              <span className="text-black text-sm">
+                                {value}/10
+                              </span>
                             </div>
-                            <div className="mt-2 h-2 rounded-full bg-gray-800 overflow-hidden">
+                            <div className="h-3 rounded-full bg-gray-100 overflow-hidden shadow-inner">
                               <div
-                                className={`h-full rounded-full bg-gradient-to-r ${criterion.accent}`}
+                                className={`h-full rounded-full bg-gradient-to-r ${criterion.accent} shadow-sm`}
                                 style={{ width: `${progress}%` }}
                               />
                             </div>
@@ -708,20 +735,22 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
                     </div>
 
                     {/* Feedback Grid */}
-                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    <div className="grid md:grid-cols-2 gap-4 mb-6">
                       {/* Strengths */}
-                      <div className="glass-light rounded-lg p-4 border border-green-500/20">
-                        <h5 className="font-semibold text-green-400 mb-2 flex items-center gap-2">
-                          <Lightbulb className="w-4 h-4" />
-                          Strengths
+                      <div className="bg-white rounded-2xl p-5 border-3 border-green-300 shadow-[0_4px_0_rgb(134,239,172),inset_0_2px_0_rgba(255,255,255,0.8)]">
+                        <h5 className="font-black text-green-600 mb-4 flex items-center gap-2 text-base">
+                          <Lightbulb className="w-5 h-5" />
+                          💪 Strengths
                         </h5>
-                        <ul className="space-y-1">
+                        <ul className="space-y-3">
                           {evaluation.strengths.map((strength, i) => (
                             <li
                               key={i}
-                              className="text-sm text-gray-300 flex items-start gap-2"
+                              className="text-sm text-black font-semibold flex items-start gap-3"
                             >
-                              <span className="text-green-400 mt-0.5">•</span>
+                              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-green-400 to-emerald-400 text-white font-black text-xs flex items-center justify-center mt-0.5">
+                                ✓
+                              </span>
                               <span>{strength}</span>
                             </li>
                           ))}
@@ -729,18 +758,20 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
                       </div>
 
                       {/* Improvements */}
-                      <div className="glass-light rounded-lg p-4 border border-blue-500/20">
-                        <h5 className="font-semibold text-blue-400 mb-2 flex items-center gap-2">
-                          <TrendingUp className="w-4 h-4" />
-                          Areas to Develop
+                      <div className="bg-white rounded-2xl p-5 border-3 border-blue-300 shadow-[0_4px_0_rgb(147,197,253),inset_0_2px_0_rgba(255,255,255,0.8)]">
+                        <h5 className="font-black text-blue-600 mb-4 flex items-center gap-2 text-base">
+                          <TrendingUp className="w-5 h-5" />
+                          📈 Areas to Develop
                         </h5>
-                        <ul className="space-y-1">
+                        <ul className="space-y-3">
                           {evaluation.improvements.map((improvement, i) => (
                             <li
                               key={i}
-                              className="text-sm text-gray-300 flex items-start gap-2"
+                              className="text-sm text-black font-semibold flex items-start gap-3"
                             >
-                              <span className="text-blue-400 mt-0.5">•</span>
+                              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-sky-400 text-white font-black text-xs flex items-center justify-center mt-0.5">
+                                →
+                              </span>
                               <span>{improvement}</span>
                             </li>
                           ))}
@@ -749,11 +780,11 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
                     </div>
 
                     {/* Overall Feedback */}
-                    <div className="glass-light rounded-lg p-4 border border-purple-500/20">
-                      <h5 className="font-semibold text-purple-400 mb-2">
-                        Overall Feedback
+                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-5 border-3 border-purple-200 shadow-[0_4px_0_rgb(233,213,255),inset_0_2px_0_rgba(255,255,255,0.8)]">
+                      <h5 className="font-black text-purple-600 mb-3 flex items-center gap-2 text-base">
+                        💬 Overall Feedback
                       </h5>
-                      <p className="text-sm text-gray-300">
+                      <p className="text-sm text-black font-semibold leading-relaxed">
                         {evaluation.feedback}
                       </p>
                     </div>
@@ -763,32 +794,38 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
             })}
 
             {scoreStats && (
-              <div className="glass rounded-xl p-6 border border-gray-700/50">
-                <div className="flex items-center gap-3 text-gray-100 mb-6">
-                  <BarChart3 className="w-5 h-5 text-orange-400" />
+              <div className="fun-card border-3 border-orange-300">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-100 to-pink-100 flex items-center justify-center shadow-lg">
+                    <BarChart3 className="w-6 h-6 text-orange-600" />
+                  </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400">
-                      Score Snapshot
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-orange-600">
+                      📊 Score Snapshot
                     </p>
-                    <p className="text-lg font-semibold">
+                    <p className="text-lg font-black text-black">
                       How your concepts compare
                     </p>
                   </div>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-3 text-center">
-                  <div>
-                    <p className="text-sm text-gray-400">Average</p>
-                    <p className="text-3xl font-bold text-gray-100">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="bg-white rounded-2xl p-5 border-3 border-gray-200 shadow-[0_4px_0_rgb(229,231,235),inset_0_2px_0_rgba(255,255,255,0.8)] text-center">
+                    <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
+                      Average
+                    </p>
+                    <p className="text-5xl font-black text-black">
                       {scoreStats.avg}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-400">Highest</p>
-                    <p className="text-3xl font-bold text-gray-100">
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border-3 border-green-300 shadow-[0_4px_0_rgb(134,239,172),inset_0_2px_0_rgba(255,255,255,0.8)] text-center">
+                    <p className="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">
+                      🏆 Highest
+                    </p>
+                    <p className="text-5xl font-black text-black">
                       {scoreStats.high}
                     </p>
                     {leadingConcept && (
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-700 font-semibold mt-2">
                         Concept #{leadingConcept.conceptNumber}
                         {leadingConceptNote
                           ? ` · ${previewText(leadingConceptNote.text)}`
@@ -796,13 +833,15 @@ CRITICAL: Do not be generous. If a concept has no substance, score it 1-2. If it
                       </p>
                     )}
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-400">Lowest</p>
-                    <p className="text-3xl font-bold text-gray-100">
+                  <div className="bg-gradient-to-br from-blue-50 to-sky-50 rounded-2xl p-5 border-3 border-blue-300 shadow-[0_4px_0_rgb(147,197,253),inset_0_2px_0_rgba(255,255,255,0.8)] text-center">
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">
+                      Lowest
+                    </p>
+                    <p className="text-5xl font-black text-black">
                       {scoreStats.low}
                     </p>
                     {trailingConcept && (
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-700 font-semibold mt-2">
                         Concept #{trailingConcept.conceptNumber}
                         {trailingConceptNote
                           ? ` · ${previewText(trailingConceptNote.text)}`

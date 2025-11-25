@@ -76,11 +76,11 @@ export function CanvasMinimap({
   }, []);
 
   return (
-    <div className="fixed top-24 right-6 glass rounded-lg p-3 z-30 border border-gray-700/50">
-      <div className="text-xs font-medium text-gray-400 mb-2">Canvas Map</div>
+    <div className="fixed top-24 right-6 fun-card p-3 z-30">
+      <div className="text-xs font-bold text-gray-500 mb-2">Canvas Map</div>
       <div
         ref={minimapRef}
-        className="relative bg-black/30 rounded cursor-pointer overflow-hidden"
+        className="relative bg-gray-100 rounded-lg cursor-pointer overflow-hidden border border-gray-200"
         style={{
           width: MINIMAP_WIDTH,
           height: MINIMAP_HEIGHT,
@@ -91,10 +91,10 @@ export function CanvasMinimap({
       >
         {/* Grid background */}
         <div
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0 opacity-20"
           style={{
             backgroundImage:
-              "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+              "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
             backgroundSize: "20px 20px",
           }}
         />
@@ -109,20 +109,20 @@ export function CanvasMinimap({
             "#e9d5ff": "#a855f7",
             "#fbcfe8": "#ec4899",
           };
-          const displayColor = colorMap[note.color.toLowerCase()] || "#888";
+          const displayColor = colorMap[note.color.toLowerCase()] || "#9ca3af";
 
           return (
             <div
               key={note.id}
-              className="absolute rounded-sm"
+              className="absolute rounded-sm shadow-sm"
               style={{
                 left: note.x * scaleX,
                 top: note.y * scaleY,
                 width: 64 * scaleX,
                 height: 40 * scaleY,
                 backgroundColor: displayColor,
-                opacity: note.isConcept ? 1 : 0.6,
-                border: note.isConcept ? "1px solid #facc15" : "none",
+                opacity: note.isConcept ? 1 : 0.8,
+                border: note.isConcept ? "2px solid #facc15" : "none",
               }}
             />
           );
@@ -130,7 +130,7 @@ export function CanvasMinimap({
 
         {/* Viewport indicator */}
         <div
-          className="absolute border-2 border-purple-400 bg-purple-400/10 rounded pointer-events-none"
+          className="absolute border-2 border-indigo-500 bg-indigo-500/10 rounded pointer-events-none"
           style={{
             left: viewportX * scaleX,
             top: viewportY * scaleY,

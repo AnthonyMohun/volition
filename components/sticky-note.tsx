@@ -89,30 +89,43 @@ export function StickyNote({
     setShowDetailsModal(false);
   };
 
-  // Dark mode color palette with subtle colored accents
-  const getDarkModeColor = (color: string) => {
+  // Fun mode color palette with vibrant pastel colors
+  const getFunColor = (color: string) => {
     const colorMap: Record<string, string> = {
-      "#fef3c7": "#2a2520", // warm dark with subtle yellow
-      "#fecaca": "#2a2020", // warm dark with subtle red
-      "#bbf7d0": "#1e2a23", // cool dark with subtle green
-      "#bfdbfe": "#1e2328", // cool dark with subtle blue
-      "#e9d5ff": "#252028", // cool dark with subtle purple
-      "#fbcfe8": "#2a2025", // warm dark with subtle pink
+      "#fef3c7": "#fef3c7", // yellow
+      "#fecaca": "#fecaca", // red
+      "#bbf7d0": "#bbf7d0", // green
+      "#bfdbfe": "#bfdbfe", // blue
+      "#e9d5ff": "#e9d5ff", // purple
+      "#fbcfe8": "#fbcfe8", // pink
     };
-    return colorMap[color] || "#1a1a1a";
+    return colorMap[color] || "#ffffff";
   };
 
   // Get accent color for borders and highlights
   const getAccentColor = (color: string) => {
     const accentMap: Record<string, string> = {
-      "#fef3c7": "rgba(250, 204, 21, 0.3)", // yellow
-      "#fecaca": "rgba(248, 113, 113, 0.3)", // red
-      "#bbf7d0": "rgba(74, 222, 128, 0.3)", // green
-      "#bfdbfe": "rgba(96, 165, 250, 0.3)", // blue
-      "#e9d5ff": "rgba(168, 85, 247, 0.3)", // purple
-      "#fbcfe8": "rgba(236, 72, 153, 0.3)", // pink
+      "#fef3c7": "#fbbf24", // yellow
+      "#fecaca": "#f87171", // red
+      "#bbf7d0": "#34d399", // green
+      "#bfdbfe": "#60a5fa", // blue
+      "#e9d5ff": "#a78bfa", // purple
+      "#fbcfe8": "#f472b6", // pink
     };
-    return accentMap[color] || "rgba(255, 255, 255, 0.1)";
+    return accentMap[color] || "#e5e7eb";
+  };
+
+  // Get shadow color for depth
+  const getShadowColor = (color: string) => {
+    const shadowMap: Record<string, string> = {
+      "#fef3c7": "rgba(251, 191, 36, 0.4)", // yellow
+      "#fecaca": "rgba(248, 113, 113, 0.4)", // red
+      "#bbf7d0": "rgba(52, 211, 153, 0.4)", // green
+      "#bfdbfe": "rgba(96, 165, 250, 0.4)", // blue
+      "#e9d5ff": "rgba(167, 139, 250, 0.4)", // purple
+      "#fbcfe8": "rgba(244, 114, 182, 0.4)", // pink
+    };
+    return shadowMap[color] || "rgba(163, 177, 198, 0.3)";
   };
 
   return (
@@ -120,45 +133,59 @@ export function StickyNote({
       <div
         {...dragHandleProps}
         className={cn(
-          "w-64 p-4 rounded-lg transition-all cursor-move",
-          "backdrop-blur-sm",
-          isDragging && "opacity-50 scale-95",
+          "w-64 p-5 rounded-3xl transition-all cursor-move relative",
+          isDragging && "opacity-60 scale-95",
           note.isConcept &&
-            "ring-2 ring-yellow-400/60 ring-offset-2 ring-offset-[#0a0a0a] silver-border shadow-2xl",
-          !note.isConcept && "shadow-lg hover:shadow-xl"
+            "ring-4 ring-yellow-400/40 ring-offset-4 ring-offset-white/50 scale-105",
+          !note.isConcept && "hover:-translate-y-2 hover:scale-102"
         )}
         style={{
-          backgroundColor: getDarkModeColor(note.color),
-          borderWidth: "1px",
+          backgroundColor: getFunColor(note.color),
+          borderWidth: "3px",
           borderStyle: "solid",
           borderColor: getAccentColor(note.color),
+          boxShadow: note.isConcept
+            ? `12px 12px 24px ${getShadowColor(
+                note.color
+              )}, -4px -4px 12px rgba(255, 255, 255, 0.8), inset 2px 2px 4px rgba(255, 255, 255, 0.5), inset -2px -2px 4px ${getShadowColor(
+                note.color
+              )}`
+            : `8px 8px 16px ${getShadowColor(
+                note.color
+              )}, -2px -2px 8px rgba(255, 255, 255, 0.6), inset 1px 1px 2px rgba(255, 255, 255, 0.3)`,
         }}
       >
+        {/* Concept star badge */}
+        {note.isConcept && (
+          <div className="absolute -top-3 -right-3 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full p-2 shadow-lg animate-pulse">
+            <Star className="w-5 h-5 text-white fill-current drop-shadow-md" />
+          </div>
+        )}
         {/* Header */}
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <button
             onClick={toggleConcept}
             onPointerDown={(e) => e.stopPropagation()}
             className={cn(
-              "p-1.5 rounded hover:bg-white/15 transition-all",
+              "p-2 rounded-xl hover:scale-110 transition-all shadow-sm",
               note.isConcept
-                ? "text-yellow-400 bg-yellow-400/10"
-                : "text-gray-400"
+                ? "text-yellow-600 bg-yellow-100/80"
+                : "text-gray-400 hover:text-yellow-500 hover:bg-white/50"
             )}
             title={note.isConcept ? "Remove from concepts" : "Mark as concept"}
           >
             <Star
               className={cn(
-                "w-4 h-4",
+                "w-5 h-5 transition-all",
                 note.isConcept && "fill-current drop-shadow-sm"
               )}
             />
           </button>
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <button
               onClick={() => fileInputRef.current?.click()}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100"
+              className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-gray-500 hover:text-gray-700 shadow-sm"
               title="Attach image"
             >
               <ImageIcon className="w-4 h-4" />
@@ -170,7 +197,7 @@ export function StickyNote({
                   setDetailsText(note.details || "");
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
-                className="p-1.5 rounded hover:bg-white/15 transition-all text-purple-300 hover:text-purple-100"
+                className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-purple-500 hover:text-purple-700 shadow-sm"
                 title="Edit concept details"
               >
                 <FileText className="w-4 h-4" />
@@ -182,7 +209,7 @@ export function StickyNote({
                 setEditText(note.text);
               }}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-1.5 rounded hover:bg-white/15 transition-all text-gray-300 hover:text-gray-100"
+              className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-gray-500 hover:text-gray-700 shadow-sm"
               title="Edit note"
             >
               <Edit2 className="w-4 h-4" />
@@ -190,7 +217,7 @@ export function StickyNote({
             <button
               onClick={onDelete}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-1.5 rounded hover:bg-red-500/30 text-red-400 hover:text-red-300 transition-all"
+              className="p-2 rounded-xl hover:bg-red-100 hover:scale-110 text-red-400 hover:text-red-600 transition-all shadow-sm"
               title="Delete note"
             >
               <Trash2 className="w-4 h-4" />
@@ -204,19 +231,19 @@ export function StickyNote({
             <img
               src={note.image.dataUrl}
               alt={note.image.caption || "Note attachment"}
-              className="w-full h-32 object-cover rounded cursor-pointer border border-gray-600/50 hover:border-gray-500/70 transition-colors"
+              className="w-full h-32 object-cover rounded-lg cursor-pointer border border-gray-200 hover:border-gray-300 transition-colors"
               onClick={() => setShowImagePreview(true)}
               onPointerDown={(e) => e.stopPropagation()}
             />
             <button
               onClick={handleRemoveImage}
               onPointerDown={(e) => e.stopPropagation()}
-              className="absolute top-1.5 right-1.5 p-1 bg-red-500/90 hover:bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg"
+              className="absolute top-1.5 right-1.5 p-1 bg-white text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md hover:bg-red-50"
             >
               <X className="w-3 h-3" />
             </button>
             {note.image.caption && (
-              <p className="text-xs text-gray-400 mt-1.5 italic">
+              <p className="text-xs text-gray-500 mt-1.5 italic">
                 {note.image.caption}
               </p>
             )}
@@ -233,7 +260,7 @@ export function StickyNote({
               onFocus={(e) => {
                 e.currentTarget.select();
               }}
-              className="w-full p-2.5 border border-gray-600 rounded text-sm resize-none bg-black/30 text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:bg-black/40 transition-all placeholder:text-gray-500"
+              className="w-full p-3 border-2 border-gray-300 rounded-xl text-sm resize-none bg-white/70 text-gray-800 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 focus:bg-white transition-all placeholder:text-gray-400 font-semibold shadow-inner"
               rows={3}
               autoFocus
               onBlur={handleTextSave}
@@ -247,7 +274,7 @@ export function StickyNote({
           </div>
         ) : (
           <p
-            className="text-sm text-gray-100 whitespace-pre-wrap break-words cursor-text leading-relaxed"
+            className="text-sm text-gray-800 whitespace-pre-wrap break-words cursor-text leading-relaxed font-bold"
             onClick={() => setIsEditing(true)}
             onPointerDown={(e) => e.stopPropagation()}
           >
@@ -271,17 +298,17 @@ export function StickyNote({
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+            className="fixed inset-0 bg-purple-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
             onClick={() => setShowImagePreview(false)}
           >
-            <div className="max-w-4xl max-h-full">
+            <div className="max-w-4xl max-h-full bg-white p-4 rounded-3xl shadow-2xl border-4 border-white">
               <img
                 src={note.image.dataUrl}
                 alt={note.image.caption || "Note attachment"}
-                className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                className="max-w-full max-h-[85vh] object-contain rounded-2xl"
               />
               {note.image.caption && (
-                <p className="text-white text-center mt-4">
+                <p className="text-gray-700 text-center mt-4 font-bold">
                   {note.image.caption}
                 </p>
               )}
@@ -295,17 +322,18 @@ export function StickyNote({
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-purple-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
             onClick={() => setShowDetailsModal(false)}
           >
             <div
-              className="glass border border-purple-500/30 rounded-lg p-6 max-w-md w-full shadow-2xl"
+              className="fun-card p-8 max-w-md w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold text-gray-100 mb-2">
+              <h3 className="text-2xl font-black text-gray-800 mb-3 flex items-center gap-2">
+                <span className="text-3xl">📝</span>
                 Add Concept Details
               </h3>
-              <p className="text-sm text-gray-400 mb-4">
+              <p className="text-sm text-gray-600 mb-5 font-medium">
                 Provide more information about this concept to help the AI
                 evaluate it better.
               </p>
@@ -313,22 +341,22 @@ export function StickyNote({
                 value={detailsText}
                 onChange={(e) => setDetailsText(e.target.value)}
                 placeholder="e.g., Why is this concept important? How does it address the HMW? What are its key features?"
-                className="w-full p-3 border border-gray-600 rounded-lg text-sm resize-none bg-black/30 text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:bg-black/40 transition-all placeholder:text-gray-500"
+                className="w-full p-4 border-3 border-purple-200 rounded-2xl text-sm resize-none bg-white text-gray-800 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all placeholder:text-gray-400 font-semibold shadow-inner"
                 rows={5}
                 autoFocus
               />
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setShowDetailsModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-800/50 transition-colors text-sm"
+                  className="flex-1 px-5 py-3 border-3 border-gray-200 text-gray-600 rounded-2xl hover:bg-gray-50 transition-all text-sm font-black shadow-sm"
                 >
                   Skip for now
                 </button>
                 <button
                   onClick={handleSaveDetails}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all text-sm font-medium"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all text-sm font-black shadow-lg hover:shadow-purple transform hover:scale-105"
                 >
-                  Save Details
+                  Save Details ✨
                 </button>
               </div>
             </div>

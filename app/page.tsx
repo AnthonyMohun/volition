@@ -53,38 +53,84 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen dark-gradient-radial texture-overlay flex items-center justify-center p-4">
-      <div className="max-w-3xl w-full">
+    <div className="min-h-screen fun-gradient-bg flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Floating decorative elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-20 left-10 text-6xl opacity-20 float-animation">
+          ✨
+        </div>
+        <div
+          className="absolute top-40 right-20 text-5xl opacity-20 float-animation"
+          style={{ animationDelay: "1s" }}
+        >
+          💡
+        </div>
+        <div
+          className="absolute bottom-32 left-1/4 text-5xl opacity-20 float-animation"
+          style={{ animationDelay: "2s" }}
+        >
+          🎨
+        </div>
+        <div
+          className="absolute bottom-20 right-1/3 text-6xl opacity-20 float-animation"
+          style={{ animationDelay: "0.5s" }}
+        >
+          🚀
+        </div>
+        <div
+          className="absolute top-1/3 right-10 text-5xl opacity-20 float-animation"
+          style={{ animationDelay: "1.5s" }}
+        >
+          💫
+        </div>
+      </div>
+
+      <div className="max-w-3xl w-full relative z-10">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <span className="text-6xl bounce-hover">🌈</span>
+            <h1 className="text-7xl font-black fun-gradient-text tracking-tight">
               Volition
             </h1>
+            <span
+              className="text-6xl bounce-hover"
+              style={{ animationDelay: "0.2s" }}
+            >
+              ✨
+            </span>
           </div>
-          <p className="text-gray-400 text-lg mb-2">
+          <p className="text-gray-700 text-2xl font-bold mb-2">
             Discover concepts through guided exploration
+          </p>
+          <p className="text-gray-500 text-base font-medium">
+            Your AI-powered creative companion for design thinking 🎯
           </p>
         </div>
 
         {/* Main Card */}
-        <div className="glass rounded-2xl p-8 border border-gray-700/50 mb-8">
-          <form onSubmit={handleSubmit}>
+        <div className="fun-card p-8 mb-8 relative overflow-hidden">
+          {/* Decorative gradient overlay */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-200/30 to-transparent rounded-full blur-2xl"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-pink-200/30 to-transparent rounded-full blur-2xl"></div>
+
+          <form onSubmit={handleSubmit} className="relative z-10">
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <label
                   htmlFor="hmw"
-                  className="text-sm font-medium text-gray-300"
+                  className="text-sm font-black text-gray-800 uppercase tracking-wide flex items-center gap-2"
                 >
+                  <span className="text-lg">💭</span>
                   Your Design Challenge
                 </label>
                 <button
                   type="button"
                   onClick={handleTryExample}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-black text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full transition-all shadow-sm hover:shadow-purple transform hover:scale-105"
                   title="Load a complete example session"
                 >
-                  <PlayCircle className="w-3.5 h-3.5" />
+                  <PlayCircle className="w-4 h-4" />
                   <span>Try Example</span>
                 </button>
               </div>
@@ -93,43 +139,42 @@ export default function Home() {
                   id="hmw"
                   value={hmwInput}
                   onChange={(e) => setHmwInput(e.target.value)}
-                  placeholder="Frame your challenge as a 'How Might We' statement to begin..."
-                  className="w-full px-4 py-4 pr-12 bg-[#1a1a1a] border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-gray-100 placeholder:text-gray-500 transition-all text-base"
+                  placeholder="✏️ Frame your challenge as a 'How Might We' statement to begin..."
+                  className="w-full px-6 py-5 pr-16 bg-gradient-to-br from-white to-gray-50/50 border-3 border-purple-200 rounded-2xl focus:ring-4 focus:ring-purple-200 focus:border-purple-400 resize-none text-gray-800 placeholder:text-gray-400 transition-all text-lg font-semibold shadow-sm hover:shadow-md"
                   rows={3}
                   required
                 />
                 <button
                   type="button"
                   onClick={handleRandomExample}
-                  className="absolute bottom-3 right-3 text-gray-400 hover:text-gray-300 transition-colors p-1 hover:bg-gray-700/50 rounded"
+                  className="absolute bottom-4 right-4 text-2xl hover:scale-125 transition-transform p-2 hover:bg-purple-50 rounded-xl"
                   title="Insert a random example 'How Might We' statement"
                   aria-label="Insert a random example How Might We statement"
                 >
-                  <span aria-hidden>🎲</span>
-                  <span className="sr-only">
-                    Insert a random example How Might We statement
-                  </span>
+                  🎲
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => setShowHelper(true)}
                 aria-label="Open HMW Builder - guided template to craft a How Might We statement"
                 title="Open guided builder to craft a 'How Might We' statement"
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3.5 px-6 rounded-lg hover:from-emerald-500 hover:to-teal-500 transition-all shadow-lg hover:shadow-emerald-500/50 hover:shadow-xl flex items-center justify-center"
+                className="fun-button-secondary flex items-center justify-center gap-2 bounce-hover"
               >
-                Open HMW Builder
+                <span className="text-xl">🛠️</span>
+                <span className="font-black">Open HMW Builder</span>
               </button>
 
               <button
                 type="submit"
                 disabled={!hmwInput.trim()}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3.5 px-6 rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-purple-500/50 hover:shadow-xl silver-glow"
+                className="fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Begin Exploration
+                <span className="font-black">Begin Exploration</span>
+                <span className="text-xl">🚀</span>
               </button>
             </div>
           </form>
@@ -139,55 +184,64 @@ export default function Home() {
         <div className="text-center mt-8">
           <button
             onClick={() => setShowHowItWorks(true)}
-            className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-gray-300 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-black text-gray-600 hover:text-purple-600 transition-all bg-white/60 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm hover:shadow-md transform hover:scale-105"
           >
             <Info className="w-4 h-4" />
-            How it works
+            How it works ✨
           </button>
         </div>
       </div>
 
       {/* How It Works Modal */}
       {showHowItWorks && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="glass rounded-2xl p-8 border border-gray-700/50 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-100">How It Works</h2>
+        <div className="fixed inset-0 bg-purple-900/30 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-300">
+          <div className="fun-card p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto animate-in zoom-in duration-300">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-black fun-gradient-text flex items-center gap-3">
+                <span className="text-4xl">🌟</span>
+                How It Works
+              </h2>
               <button
                 onClick={() => setShowHowItWorks(false)}
-                className="text-gray-400 hover:text-gray-300 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-all bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center font-black text-xl hover:rotate-90 transform duration-300"
               >
                 ✕
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="glass-light rounded-lg p-6 mb-4">
-                  <Lightbulb className="w-12 h-12 text-purple-400 mx-auto" />
+              <div className="text-center group">
+                <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-yellow">
+                  <Lightbulb className="w-12 h-12 text-yellow-600 mx-auto drop-shadow-sm" />
                 </div>
-                <h3 className="font-semibold text-gray-100 mb-2">Ideate</h3>
-                <p className="text-sm text-gray-400">
+                <h3 className="font-black text-gray-800 mb-2 text-lg">
+                  💡 Ideate
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed font-medium">
                   Answer guided questions with sticky notes and attach images
                   for richer ideas
                 </p>
               </div>
-              <div className="text-center">
-                <div className="glass-light rounded-lg p-6 mb-4">
-                  <Sparkles className="w-12 h-12 text-purple-400 mx-auto" />
+              <div className="text-center group">
+                <div className="bg-gradient-to-br from-pink-100 to-pink-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-pink">
+                  <Sparkles className="w-12 h-12 text-pink-600 mx-auto drop-shadow-sm" />
                 </div>
-                <h3 className="font-semibold text-gray-100 mb-2">Refine</h3>
-                <p className="text-sm text-gray-400">
+                <h3 className="font-black text-gray-800 mb-2 text-lg">
+                  ✨ Refine
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed font-medium">
                   Mark promising ideas as concepts and self-evaluate your top
                   ones
                 </p>
               </div>
-              <div className="text-center">
-                <div className="glass-light rounded-lg p-6 mb-4">
-                  <HelpCircle className="w-12 h-12 text-purple-400 mx-auto" />
+              <div className="text-center group">
+                <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-purple">
+                  <HelpCircle className="w-12 h-12 text-purple-600 mx-auto drop-shadow-sm" />
                 </div>
-                <h3 className="font-semibold text-gray-100 mb-2">Feedback</h3>
-                <p className="text-sm text-gray-400">
+                <h3 className="font-black text-gray-800 mb-2 text-lg">
+                  🎯 Feedback
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed font-medium">
                   Get AI insights on your final designs
                 </p>
               </div>

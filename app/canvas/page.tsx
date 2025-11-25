@@ -431,29 +431,31 @@ export default function CanvasPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-[#0a0a0a]">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50">
       {/* Header */}
-      <div className="glass border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+      <div className="bg-gradient-to-r from-white to-purple-50/50 border-b-3 border-purple-200 px-6 py-5 flex items-center justify-between shadow-lg z-20">
         <div className="flex items-center gap-4">
           <button
             onClick={handleStartNewProject}
-            className="p-2 hover:bg-gray-800/50 rounded-lg transition-colors group"
+            className="p-3 hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
             title="Start a new project"
           >
-            <ListRestart className="w-5 h-5 text-gray-300 group-hover:text-orange-400 transition-colors" />
+            <ListRestart className="w-6 h-6 text-gray-400 group-hover:text-orange-500 transition-colors" />
           </button>
           <div>
-            <h1 className="text-lg font-semibold text-gray-100">
+            <h1 className="text-xl font-black text-gray-800 flex items-center gap-2">
+              <span className="text-2xl">🎨</span>
               Ideation Canvas
             </h1>
-            <p className="text-xs text-gray-400 mt-1">
-              Organize your ideas and concepts on the canvas
+            <p className="text-xs text-gray-600 mt-1 font-bold">
+              Organize your ideas and concepts on the canvas ✨
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-2 glass-light rounded-lg border border-yellow-400/30">
-            <span className="text-sm font-medium text-yellow-400">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl border-3 border-yellow-300 shadow-md">
+            <span className="text-2xl">⭐</span>
+            <span className="text-sm font-black text-yellow-700">
               {conceptNotes.length} concept
               {conceptNotes.length !== 1 ? "s" : ""}
             </span>
@@ -461,10 +463,10 @@ export default function CanvasPage() {
           <button
             onClick={handleProceedToSelect}
             disabled={conceptNotes.length < 3}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium silver-glow"
+            className="fun-button-primary flex items-center gap-2 text-sm font-black disabled:opacity-50 disabled:cursor-not-allowed py-3 px-6 shadow-lg hover:shadow-purple"
           >
             Select Concepts
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -476,7 +478,7 @@ export default function CanvasPage() {
         {/* Main Canvas */}
         <div
           ref={containerRef}
-          className="flex-1 relative overflow-hidden texture-overlay"
+          className="flex-1 relative overflow-hidden bg-gradient-to-br from-purple-50/30 via-transparent to-pink-50/30"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -498,7 +500,7 @@ export default function CanvasPage() {
                 {alignmentGuides.vertical.map((x, i) => (
                   <div
                     key={`v-${i}`}
-                    className="absolute bg-purple-400/50"
+                    className="absolute bg-indigo-400/50"
                     style={{
                       left: x,
                       top: 0,
@@ -511,7 +513,7 @@ export default function CanvasPage() {
                 {alignmentGuides.horizontal.map((y, i) => (
                   <div
                     key={`h-${i}`}
-                    className="absolute bg-purple-400/50"
+                    className="absolute bg-indigo-400/50"
                     style={{
                       left: 0,
                       top: y,
@@ -530,27 +532,27 @@ export default function CanvasPage() {
                 const noteObj = state.notes.find(
                   (n) => n.id === previewNote.id
                 );
-                const color = noteObj?.color || "#1a1a1a";
-                const getDarkModeColor = (c: string) => {
+                const color = noteObj?.color || "#ffffff";
+                const getFunColor = (c: string) => {
                   const colorMap: Record<string, string> = {
-                    "#fef3c7": "#2a2520",
-                    "#fecaca": "#2a2020",
-                    "#bbf7d0": "#1e2a23",
-                    "#bfdbfe": "#1e2328",
-                    "#e9d5ff": "#252028",
-                    "#fbcfe8": "#2a2025",
+                    "#fef3c7": "#fffbeb",
+                    "#fecaca": "#fef2f2",
+                    "#bbf7d0": "#f0fdf4",
+                    "#bfdbfe": "#eff6ff",
+                    "#e9d5ff": "#faf5ff",
+                    "#fbcfe8": "#fdf2f8",
                   };
-                  return colorMap[c] || "#1a1a1a";
+                  return colorMap[c] || "#ffffff";
                 };
 
                 return (
                   <div
-                    className="absolute pointer-events-none opacity-80"
+                    className="absolute pointer-events-none opacity-60"
                     style={{ left: previewNote.x, top: previewNote.y }}
                   >
                     <div
-                      className="w-64 p-3 rounded-lg border border-purple-400/60"
-                      style={{ backgroundColor: getDarkModeColor(color) }}
+                      className="w-64 p-3 rounded-xl border-2 border-indigo-400/60 border-dashed"
+                      style={{ backgroundColor: getFunColor(color) }}
                     />
                   </div>
                 );
@@ -579,12 +581,15 @@ export default function CanvasPage() {
             {state.notes.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="text-center text-gray-500">
-                  <Plus className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg">
-                    Click the + button to add your first sticky note
+                  <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-8 rounded-full shadow-2xl mb-6 inline-block animate-pulse">
+                    <Plus className="w-16 h-16 text-purple-500" />
+                  </div>
+                  <p className="text-2xl font-black text-gray-700 mb-2 flex items-center justify-center gap-2">
+                    <span className="text-3xl">✨</span>
+                    Click the + button to start!
                   </p>
-                  <p className="text-sm mt-2">
-                    Respond to the AI's questions with your ideas
+                  <p className="text-lg mt-3 text-gray-600 font-bold">
+                    Respond to the AI's questions with your ideas 💡
                   </p>
                 </div>
               </div>
@@ -592,100 +597,85 @@ export default function CanvasPage() {
           </div>
 
           {/* Floating toolbar */}
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 glass rounded-full px-4 py-3 flex items-center gap-4 z-20 border border-gray-700/50">
-            <button
-              onClick={handleAddNote}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 rounded-full hover:from-purple-500 hover:to-pink-500 transition-all shadow-md hover:shadow-lg silver-glow"
-              title="Add sticky note"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-            <div className="flex gap-2">
-              {STICKY_COLORS.map((color) => {
-                // Map light colors to their dark mode display colors
-                const colorMap: Record<string, string> = {
-                  "#fef3c7": "#2a2520",
-                  "#fecaca": "#2a2020",
-                  "#bbf7d0": "#1e2a23",
-                  "#bfdbfe": "#1e2328",
-                  "#e9d5ff": "#252028",
-                  "#fbcfe8": "#2a2025",
-                };
-                const displayColor = colorMap[color.toLowerCase()] || color;
-
-                // Get accent border color
-                const accentMap: Record<string, string> = {
-                  "#fef3c7": "#facc15",
-                  "#fecaca": "#f87171",
-                  "#bbf7d0": "#4ade80",
-                  "#bfdbfe": "#60a5fa",
-                  "#e9d5ff": "#a855f7",
-                  "#fbcfe8": "#ec4899",
-                };
-                const accentColor = accentMap[color.toLowerCase()] || "#888";
-
-                return (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`w-8 h-8 rounded-full transition-all backdrop-blur-sm ${
-                      selectedColor === color
-                        ? "scale-110 shadow-lg ring-2 ring-offset-2 ring-offset-[#0a0a0a]"
-                        : "hover:scale-105 border-2 border-gray-700/50"
-                    }`}
-                    style={{
-                      backgroundColor: displayColor,
-                      ...(selectedColor === color && {
-                        borderColor: accentColor,
-                        boxShadow: `0 0 20px ${accentColor}40`,
-                        borderWidth: "2px",
-                        borderStyle: "solid",
-                      }),
-                    }}
-                    title="Select note color"
-                  />
-                );
-              })}
-            </div>
-            <div className="border-l border-gray-700 h-8 mx-1" />
-            <div className="flex items-center gap-2 ml-2">
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20">
+            <div className="fun-card px-6 py-4 flex items-center gap-5 shadow-2xl">
               <button
-                onClick={undo}
-                disabled={!canUndo}
-                className={`p-2 rounded-lg transition-all ${
-                  canUndo
-                    ? "text-gray-300 hover:bg-white/10"
-                    : "text-gray-500/40"
-                }`}
-                title="Undo (Ctrl/Cmd + Z)"
+                onClick={handleAddNote}
+                className="bg-gradient-to-br from-purple-500 to-pink-500 text-white p-4 rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple transform hover:scale-110 active:scale-95"
+                title="Add sticky note"
               >
-                <RotateCcw className="w-5 h-5" />
+                <Plus className="w-7 h-7" />
               </button>
+              <div className="flex gap-3">
+                {STICKY_COLORS.map((color) => {
+                  // Map light colors to their fun mode display colors
+                  const colorMap: Record<string, string> = {
+                    "#fef3c7": "#fbbf24", // yellow
+                    "#fecaca": "#f87171", // red
+                    "#bbf7d0": "#34d399", // green
+                    "#bfdbfe": "#60a5fa", // blue
+                    "#e9d5ff": "#a78bfa", // purple
+                    "#fbcfe8": "#f472b6", // pink
+                  };
+                  const displayColor = colorMap[color.toLowerCase()] || color;
+
+                  return (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`w-10 h-10 rounded-2xl transition-all ${
+                        selectedColor === color
+                          ? "scale-125 shadow-lg ring-4 ring-offset-2 ring-offset-white ring-gray-400"
+                          : "hover:scale-110 border-3 border-white shadow-md"
+                      }`}
+                      style={{
+                        backgroundColor: displayColor,
+                      }}
+                      title="Select note color"
+                    />
+                  );
+                })}
+              </div>
+              <div className="border-l-3 border-purple-200 h-10 mx-2" />
+              <div className="flex items-center gap-3 ml-2">
+                <button
+                  onClick={undo}
+                  disabled={!canUndo}
+                  className={`p-2.5 rounded-xl transition-all shadow-sm ${
+                    canUndo
+                      ? "text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-110"
+                      : "text-gray-300"
+                  }`}
+                  title="Undo (Ctrl/Cmd + Z)"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={redo}
+                  disabled={!canRedo}
+                  className={`p-2.5 rounded-xl transition-all shadow-sm ${
+                    canRedo
+                      ? "text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-110"
+                      : "text-gray-300"
+                  }`}
+                  title="Redo (Ctrl/Cmd + Y / Shift + Cmd + Z)"
+                >
+                  <RotateCw className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="border-l-3 border-purple-200 h-10 mx-2" />
               <button
-                onClick={redo}
-                disabled={!canRedo}
-                className={`p-2 rounded-lg transition-all ${
-                  canRedo
-                    ? "text-gray-300 hover:bg-white/10"
-                    : "text-gray-500/40"
+                onClick={() => setShowControls((prev) => !prev)}
+                className={`p-2.5 rounded-xl transition-all shadow-sm hover:scale-110 ${
+                  showControls
+                    ? "bg-gradient-to-br from-purple-100 to-pink-100 text-purple-600"
+                    : "text-gray-400 hover:bg-purple-50"
                 }`}
-                title="Redo (Ctrl/Cmd + Y / Shift + Cmd + Z)"
+                title={`Toggle toolbar ${showControls ? "shown" : "hidden"}`}
               >
-                <RotateCw className="w-5 h-5" />
+                <Menu className="w-5 h-5" />
               </button>
             </div>
-            <div className="border-l border-gray-700 h-8 mx-1" />
-            <button
-              onClick={() => setShowControls((prev) => !prev)}
-              className={`p-2 rounded-lg transition-all ${
-                showControls
-                  ? "bg-purple-500/20 text-purple-300"
-                  : "text-gray-400 hover:bg-gray-700/30"
-              }`}
-              title={`Toggle toolbar ${showControls ? "shown" : "hidden"}`}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
           </div>
 
           {/* Canvas Controls */}

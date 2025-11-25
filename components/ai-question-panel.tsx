@@ -140,42 +140,54 @@ export function AIQuestionPanel() {
   };
 
   return (
-    <div className="glass border-r border-gray-800 border-t-0 w-80 flex flex-col order-first">
-      <div className="p-4 border-b border-gray-800 space-y-3">
+    <div className="bg-gradient-to-b from-white to-purple-50/30 border-r-4 border-purple-200 w-80 flex flex-col order-first shadow-xl z-10">
+      <div className="p-5 border-b-3 border-purple-100 space-y-4 bg-gradient-to-br from-purple-50 to-pink-50">
         {/* Bot Identifier */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="relative">
-            <Bot className="w-5 h-5 text-purple-400" />
-            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full"></span>
+            <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-2 rounded-2xl shadow-md">
+              <Bot className="w-6 h-6 text-purple-600" />
+            </div>
+            <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-3 border-white animate-pulse"></span>
           </div>
-          <h2 className="font-semibold text-gray-100">Socratic AI</h2>
-          <span className="text-xs text-gray-400 ml-auto">Active</span>
+          <div className="flex-1">
+            <h2 className="font-black text-gray-800 text-lg flex items-center gap-2">
+              Socratic AI <span className="text-sm">🤖</span>
+            </h2>
+            <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+              ✓ Active & Ready
+            </span>
+          </div>
         </div>
 
         {/* HMW Statement */}
-        <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-lg p-3 space-y-1">
-          <p className="text-xs uppercase tracking-wide text-purple-300 font-medium">
-            Design Challenge
+        <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl p-4 space-y-2 border-3 border-purple-200 shadow-lg">
+          <p className="text-xs uppercase tracking-wider text-purple-600 font-black flex items-center gap-1">
+            <span>💭</span> Design Challenge
           </p>
-          <p className="text-sm text-gray-100 line-clamp-3 leading-relaxed">
+          <p className="text-sm text-gray-800 line-clamp-3 leading-relaxed font-bold">
             {state.hmwStatement}
           </p>
         </div>
 
         {/* Stats */}
-        <div className="text-xs text-gray-400 flex items-center gap-3 pt-1">
-          <span>{state.questions.length} questions</span>
-          <span className="text-purple-300">
-            {state.questions.filter((q) => !q.answered).length} unanswered
+        <div className="text-xs text-gray-600 flex items-center gap-3 pt-1 font-bold">
+          <span className="flex items-center gap-1">
+            <span className="text-base">💬</span>
+            {state.questions.length}
+          </span>
+          <span className="text-purple-600 flex items-center gap-1">
+            <span className="text-base">⏳</span>
+            {state.questions.filter((q) => !q.answered).length}
           </span>
           {(() => {
             const pinnedCount = state.questions.filter((q) => q.pinned).length;
             return (
               <span
-                className="ml-auto flex items-center gap-1 text-yellow-300 text-xs"
+                className="ml-auto flex items-center gap-1 text-amber-500 text-xs"
                 aria-label={`${pinnedCount} pinned questions`}
               >
-                <Pin className="w-3.5 h-3.5 opacity-90" />
+                <Pin className="w-4 h-4 fill-current" />
                 <span aria-hidden="true">{pinnedCount}</span>
                 <span className="sr-only">{pinnedCount} pinned</span>
               </span>
@@ -184,11 +196,16 @@ export function AIQuestionPanel() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-purple-50/30">
         {state.questions.length === 0 && !isLoading && (
-          <div className="text-center text-gray-500 text-sm py-8">
-            <Sparkles className="w-8 h-8 mx-auto mb-2 text-purple-400/50" />
-            <p>Your AI mentor will ask you questions to guide your ideation</p>
+          <div className="text-center text-gray-600 text-sm py-12">
+            <div className="bg-gradient-to-br from-purple-100 to-pink-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+              <Sparkles className="w-10 h-10 text-purple-500" />
+            </div>
+            <p className="font-black text-lg mb-2">Ready to explore! ✨</p>
+            <p className="font-semibold text-gray-500">
+              Your AI mentor will ask you questions to guide your ideation
+            </p>
           </div>
         )}
 
@@ -209,28 +226,33 @@ export function AIQuestionPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
                 transition={{ duration: 0.14 }}
-                className={`p-3 rounded-lg flex items-start gap-3 ${
+                className={`p-5 rounded-2xl flex items-start gap-3 shadow-md hover:shadow-lg transition-all ${
                   question.fromAI
-                    ? "glass-light border border-purple-500/20"
-                    : "glass-light border border-gray-700"
-                } ${question.pinned ? "border-l-4 border-yellow-500/40" : ""}`}
+                    ? "bg-gradient-to-br from-white to-purple-50 border-3 border-purple-200"
+                    : "bg-gradient-to-br from-white to-gray-50 border-3 border-gray-200"
+                } ${
+                  question.pinned
+                    ? "border-l-[6px] border-l-amber-400 ring-2 ring-amber-200"
+                    : ""
+                }`}
               >
                 <div className="flex-1">
                   <div className="flex items-start gap-2 w-full">
-                    <p className="text-sm text-gray-200">{question.text}</p>
+                    <p className="text-sm text-gray-800 font-bold leading-relaxed">
+                      {question.text}
+                    </p>
                     {question.pinned && <span className="sr-only">Pinned</span>}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-2 font-bold">
                     <span
                       title={new Date(question.timestamp).toLocaleString()}
                       aria-hidden="true"
-                      className="text-transparent"
                     >
                       {timeAgo(question.timestamp)}
                     </span>
                   </p>
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <motion.button
                     title={question.pinned ? "Unpin question" : "Pin question"}
                     aria-label={
@@ -238,10 +260,12 @@ export function AIQuestionPanel() {
                     }
                     aria-pressed={question.pinned}
                     onClick={() => toggleQuestionPinned(question.id)}
-                    className={`p-1.5 rounded hover:bg-white/10 transition-all ${
-                      question.pinned ? "text-yellow-300" : "text-gray-400"
+                    className={`p-2 rounded-xl hover:scale-110 transition-all shadow-sm ${
+                      question.pinned
+                        ? "text-amber-500 bg-amber-100"
+                        : "text-gray-400 hover:bg-gray-100"
                     }`}
-                    whileTap={{ scale: 0.92 }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     <AnimatePresence mode="wait">
                       {question.pinned ? (
@@ -253,7 +277,7 @@ export function AIQuestionPanel() {
                           transition={{ duration: 0.18 }}
                           className="flex items-center"
                         >
-                          <Pin className="w-4 h-4" />
+                          <Pin className="w-4 h-4 fill-current" />
                         </motion.span>
                       ) : (
                         <motion.span
@@ -264,7 +288,7 @@ export function AIQuestionPanel() {
                           transition={{ duration: 0.18 }}
                           className="flex items-center"
                         >
-                          <Pin className="w-4 h-4 opacity-70" />
+                          <Pin className="w-4 h-4" />
                         </motion.span>
                       )}
                     </AnimatePresence>
@@ -304,7 +328,7 @@ export function AIQuestionPanel() {
                         createdAt: Date.now(),
                       });
                     }}
-                    className="p-1.5 rounded hover:bg-white/10 transition-all text-gray-400"
+                    className="p-2 rounded-xl hover:bg-purple-100 hover:scale-110 transition-all text-gray-400 hover:text-purple-600 shadow-sm"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -329,7 +353,7 @@ export function AIQuestionPanel() {
                         ? "Mark as unanswered"
                         : "Mark as answered"
                     }
-                    whileTap={{ scale: 0.92 }}
+                    whileTap={{ scale: 0.9 }}
                     initial={{ scale: 1, opacity: 1 }}
                     animate={
                       question.answered
@@ -341,10 +365,10 @@ export function AIQuestionPanel() {
                       stiffness: 300,
                       damping: 24,
                     }}
-                    className={`p-1.5 rounded transition-all ${
+                    className={`p-2 rounded-xl transition-all shadow-sm hover:scale-110 ${
                       question.answered
-                        ? "text-green-400"
-                        : "text-gray-400 hover:bg-white/10"
+                        ? "text-green-600 bg-green-100"
+                        : "text-gray-400 hover:bg-green-50 hover:text-green-600"
                     }`}
                   >
                     <Check className="w-4 h-4" />
@@ -356,32 +380,34 @@ export function AIQuestionPanel() {
         </AnimatePresence>
 
         {isLoading && (
-          <div className="flex items-center justify-center gap-2 text-purple-400 py-4">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <span className="text-sm">Thinking...</span>
+          <div className="flex items-center justify-center gap-3 text-purple-600 py-6 bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-md border-3 border-purple-200 animate-pulse">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span className="text-sm font-black">Thinking... 🤔</span>
           </div>
         )}
 
         {error && (
-          <div className="p-3 glass-light border border-red-500/30 rounded-lg">
-            <p className="text-sm text-red-400">{error}</p>
+          <div className="p-4 bg-red-50 border-3 border-red-200 rounded-2xl shadow-md">
+            <p className="text-sm text-red-600 font-black">{error}</p>
           </div>
         )}
       </div>
 
-      <div className="p-4 border-t border-gray-800 glass-light">
+      <div className="p-5 border-t-3 border-purple-100 bg-gradient-to-br from-purple-50 to-pink-50">
         <button
           onClick={askNextQuestion}
           disabled={isLoading || state.notes.length === 0}
-          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium py-2 px-4 rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2 silver-glow"
+          className="w-full fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-purple"
         >
-          <Sparkles className="w-4 h-4" />
-          {isLoading ? "Thinking..." : "Ask Next Question"}
+          <Sparkles className="w-5 h-5" />
+          <span className="font-black">
+            {isLoading ? "Thinking... 🤔" : "Ask Next Question"}
+          </span>
         </button>
-        <p className="text-xs text-gray-500 mt-2 text-center">
+        <p className="text-xs text-gray-500 mt-3 text-center font-bold">
           {state.notes.length === 0
-            ? "Add some notes to get started"
-            : "Get the next guiding question"}
+            ? "✏️ Add some notes to get started"
+            : "🚀 Get the next guiding question"}
         </p>
       </div>
     </div>
