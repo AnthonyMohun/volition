@@ -6,21 +6,19 @@ import { useSession } from "@/lib/session-context";
 import {
   ArrowLeft,
   ListRestart,
-  Lightbulb,
   ArrowRight,
   Edit3,
-  X,
-  Save,
   CheckCircle2,
+  ChevronDown,
 } from "lucide-react";
 
 interface ConceptEditForm {
   title: string;
-  problem: string;
-  solution: string;
-  userValue: string;
-  implementation: string;
+  description: string;
+  extras: string;
 }
+
+// Simplified: just title + description, with optional extras
 
 export default function RefinePage() {
   const router = useRouter();
@@ -34,11 +32,10 @@ export default function RefinePage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<ConceptEditForm>({
     title: "",
-    problem: "",
-    solution: "",
-    userValue: "",
-    implementation: "",
+    description: "",
+    extras: "",
   });
+  const [showExtras, setShowExtras] = useState(false);
   const [wizardComplete, setWizardComplete] = useState(false);
   const [guidedIndex, setGuidedIndex] = useState(0);
 
@@ -80,37 +77,29 @@ export default function RefinePage() {
 
   const startEditingConcept = (note: (typeof conceptNotes)[0]) => {
     setEditingId(note.id);
+    setShowExtras(false);
 
-    // Try to parse existing details if structured
-    if (note.details && note.details.includes("Problem:")) {
-      const parts = note.details.split("\n\n");
-      const parsed: ConceptEditForm = {
-        title: note.text,
-        problem: "",
-        solution: "",
-        userValue: "",
-        implementation: "",
-      };
+    // Parse existing details - look for Description: and Extras: format
+    if (note.details && note.details.includes("Description:")) {
+      const descMatch = note.details.match(
+        /Description:\s*([\s\S]*?)(?=Extras:|$)/
+      );
+      const extrasMatch = note.details.match(/Extras:\s*([\s\S]*?)$/);
 
-      parts.forEach((part) => {
-        if (part.startsWith("Problem:"))
-          parsed.problem = part.replace("Problem: ", "").trim();
-        if (part.startsWith("Solution:"))
-          parsed.solution = part.replace("Solution: ", "").trim();
-        if (part.startsWith("User Value:"))
-          parsed.userValue = part.replace("User Value: ", "").trim();
-        if (part.startsWith("Implementation:"))
-          parsed.implementation = part.replace("Implementation: ", "").trim();
-      });
-
-      setEditForm(parsed);
-    } else {
       setEditForm({
         title: note.text,
-        problem: "",
-        solution: note.details || "",
-        userValue: "",
-        implementation: "",
+        description: descMatch ? descMatch[1].trim() : "",
+        extras: extrasMatch ? extrasMatch[1].trim() : "",
+      });
+      if (extrasMatch && extrasMatch[1].trim()) {
+        setShowExtras(true);
+      }
+    } else {
+      // Legacy format or plain text
+      setEditForm({
+        title: note.text,
+        description: note.details || "",
+        extras: "",
       });
     }
   };
@@ -119,10 +108,8 @@ export default function RefinePage() {
     if (!editingId) return;
 
     const detailsText = [
-      editForm.problem && `Problem: ${editForm.problem}`,
-      editForm.solution && `Solution: ${editForm.solution}`,
-      editForm.userValue && `User Value: ${editForm.userValue}`,
-      editForm.implementation && `Implementation: ${editForm.implementation}`,
+      editForm.description && `Description: ${editForm.description}`,
+      editForm.extras && `Extras: ${editForm.extras}`,
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -209,40 +196,34 @@ export default function RefinePage() {
       </div>
 
       {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-purple-50/50 border-b-3 border-purple-200 px-6 py-5 backdrop-blur-xl shadow-lg">
+      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-purple-50/50 border-b-3 border-purple-200 px-6 py-4 backdrop-blur-xl shadow-lg">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => router.push("/select")}
-              className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
-              title="Back to selection"
+              className="p-2.5 hover:bg-purple-50 rounded-xl transition-all"
+              title="Back"
             >
-              <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
+              <ArrowLeft className="w-5 h-5 text-gray-400 hover:text-purple-500" />
             </button>
             <button
               onClick={handleStartNewProject}
-              className="p-3 hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
-              title="Start a new project"
+              className="p-2.5 hover:bg-orange-50 rounded-xl transition-all"
+              title="New project"
             >
-              <ListRestart className="w-6 h-6 text-gray-400 group-hover:text-orange-500 transition-colors" />
+              <ListRestart className="w-5 h-5 text-gray-400 hover:text-orange-500" />
             </button>
-            <div>
-              <h1 className="text-xl font-black text-gray-800 flex items-center gap-2">
-                <span className="text-2xl">✏️</span>
-                Refine Your Concepts
-              </h1>
-              <p className="text-sm text-gray-600 font-bold">
-                Develop and strengthen your top ideas 💪
-              </p>
-            </div>
+            <h1 className="text-lg font-black text-gray-800 flex items-center gap-2">
+              ✏️ Refine Concepts
+            </h1>
           </div>
           <button
             onClick={handleProceedToFinal}
             disabled={!wizardComplete}
-            className="fun-button-primary flex items-center gap-2 font-black disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 shadow-lg hover:shadow-purple whitespace-nowrap"
+            className="fun-button-primary flex items-center gap-2 font-black disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2.5 shadow-lg"
           >
-            Get AI Evaluation
-            <ArrowRight className="w-5 h-5" />
+            Rate Concepts ⭐
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -252,54 +233,44 @@ export default function RefinePage() {
         <div className="max-w-4xl mx-auto">
           {/* Wizard View */}
           {!wizardComplete && editingId && (
-            <div className="fun-card p-8 border-3 border-purple-200 mb-8 relative overflow-hidden">
+            <div className="fun-card p-6 border-3 border-purple-200 mb-6 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-200/30 to-transparent rounded-full blur-2xl"></div>
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-pink-200/30 to-transparent rounded-full blur-2xl"></div>
 
               {/* Progress Bar */}
-              <div className="mb-8 flex gap-3 relative z-10">
+              <div className="mb-5 flex gap-2 relative z-10">
                 {selectedNotes.map((_, idx) => (
                   <div
                     key={idx}
-                    className={`h-3 flex-1 rounded-full transition-all duration-500 shadow-sm ${
+                    className={`h-2 flex-1 rounded-full transition-all duration-500 ${
                       idx < guidedIndex
                         ? "bg-gradient-to-r from-green-400 to-emerald-500"
                         : idx === guidedIndex
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse"
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500"
                         : "bg-gray-200"
                     }`}
                   />
                 ))}
               </div>
-              {/* HMW Statement */}
-              <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 border-3 border-purple-200 shadow-md relative z-10">
-                <h3 className="text-xs font-black text-purple-600 uppercase tracking-wider mb-2 flex items-center gap-1">
-                  <span>💭</span> Design Challenge
-                </h3>
-                <p className="text-gray-800 font-bold leading-relaxed">
-                  {state.hmwStatement}
-                </p>
-              </div>
+
               {/* Header */}
-              <div className="flex items-center justify-between mb-8 relative z-10">
-                <div className="text-base text-gray-700 font-black flex items-center gap-2">
-                  <span className="text-2xl">📝</span>
+              <div className="flex items-center justify-between mb-5 relative z-10">
+                <div className="text-sm text-gray-600 font-bold">
                   Concept {guidedIndex + 1} of {selectedNotes.length}
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <button
                     onClick={skipConcept}
-                    className="px-5 py-2.5 text-sm text-gray-600 hover:text-gray-800 border-3 border-gray-300 rounded-2xl hover:bg-gray-50 transition-all font-black shadow-sm hover:scale-105"
+                    className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-all font-bold"
                   >
-                    Skip for Now
+                    Skip
                   </button>
                   <button
                     onClick={saveConceptGuided}
-                    className="px-5 py-2.5 text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all font-black shadow-lg hover:shadow-purple hover:scale-105"
+                    className="px-4 py-2 text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all font-bold shadow-md"
                   >
                     {guidedIndex < selectedNotes.length - 1
-                      ? "Save & Next 👉"
-                      : "Save & Finish ✨"}
+                      ? "Next →"
+                      : "Done ✓"}
                   </button>
                 </div>
               </div>
@@ -313,38 +284,23 @@ export default function RefinePage() {
 
                 return (
                   <div key={note.id} className="relative z-10">
-                    {/* Concept Title Display */}
-                    <h4 className="text-2xl font-black text-gray-800 mb-6 flex items-center gap-2">
-                      <span className="text-3xl">💡</span>
-                      {note.text || "Edit Concept"}
-                    </h4>
-
                     {/* Show attached image if available */}
                     {note.image && (
-                      <div className="mb-8 p-5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border-3 border-purple-200 shadow-md">
-                        <p className="text-xs font-black text-purple-600 mb-3 uppercase tracking-wide flex items-center gap-1">
-                          <span>🖼️</span> Attached Sketch/Image
-                        </p>
+                      <div className="mb-6 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border-3 border-purple-200 shadow-md">
                         <img
                           src={note.image.dataUrl}
                           alt={note.image.caption || "Concept sketch"}
-                          className="w-full max-h-64 object-contain rounded-xl border-3 border-white shadow-lg"
+                          className="w-full max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
                         />
-                        {note.image.caption && (
-                          <p className="text-xs text-gray-600 mt-3 italic font-semibold">
-                            {note.image.caption}
-                          </p>
-                        )}
                       </div>
                     )}
 
-                    {/* Form Fields */}
-                    <div className="space-y-6">
+                    {/* Simplified Form - Just 2 main fields */}
+                    <div className="space-y-5">
                       {/* Title */}
                       <div>
-                        <label className="text-sm font-black text-gray-700 mb-2 block uppercase tracking-wide flex items-center gap-1">
-                          <span>✏️</span> Concept Title{" "}
-                          <span className="text-purple-500">*</span>
+                        <label className="text-sm font-black text-gray-700 mb-2 block flex items-center gap-2">
+                          <span>💡</span> Concept Name
                         </label>
                         <input
                           type="text"
@@ -355,96 +311,59 @@ export default function RefinePage() {
                               title: e.target.value,
                             })
                           }
-                          placeholder="e.g., Smart Parking Finder App"
-                          className="w-full px-4 py-3 bg-white border-3 border-purple-200 rounded-2xl text-gray-800 placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all font-bold shadow-sm"
+                          placeholder="Give your idea a catchy name"
+                          className="w-full px-4 py-3 bg-white border-3 border-purple-200 rounded-2xl text-gray-800 text-lg placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all font-bold shadow-sm"
                         />
                       </div>
 
-                      {/* Problem */}
+                      {/* Description - combines problem + solution */}
                       <div>
-                        <label className="text-sm font-black text-gray-700 mb-2 block uppercase tracking-wide flex items-center gap-1">
-                          <span>❓</span> What problem does this solve?{" "}
-                          <span className="text-purple-500">*</span>
+                        <label className="text-sm font-black text-gray-700 mb-2 block flex items-center gap-2">
+                          <span>📝</span> What&apos;s the idea?
                         </label>
                         <textarea
-                          value={editForm.problem}
+                          value={editForm.description}
                           onChange={(e) =>
                             setEditForm({
                               ...editForm,
-                              problem: e.target.value,
+                              description: e.target.value,
                             })
                           }
-                          placeholder="Describe the problem your concept addresses..."
-                          rows={3}
+                          placeholder="Describe your concept in a few sentences..."
+                          rows={4}
                           className="w-full px-4 py-3 bg-white border-3 border-purple-200 rounded-2xl text-gray-800 placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all resize-none font-semibold shadow-sm"
                         />
                       </div>
 
-                      {/* Solution */}
+                      {/* Collapsible extras */}
                       <div>
-                        <label className="text-sm font-black text-gray-700 mb-2 block uppercase tracking-wide flex items-center gap-1">
-                          <span>💡</span> How does your concept solve it?{" "}
-                          <span className="text-purple-500">*</span>
-                        </label>
-                        <textarea
-                          value={editForm.solution}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              solution: e.target.value,
-                            })
-                          }
-                          placeholder="Explain your solution approach..."
-                          rows={3}
-                          className="w-full px-4 py-3 bg-white border-3 border-purple-200 rounded-2xl text-gray-800 placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all resize-none font-semibold shadow-sm"
-                        />
-                      </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowExtras(!showExtras)}
+                          className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-purple-600 transition-colors"
+                        >
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform ${
+                              showExtras ? "rotate-180" : ""
+                            }`}
+                          />
+                          {showExtras ? "Hide" : "Add"} extra notes
+                        </button>
 
-                      {/* Divider with optional label */}
-                      <div className="flex items-center gap-3 py-3">
-                        <div className="flex-1 border-t-3 border-gray-300"></div>
-                        <span className="text-xs text-gray-500 uppercase tracking-wider font-black bg-gray-100 px-3 py-1 rounded-full">
-                          Optional
-                        </span>
-                        <div className="flex-1 border-t-3 border-gray-300"></div>
-                      </div>
-
-                      {/* User Value */}
-                      <div>
-                        <label className="text-sm font-black text-gray-700 mb-2 block uppercase tracking-wide flex items-center gap-1">
-                          <span>✨</span> What value does it provide users?
-                        </label>
-                        <textarea
-                          value={editForm.userValue}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              userValue: e.target.value,
-                            })
-                          }
-                          placeholder="Describe the benefits and outcomes..."
-                          rows={2}
-                          className="w-full px-4 py-3 bg-white border-3 border-gray-200 rounded-2xl text-gray-800 placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all resize-none font-semibold shadow-sm"
-                        />
-                      </div>
-
-                      {/* Implementation */}
-                      <div>
-                        <label className="text-sm font-black text-gray-700 mb-2 block uppercase tracking-wide flex items-center gap-1">
-                          <span>🔧</span> How could this be implemented?
-                        </label>
-                        <textarea
-                          value={editForm.implementation}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              implementation: e.target.value,
-                            })
-                          }
-                          placeholder="Outline realistic implementation steps..."
-                          rows={2}
-                          className="w-full px-4 py-3 bg-white border-3 border-gray-200 rounded-2xl text-gray-800 placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all resize-none font-semibold shadow-sm"
-                        />
+                        {showExtras && (
+                          <textarea
+                            value={editForm.extras}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                extras: e.target.value,
+                              })
+                            }
+                            placeholder="Implementation ideas, user benefits, technical notes..."
+                            rows={3}
+                            className="w-full mt-3 px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-700 placeholder:text-gray-400 focus:border-purple-300 focus:ring-4 focus:ring-purple-100 transition-all resize-none text-sm"
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
@@ -455,181 +374,52 @@ export default function RefinePage() {
 
           {/* Completed View */}
           {wizardComplete && (
-            <div className="fun-card p-8 border-3 border-green-300 relative overflow-hidden">
+            <div className="fun-card p-6 border-3 border-green-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-200/30 to-transparent rounded-full blur-2xl"></div>
-              <div className="flex items-center gap-3 mb-8 relative z-10">
-                <div className="bg-gradient-to-br from-green-100 to-emerald-200 p-3 rounded-2xl shadow-md">
-                  <CheckCircle2 className="w-7 h-7 text-green-600" />
+              <div className="flex items-center gap-3 mb-6 relative z-10">
+                <div className="bg-gradient-to-br from-green-100 to-emerald-200 p-2.5 rounded-2xl shadow-md">
+                  <CheckCircle2 className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="text-2xl font-black text-gray-800 flex items-center gap-2">
-                  <span className="text-3xl">✅</span>
-                  Your Refined Concepts
+                <h3 className="text-xl font-black text-gray-800">
+                  Ready to Rate! ✨
                 </h3>
               </div>
 
-              <div className="space-y-5 relative z-10">
+              <div className="space-y-3 relative z-10">
                 {selectedNotes.map((note) => {
-                  const isEditingConcept = editingId === note.id;
-                  // Parse problem from details
-                  let problemText = "";
-                  if (note.details?.includes("Problem:")) {
-                    const match = note.details.match(/Problem:\s*([^\n]+)/);
-                    if (match) problemText = match[1];
+                  // Parse description from details
+                  let descText = "";
+                  if (note.details?.includes("Description:")) {
+                    const match = note.details.match(
+                      /Description:\s*([\s\S]*?)(?=Extras:|$)/
+                    );
+                    if (match) descText = match[1].trim();
+                  } else {
+                    descText = note.details || "";
                   }
 
                   return (
                     <div
                       key={note.id}
-                      className="bg-gradient-to-br from-white to-purple-50/30 rounded-2xl border-3 border-purple-200 shadow-md"
+                      className="flex items-center gap-4 p-4 bg-gradient-to-br from-white to-purple-50/30 rounded-2xl border-3 border-purple-200 shadow-sm hover:border-purple-300 transition-all group"
                     >
-                      {!isEditingConcept ? (
-                        <div className="p-5 hover:border-purple-300 transition-all">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-black text-gray-800 mb-2 text-lg flex items-center gap-2">
-                                <span className="text-xl">💡</span>
-                                {note.text}
-                              </h4>
-                              {problemText && (
-                                <p className="text-sm text-gray-600 line-clamp-2 font-semibold">
-                                  {problemText}
-                                </p>
-                              )}
-                            </div>
-                            <button
-                              onClick={() => startEditingConcept(note)}
-                              className="p-3 hover:bg-purple-100 rounded-2xl transition-all group flex-shrink-0 shadow-sm hover:scale-110"
-                            >
-                              <Edit3 className="w-5 h-5 text-purple-500 group-hover:text-purple-700" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="p-4 space-y-4">
-                          {/* Title */}
-                          <div>
-                            <label className="text-sm font-medium text-gray-300 mb-2 block">
-                              Concept Title
-                            </label>
-                            <input
-                              type="text"
-                              value={editForm.title}
-                              onChange={(e) =>
-                                setEditForm({
-                                  ...editForm,
-                                  title: e.target.value,
-                                })
-                              }
-                              placeholder="e.g., Smart Parking Finder App"
-                              className="w-full px-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-lg text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all"
-                            />
-                          </div>
-
-                          {/* Problem */}
-                          <div>
-                            <label className="text-sm font-medium text-gray-300 mb-2 block">
-                              What problem does this solve?
-                            </label>
-                            <textarea
-                              value={editForm.problem}
-                              onChange={(e) =>
-                                setEditForm({
-                                  ...editForm,
-                                  problem: e.target.value,
-                                })
-                              }
-                              placeholder="Describe the problem your concept addresses..."
-                              rows={3}
-                              className="w-full px-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-lg text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all resize-none"
-                            />
-                          </div>
-
-                          {/* Solution */}
-                          <div>
-                            <label className="text-sm font-medium text-gray-300 mb-2 block">
-                              How does your concept solve it?
-                            </label>
-                            <textarea
-                              value={editForm.solution}
-                              onChange={(e) =>
-                                setEditForm({
-                                  ...editForm,
-                                  solution: e.target.value,
-                                })
-                              }
-                              placeholder="Explain your solution approach..."
-                              rows={3}
-                              className="w-full px-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-lg text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all resize-none"
-                            />
-                          </div>
-
-                          {/* Divider with optional label */}
-                          <div className="flex items-center gap-3 py-2">
-                            <div className="flex-1 border-t border-gray-700"></div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wider">
-                              Optional
-                            </span>
-                            <div className="flex-1 border-t border-gray-700"></div>
-                          </div>
-
-                          {/* User Value */}
-                          <div>
-                            <label className="text-sm font-medium text-gray-300 mb-2 block">
-                              What value does it provide users?
-                            </label>
-                            <textarea
-                              value={editForm.userValue}
-                              onChange={(e) =>
-                                setEditForm({
-                                  ...editForm,
-                                  userValue: e.target.value,
-                                })
-                              }
-                              placeholder="Describe the benefits and outcomes..."
-                              rows={2}
-                              className="w-full px-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-lg text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all resize-none"
-                            />
-                          </div>
-
-                          {/* Implementation */}
-                          <div>
-                            <label className="text-sm font-medium text-gray-300 mb-2 block">
-                              How could this be implemented?
-                            </label>
-                            <textarea
-                              value={editForm.implementation}
-                              onChange={(e) =>
-                                setEditForm({
-                                  ...editForm,
-                                  implementation: e.target.value,
-                                })
-                              }
-                              placeholder="Outline realistic implementation steps..."
-                              rows={2}
-                              className="w-full px-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-lg text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all resize-none"
-                            />
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex gap-2 pt-2">
-                            <button
-                              onClick={() => {
-                                saveConcept();
-                                setEditingId(null);
-                              }}
-                              className="flex-1 px-4 py-2 text-sm bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-500 hover:to-pink-500 transition-all font-medium"
-                            >
-                              Save Changes
-                            </button>
-                            <button
-                              onClick={() => setEditingId(null)}
-                              className="px-4 py-2 text-sm text-gray-400 hover:text-gray-200 border border-gray-600 rounded-lg hover:bg-gray-800/50 transition-colors"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-black text-gray-800 flex items-center gap-2">
+                          <span>💡</span>
+                          {note.text}
+                        </h4>
+                        {descText && (
+                          <p className="text-sm text-gray-500 truncate mt-1">
+                            {descText}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => startEditingConcept(note)}
+                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-purple-100 rounded-xl transition-all"
+                      >
+                        <Edit3 className="w-4 h-4 text-purple-500" />
+                      </button>
                     </div>
                   );
                 })}

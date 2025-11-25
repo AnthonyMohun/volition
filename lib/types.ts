@@ -45,6 +45,78 @@ export interface ConceptEvaluation {
   studentNotes?: string;
 }
 
+// Self-evaluation types for interactive student assessment
+export interface SelfEvaluationCriteria {
+  id: string;
+  label: string;
+  emoji: string;
+  description: string;
+  lowLabel: string;
+  highLabel: string;
+  color: string;
+}
+
+export interface SelfEvaluationRating {
+  criteriaId: string;
+  score: number; // 1-5
+  reflection?: string;
+}
+
+export interface ConceptSelfEvaluation {
+  conceptId: string;
+  ratings: SelfEvaluationRating[];
+  overallReflection?: string;
+  completedAt?: number;
+}
+
+export const SELF_EVAL_CRITERIA: SelfEvaluationCriteria[] = [
+  {
+    id: "problem-fit",
+    label: "Problem Fit",
+    emoji: "🎯",
+    description: "How well does this solve the real problem?",
+    lowLabel: "Doesn't quite fit",
+    highLabel: "Perfect match!",
+    color: "#f472b6", // pink
+  },
+  {
+    id: "user-love",
+    label: "User Love",
+    emoji: "💜",
+    description: "Would users actually want this?",
+    lowLabel: "Meh, maybe",
+    highLabel: "They'd love it!",
+    color: "#a78bfa", // purple
+  },
+  {
+    id: "doability",
+    label: "Doability",
+    emoji: "🛠️",
+    description: "Can this realistically be built?",
+    lowLabel: "Super tricky",
+    highLabel: "Totally doable!",
+    color: "#60a5fa", // blue
+  },
+  {
+    id: "uniqueness",
+    label: "Uniqueness",
+    emoji: "✨",
+    description: "Is this fresh and original?",
+    lowLabel: "Pretty common",
+    highLabel: "Super unique!",
+    color: "#fbbf24", // yellow
+  },
+  {
+    id: "excitement",
+    label: "Excitement",
+    emoji: "🚀",
+    description: "How excited are YOU about this?",
+    lowLabel: "It's okay",
+    highLabel: "I'm pumped!",
+    color: "#fb923c", // orange
+  },
+];
+
 export interface SessionState {
   projectId: string;
   hmwStatement: string;
