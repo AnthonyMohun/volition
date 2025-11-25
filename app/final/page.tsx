@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { askAI } from "@/lib/ai-client";
@@ -15,11 +15,17 @@ import {
   ArrowRight,
   Sparkles,
   ChevronRight,
+  ChevronDown,
   Trophy,
   Star,
   Lightbulb,
   RefreshCw,
   Loader2,
+  Download,
+  Bot,
+  Check,
+  TrendingUp,
+  Zap,
 } from "lucide-react";
 
 // Emoji reactions for different score levels
@@ -30,6 +36,20 @@ const SCORE_REACTIONS = [
   ["🎉", "Great!"],
   ["🚀", "Amazing!"],
 ];
+
+// AI Evaluation criteria (rubric-aligned)
+interface AIConceptEvaluation {
+  conceptId: string;
+  overallScore: number;
+  criteria: {
+    problemFit: { score: number; feedback: string };
+    originality: { score: number; feedback: string };
+    feasibility: { score: number; feedback: string };
+  };
+  strengths: string[];
+  improvements: string[];
+  isLoading?: boolean;
+}
 
 export default function FinalPage() {
   const router = useRouter();
@@ -51,6 +71,13 @@ export default function FinalPage() {
   // AI synthesis
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isLoadingInsight, setIsLoadingInsight] = useState(false);
+  // AI concept evaluations (before self-assessment)
+  const [aiEvaluations, setAiEvaluations] = useState<AIConceptEvaluation[]>([]);
+  const [showAIEvaluation, setShowAIEvaluation] = useState(true);
+  const [currentAIEvalIndex, setCurrentAIEvalIndex] = useState(0);
+  const [aiEvalComplete, setAiEvalComplete] = useState(false);
+  const aiEvalStartedRef = useRef(false);
+  const [criteriaExpanded, setCriteriaExpanded] = useState(false);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
   const selectedNotes = state.selectedConceptIds
@@ -65,7 +92,7 @@ export default function FinalPage() {
   const progress = (currentStep / totalSteps) * 100;
 
   useEffect(() => {
-    if (!state.hmwStatement || selectedNotes.length < 3) {
+    if (!state.hmwStatement || selectedNotes.length < 2) {
       router.push("/canvas");
     }
   }, [state.hmwStatement, selectedNotes.length, router]);
@@ -82,31 +109,324 @@ export default function FinalPage() {
     }
   }, [selectedNotes, evaluations.length]);
 
+  // Keyboard navigation for rating (1-5 keys and Enter)
+  useEffect(() => {
+    // Only enable keyboard navigation during self-assessment (not AI eval or summary)
+    if (showAIEvaluation && !aiEvalComplete) return;
+    if (showSummary) return;
+    if (showCelebration) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Number keys 1-5 for rating
+      if (e.key >= "1" && e.key <= "5") {
+        const score = parseInt(e.key, 10);
+        handleRatingSelect(score);
+      }
+      // Enter key to proceed to next
+      if (e.key === "Enter" && currentRating > 0) {
+        handleNext();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    showAIEvaluation,
+    aiEvalComplete,
+    showSummary,
+    showCelebration,
+    currentRating,
+  ]);
+
+  // Generate AI evaluations for all concepts on load
+  useEffect(() => {
+    if (
+      selectedNotes.length > 0 &&
+      aiEvaluations.length === 0 &&
+      showAIEvaluation &&
+      !aiEvalStartedRef.current
+    ) {
+      aiEvalStartedRef.current = true;
+      generateAIEvaluations();
+    }
+  }, [selectedNotes.length]);
+
+  const generateAIEvaluations = async () => {
+    const evaluationsToGenerate = selectedNotes.map((note) => ({
+      conceptId: note.id,
+      overallScore: 0,
+      criteria: {
+        problemFit: { score: 0, feedback: "" },
+        originality: { score: 0, feedback: "" },
+        feasibility: { score: 0, feedback: "" },
+      },
+      strengths: [],
+      improvements: [],
+      isLoading: true,
+    }));
+
+    setAiEvaluations(evaluationsToGenerate);
+
+    // Generate evaluations one by one
+    for (let i = 0; i < selectedNotes.length; i++) {
+      const note = selectedNotes[i];
+      try {
+        const prompt = `You are a design thinking expert evaluating a student's concept for their course project.
+
+Design Challenge: "${state.hmwStatement}"
+
+Concept to Evaluate:
+Title: "${note.text}"
+${note.details ? `Description: "${note.details}"` : "No description provided."}
+
+Evaluate this concept on three criteria (score 1-5 each):
+1. Problem Fit: How well does this concept address the design challenge?
+2. Originality: How fresh and creative is this approach?
+3. Feasibility: How realistic is it to implement within a course project?
+
+Respond in this exact JSON format (no markdown, just raw JSON):
+{
+  "problemFit": { "score": X, "feedback": "One sentence feedback" },
+  "originality": { "score": X, "feedback": "One sentence feedback" },
+  "feasibility": { "score": X, "feedback": "One sentence feedback" },
+  "strengths": ["strength 1", "strength 2"],
+  "improvements": ["improvement 1"]
+}`;
+
+        const response = await askAI(
+          [
+            {
+              role: "system",
+              content:
+                "You are a supportive design thinking coach. Evaluate student concepts constructively. Always respond with valid JSON only, no markdown formatting.",
+            },
+            { role: "user", content: prompt },
+          ],
+          0.5,
+          400
+        );
+
+        // Parse the JSON response
+        let parsed;
+        try {
+          // Clean up response - remove any markdown formatting
+          const cleanedResponse = response
+            .replace(/```json\n?/g, "")
+            .replace(/```\n?/g, "")
+            .trim();
+          parsed = JSON.parse(cleanedResponse);
+        } catch {
+          // Fallback if parsing fails
+          parsed = {
+            problemFit: {
+              score: 3,
+              feedback: "Shows potential for addressing the challenge.",
+            },
+            originality: {
+              score: 3,
+              feedback:
+                "A solid approach with room for more creative exploration.",
+            },
+            feasibility: {
+              score: 4,
+              feedback: "This seems achievable within the project scope.",
+            },
+            strengths: ["Good starting point"],
+            improvements: ["Consider adding more detail to the concept"],
+          };
+        }
+
+        const overallScore = Math.round(
+          ((parsed.problemFit.score +
+            parsed.originality.score +
+            parsed.feasibility.score) /
+            15) *
+            100
+        );
+
+        setAiEvaluations((prev) =>
+          prev.map((e, idx) =>
+            idx === i
+              ? {
+                  ...e,
+                  overallScore,
+                  criteria: {
+                    problemFit: parsed.problemFit,
+                    originality: parsed.originality,
+                    feasibility: parsed.feasibility,
+                  },
+                  strengths: parsed.strengths || [],
+                  improvements: parsed.improvements || [],
+                  isLoading: false,
+                }
+              : e
+          )
+        );
+      } catch (error) {
+        console.error(`Failed to evaluate concept ${i}:`, error);
+        setAiEvaluations((prev) =>
+          prev.map((e, idx) =>
+            idx === i
+              ? {
+                  ...e,
+                  overallScore: 60,
+                  criteria: {
+                    problemFit: {
+                      score: 3,
+                      feedback: "Unable to fully evaluate - try again.",
+                    },
+                    originality: {
+                      score: 3,
+                      feedback: "Unable to fully evaluate - try again.",
+                    },
+                    feasibility: {
+                      score: 3,
+                      feedback: "Unable to fully evaluate - try again.",
+                    },
+                  },
+                  strengths: ["Concept submitted for evaluation"],
+                  improvements: ["Add more details for better feedback"],
+                  isLoading: false,
+                }
+              : e
+          )
+        );
+      }
+    }
+
+    // Don't auto-complete - let user review all evaluations first
+    // User must click "Continue to Self-Assessment" button to proceed
+  };
+
+  // Export function to generate downloadable summary
+  const handleExport = () => {
+    const rankedConcepts = selectedNotes
+      .map((note, idx) => ({
+        note,
+        score: calculateConceptScore(idx),
+        ratings: evaluations[idx]?.ratings || [],
+        aiEval: aiEvaluations[idx],
+      }))
+      .sort((a, b) => b.score - a.score);
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    let markdown = `# Design Concept Summary
+📅 Generated: ${dateStr}
+
+## 🎯 Design Challenge
+${state.hmwStatement}
+
+---
+
+## 📊 Concept Rankings
+
+`;
+
+    rankedConcepts.forEach((item, idx) => {
+      const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : "🥉";
+      markdown += `### ${medal} #${idx + 1}: ${item.note.text}
+**Self-Assessment Score: ${item.score}/100**
+
+${item.note.details ? `> ${item.note.details}\n` : ""}
+
+#### Self-Ratings:
+`;
+      SELF_EVAL_CRITERIA.forEach((c) => {
+        const rating = item.ratings.find((r) => r.criteriaId === c.id);
+        const stars = rating
+          ? "⭐".repeat(rating.score) + "☆".repeat(5 - rating.score)
+          : "Not rated";
+        markdown += `- ${c.emoji} **${c.label}**: ${stars}\n`;
+      });
+
+      if (item.aiEval && !item.aiEval.isLoading) {
+        markdown += `
+#### AI Evaluation (Score: ${item.aiEval.overallScore}/100):
+- 🎯 Problem Fit: ${item.aiEval.criteria.problemFit.score}/5 — ${
+          item.aiEval.criteria.problemFit.feedback
+        }
+- ✨ Originality: ${item.aiEval.criteria.originality.score}/5 — ${
+          item.aiEval.criteria.originality.feedback
+        }
+- 🛠️ Feasibility: ${item.aiEval.criteria.feasibility.score}/5 — ${
+          item.aiEval.criteria.feasibility.feedback
+        }
+
+**Strengths:** ${item.aiEval.strengths.join(", ")}
+**Areas to Improve:** ${item.aiEval.improvements.join(", ")}
+`;
+      }
+
+      markdown += "\n---\n\n";
+    });
+
+    if (aiInsight) {
+      markdown += `## 💡 AI Insight
+${aiInsight}
+
+---
+`;
+    }
+
+    markdown += `
+## 📝 Next Steps
+1. Review the AI feedback and your self-ratings
+2. Consider strengthening your top concept's weak areas
+3. Prepare to present and defend your chosen concept
+
+---
+*Generated by Socratic Design App*
+`;
+
+    // Create and download file
+    const blob = new Blob([markdown], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `concept-summary-${now.toISOString().split("T")[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   // Generate AI insight when summary is shown
-  const generateInsight = async (rankedConcepts: Array<{
-    note: StickyNote;
-    score: number;
-    ratings: Array<{ criteriaId: string; score: number }>;
-  }>) => {
+  const generateInsight = async (
+    rankedConcepts: Array<{
+      note: StickyNote;
+      score: number;
+      ratings: Array<{ criteriaId: string; score: number }>;
+    }>
+  ) => {
     setIsLoadingInsight(true);
-    
+
     try {
       // Build a summary of ratings for the AI
-      const conceptSummaries = rankedConcepts.map((item, idx) => {
-        const criteriaBreakdown = SELF_EVAL_CRITERIA.map(c => {
-          const rating = item.ratings.find(r => r.criteriaId === c.id);
-          return `${c.label}: ${rating?.score || 0}/5`;
-        }).join(", ");
-        
-        return `#${idx + 1} "${item.note.text}" (Score: ${item.score}/100)
+      const conceptSummaries = rankedConcepts
+        .map((item, idx) => {
+          const criteriaBreakdown = SELF_EVAL_CRITERIA.map((c) => {
+            const rating = item.ratings.find((r) => r.criteriaId === c.id);
+            return `${c.label}: ${rating?.score || 0}/5`;
+          }).join(", ");
+
+          return `#${idx + 1} "${item.note.text}" (Score: ${item.score}/100)
   Ratings: ${criteriaBreakdown}`;
-      }).join("\n\n");
+        })
+        .join("\n\n");
 
       // Find interesting patterns
       const topConcept = rankedConcepts[0];
       const lowestCriteria = SELF_EVAL_CRITERIA.reduce((lowest, c) => {
-        const rating = topConcept.ratings.find(r => r.criteriaId === c.id);
-        const lowestRating = topConcept.ratings.find(r => r.criteriaId === lowest.id);
+        const rating = topConcept.ratings.find((r) => r.criteriaId === c.id);
+        const lowestRating = topConcept.ratings.find(
+          (r) => r.criteriaId === lowest.id
+        );
         return (rating?.score || 0) < (lowestRating?.score || 0) ? c : lowest;
       }, SELF_EVAL_CRITERIA[0]);
 
@@ -129,7 +449,8 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
         [
           {
             role: "system",
-            content: "You are a concise design coach. Give one specific, actionable insight based on the student's self-ratings. Be direct and helpful, not generic. Max 2-3 sentences.",
+            content:
+              "You are a concise design coach. Give one specific, actionable insight based on the student's self-ratings. Be direct and helpful, not generic. Max 2-3 sentences.",
           },
           { role: "user", content: prompt },
         ],
@@ -143,17 +464,23 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
       const topConcept = rankedConcepts[0];
       const bottomConcept = rankedConcepts[rankedConcepts.length - 1];
       const scoreDiff = topConcept.score - bottomConcept.score;
-      
+
       if (scoreDiff < 15) {
-        setAiInsight("🤔 Your concepts are rated quite similarly. Consider which one you'd be most excited to work on for the next few weeks—that passion often makes the difference.");
+        setAiInsight(
+          "🤔 Your concepts are rated quite similarly. Consider which one you'd be most excited to work on for the next few weeks—that passion often makes the difference."
+        );
       } else {
         const weakSpot = SELF_EVAL_CRITERIA.reduce((lowest, c) => {
-          const rating = topConcept.ratings.find(r => r.criteriaId === c.id);
-          const lowestRating = topConcept.ratings.find(r => r.criteriaId === lowest.id);
+          const rating = topConcept.ratings.find((r) => r.criteriaId === c.id);
+          const lowestRating = topConcept.ratings.find(
+            (r) => r.criteriaId === lowest.id
+          );
           return (rating?.score || 0) < (lowestRating?.score || 0) ? c : lowest;
         }, SELF_EVAL_CRITERIA[0]);
-        
-        setAiInsight(`💡 Your top concept scored lower on ${weakSpot.label}. Before moving forward, spend some time strengthening that area—it'll make your concept more well-rounded.`);
+
+        setAiInsight(
+          `💡 Your top concept scored lower on ${weakSpot.label}. Before moving forward, spend some time strengthening that area—it'll make your concept more well-rounded.`
+        );
       }
     } finally {
       setIsLoadingInsight(false);
@@ -205,7 +532,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             ratings: newEvaluations[idx]?.ratings || [],
           }))
           .sort((a, b) => b.score - a.score);
-        
+
         generateInsight(ranked);
         setShowSummary(true);
       }
@@ -224,15 +551,348 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
     }
   };
 
-  const calculateConceptScore = (conceptIndex: number, evals: ConceptSelfEvaluation[] = evaluations) => {
+  const calculateConceptScore = (
+    conceptIndex: number,
+    evals: ConceptSelfEvaluation[] = evaluations
+  ) => {
     const conceptEval = evals[conceptIndex];
     if (!conceptEval || conceptEval.ratings.length === 0) return 0;
     const total = conceptEval.ratings.reduce((sum, r) => sum + r.score, 0);
     return Math.round((total / conceptEval.ratings.length) * 20); // Convert to 0-100
   };
 
-  if (!state.hmwStatement || selectedNotes.length < 3) {
+  if (!state.hmwStatement || selectedNotes.length < 2) {
     return null;
+  }
+
+  // AI Evaluation View - shown before self-assessment
+  if (showAIEvaluation && !aiEvalComplete) {
+    const currentEval = aiEvaluations[currentAIEvalIndex];
+    const currentNote = selectedNotes[currentAIEvalIndex];
+    const allLoaded = aiEvaluations.every((e) => !e.isLoading);
+
+    return (
+      <div className="min-h-screen fun-gradient-bg flex flex-col relative overflow-hidden">
+        {/* Floating decorative elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+          <div className="absolute top-20 left-10 text-6xl float-animation">
+            🤖
+          </div>
+          <div
+            className="absolute top-40 right-20 text-5xl float-animation"
+            style={{ animationDelay: "1s" }}
+          >
+            ✨
+          </div>
+        </div>
+
+        {/* Header */}
+        <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-4 backdrop-blur-xl shadow-lg">
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.push("/refine")}
+                className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
+              >
+                <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
+              </button>
+              <div>
+                <h1 className="text-lg font-black text-gray-800 flex items-center gap-2">
+                  <span className="text-xl">🤖</span>
+                  AI Concept Evaluation
+                </h1>
+                <p className="text-sm text-gray-600 font-bold">
+                  See how your concepts measure up
+                </p>
+              </div>
+            </div>
+
+            {/* Concept tabs */}
+            <div className="flex gap-2">
+              {selectedNotes.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentAIEvalIndex(idx)}
+                  disabled={aiEvaluations[idx]?.isLoading}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${
+                    idx === currentAIEvalIndex
+                      ? "bg-gradient-to-br from-blue-500 to-purple-500 text-white scale-110 shadow-lg"
+                      : aiEvaluations[idx]?.isLoading
+                      ? "bg-gray-200 text-gray-400 animate-pulse"
+                      : "bg-white text-gray-600 hover:bg-blue-50"
+                  }`}
+                >
+                  {aiEvaluations[idx]?.isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    idx + 1
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-2xl">
+            {/* Concept Card */}
+            <div className="fun-card p-6 border-3 border-blue-200 mb-6">
+              <div className="flex items-start gap-4">
+                {currentNote?.image && (
+                  <img
+                    src={currentNote.image.dataUrl}
+                    alt="Concept"
+                    className="w-20 h-20 rounded-2xl object-cover border-3 border-white shadow-lg flex-shrink-0"
+                  />
+                )}
+                <div className="flex-1">
+                  <p className="text-xs font-black text-blue-600 uppercase tracking-wide mb-1">
+                    Concept {currentAIEvalIndex + 1} of {selectedNotes.length}
+                  </p>
+                  <h2 className="text-xl font-black text-gray-800">
+                    {currentNote?.text}
+                  </h2>
+                  {currentNote?.details && (
+                    <p className="text-sm text-gray-600 font-semibold mt-1 line-clamp-2">
+                      {currentNote.details}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* AI Evaluation Results */}
+            {currentEval?.isLoading ? (
+              <div className="fun-card p-8 border-3 border-blue-200 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 mb-4">
+                  <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                </div>
+                <h3 className="text-lg font-black text-gray-800 mb-2">
+                  Analyzing Concept...
+                </h3>
+                <p className="text-gray-600 font-semibold">
+                  The AI is evaluating your concept
+                </p>
+              </div>
+            ) : currentEval ? (
+              <div className="space-y-4">
+                {/* Overall Score */}
+                <div className="fun-card p-6 border-3 border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-black text-gray-800 mb-1">
+                        AI Score
+                      </h3>
+                      <p className="text-sm text-gray-600 font-semibold">
+                        Based on rubric criteria
+                      </p>
+                    </div>
+                    <div
+                      className={`w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-black text-white shadow-lg ${
+                        currentEval.overallScore >= 80
+                          ? "bg-gradient-to-br from-green-400 to-emerald-500"
+                          : currentEval.overallScore >= 60
+                          ? "bg-gradient-to-br from-blue-400 to-purple-500"
+                          : "bg-gradient-to-br from-orange-400 to-pink-500"
+                      }`}
+                    >
+                      {currentEval.overallScore}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Strengths & Improvements - Visual Showcase */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Strengths Card */}
+                  <div className="fun-card p-5 border-3 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-green-200/30 rounded-full -translate-y-8 translate-x-8" />
+                    <div className="relative">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg">
+                          <Zap className="w-5 h-5 text-white" />
+                        </div>
+                        <h4 className="font-black text-green-800 text-lg">
+                          What&apos;s Working
+                        </h4>
+                      </div>
+                      <div className="space-y-3">
+                        {currentEval.strengths.map((s, i) => (
+                          <div
+                            key={i}
+                            className="flex items-start gap-3 bg-white/60 rounded-xl p-3 border border-green-200/50"
+                          >
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Check className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <p className="text-sm text-green-900 font-semibold leading-relaxed">
+                              {s}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Improvements Card */}
+                  <div className="fun-card p-5 border-3 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber-200/30 rounded-full -translate-y-8 translate-x-8" />
+                    <div className="relative">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                          <TrendingUp className="w-5 h-5 text-white" />
+                        </div>
+                        <h4 className="font-black text-amber-800 text-lg">
+                          Room to Grow
+                        </h4>
+                      </div>
+                      <div className="space-y-3">
+                        {currentEval.improvements.map((s, i) => (
+                          <div
+                            key={i}
+                            className="flex items-start gap-3 bg-white/60 rounded-xl p-3 border border-amber-200/50"
+                          >
+                            <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Lightbulb className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <p className="text-sm text-amber-900 font-semibold leading-relaxed">
+                              {s}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Criteria Breakdown - Collapsible */}
+                <div className="fun-card border-3 border-gray-200 overflow-hidden">
+                  <button
+                    onClick={() => setCriteriaExpanded(!criteriaExpanded)}
+                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                        <Star className="w-4 h-4 text-white" />
+                      </div>
+                      <h4 className="font-black text-gray-800">
+                        Criteria Breakdown
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 font-semibold">
+                        {Math.round(
+                          ((currentEval.criteria.problemFit.score +
+                            currentEval.criteria.originality.score +
+                            currentEval.criteria.feasibility.score) /
+                            3) *
+                            20
+                        )}
+                        % avg
+                      </span>
+                      <ChevronDown
+                        className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                          criteriaExpanded ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
+                  </button>
+
+                  {criteriaExpanded && (
+                    <div className="px-4 pb-4 pt-2 border-t border-gray-100 space-y-4">
+                      {[
+                        {
+                          key: "problemFit",
+                          emoji: "🎯",
+                          label: "Problem Fit",
+                          data: currentEval.criteria.problemFit,
+                          color: "from-pink-500 to-rose-500",
+                        },
+                        {
+                          key: "originality",
+                          emoji: "✨",
+                          label: "Originality",
+                          data: currentEval.criteria.originality,
+                          color: "from-purple-500 to-indigo-500",
+                        },
+                        {
+                          key: "feasibility",
+                          emoji: "🛠️",
+                          label: "Feasibility",
+                          data: currentEval.criteria.feasibility,
+                          color: "from-blue-500 to-cyan-500",
+                        },
+                      ].map(({ key, emoji, label, data, color }) => (
+                        <div key={key} className="bg-gray-50 rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{emoji}</span>
+                              <span className="font-bold text-gray-800">
+                                {label}
+                              </span>
+                            </div>
+                            <div className="flex gap-1">
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <Star
+                                  key={s}
+                                  className={`w-4 h-4 ${
+                                    s <= data.score
+                                      ? "fill-current text-yellow-500"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <div className="mb-2">
+                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full bg-gradient-to-r ${color} transition-all duration-500`}
+                                style={{ width: `${(data.score / 5) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-600 font-medium">
+                            {data.feedback}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Action Buttons */}
+            <div className="flex justify-center gap-4 mt-8">
+              {currentAIEvalIndex < selectedNotes.length - 1 ? (
+                <button
+                  onClick={() => setCurrentAIEvalIndex((prev) => prev + 1)}
+                  disabled={aiEvaluations[currentAIEvalIndex + 1]?.isLoading}
+                  className="fun-button-primary flex items-center gap-2 disabled:opacity-50"
+                >
+                  Next Concept
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              ) : allLoaded ? (
+                <button
+                  onClick={() => setAiEvalComplete(true)}
+                  className="fun-button-primary flex items-center gap-2"
+                >
+                  Continue to Self-Assessment
+                  <Sparkles className="w-5 h-5" />
+                </button>
+              ) : (
+                <div className="text-gray-500 font-semibold flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Waiting for all evaluations...
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Summary View
@@ -242,6 +902,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
         note,
         score: calculateConceptScore(idx),
         ratings: evaluations[idx]?.ratings || [],
+        aiEval: aiEvaluations[idx],
       }))
       .sort((a, b) => b.score - a.score);
 
@@ -366,7 +1027,17 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                     >
                       {item.score}
                     </div>
-                    <p className="text-xs text-gray-500 font-bold mt-1">/100</p>
+                    <p className="text-xs text-gray-500 font-bold mt-1">
+                      Your Score
+                    </p>
+                    {item.aiEval && !item.aiEval.isLoading && (
+                      <div className="mt-2 flex items-center justify-center gap-1">
+                        <Bot className="w-3 h-3 text-blue-500" />
+                        <span className="text-xs font-bold text-blue-600">
+                          {item.aiEval.overallScore}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -388,7 +1059,9 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                   🤖 AI Insight
                 </h3>
                 {isLoadingInsight ? (
-                  <p className="text-gray-500 font-semibold">Analyzing your ratings...</p>
+                  <p className="text-gray-500 font-semibold">
+                    Analyzing your ratings...
+                  </p>
                 ) : aiInsight ? (
                   <p className="text-gray-700 font-semibold leading-relaxed">
                     {aiInsight}
@@ -408,6 +1081,13 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
 
           {/* Action Buttons */}
           <div className="flex justify-center gap-4">
+            <button
+              onClick={handleExport}
+              className="fun-button-secondary flex items-center gap-2"
+            >
+              <Download className="w-5 h-5" />
+              Download Summary
+            </button>
             <button
               onClick={() => {
                 setShowSummary(false);
@@ -632,6 +1312,25 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             <div className="flex justify-between text-sm text-gray-500 font-bold px-2">
               <span>{currentCriteria?.lowLabel}</span>
               <span>{currentCriteria?.highLabel}</span>
+            </div>
+
+            {/* Keyboard hint */}
+            <div className="mt-4 text-center">
+              <p className="text-xs text-gray-400 font-medium">
+                💡 Press{" "}
+                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-200 font-mono text-gray-600">
+                  1
+                </kbd>
+                -
+                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-200 font-mono text-gray-600">
+                  5
+                </kbd>{" "}
+                to rate,{" "}
+                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-200 font-mono text-gray-600">
+                  Enter
+                </kbd>{" "}
+                to continue
+              </p>
             </div>
           </div>
 

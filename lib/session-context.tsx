@@ -59,6 +59,7 @@ const STORAGE_KEY = "socratic-design-session";
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<SessionState>(INITIAL_SESSION_STATE);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [hasShownRestoredToast, setHasShownRestoredToast] = useState(false);
   const { showToast } = useToast();
 
   // Command stacks used for undo/redo
@@ -93,26 +94,33 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     showToast(last.label ? `Redid: ${last.label}` : "Redid action");
   };
 
-  // Load from sessionStorage on mount
+  // Load from localStorage on mount (persists across browser sessions)
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
           setState(parsed);
+          // Show restoration toast after a brief delay to ensure UI is ready
+          if (!hasShownRestoredToast && parsed.hmwStatement) {
+            setTimeout(() => {
+              showToast("✨ Your previous session has been restored");
+              setHasShownRestoredToast(true);
+            }, 500);
+          }
         } catch (error) {
-          console.error("Failed to parse session storage:", error);
+          console.error("Failed to parse localStorage:", error);
         }
       }
       setIsHydrated(true);
     }
   }, []);
 
-  // Save to sessionStorage whenever state changes
+  // Save to localStorage whenever state changes
   useEffect(() => {
     if (isHydrated && typeof window !== "undefined") {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
   }, [state, isHydrated]);
 
@@ -220,10 +228,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       createdAt: Date.now(),
     });
     if (typeof window !== "undefined") {
-      sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
     }
     setUndoStack([]);
     setRedoStack([]);
+    showToast("🗑️ Session cleared — starting fresh!");
   };
 
   const loadExampleSession = (exampleState: Partial<SessionState>) => {

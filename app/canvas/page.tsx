@@ -178,19 +178,42 @@ export default function CanvasPage() {
   }, []);
 
   // Pan with mouse wheel + drag
-  const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault();
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
 
-    if (e.ctrlKey || e.metaKey) {
-      // Zoom with ctrl/cmd + wheel
-      const delta = -e.deltaY * 0.01;
-      setZoom((prev) => Math.max(0.25, Math.min(2, prev + delta)));
-    } else {
-      // Pan with wheel
-      setPanX((prev) => prev - e.deltaX);
-      setPanY((prev) => prev - e.deltaY);
-    }
-  }, []);
+      if (e.ctrlKey || e.metaKey) {
+        // Zoom with ctrl/cmd + wheel, zooming towards cursor position
+        const container = containerRef.current;
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+        // Get cursor position relative to viewport
+        const cursorViewX = e.clientX - containerRect.left;
+        const cursorViewY = e.clientY - containerRect.top;
+
+        // Convert cursor position to canvas coordinates (world space)
+        const cursorCanvasX = (cursorViewX - panX) / zoom;
+        const cursorCanvasY = (cursorViewY - panY) / zoom;
+
+        const delta = -e.deltaY * 0.01;
+        const newZoom = Math.max(0.25, Math.min(2, zoom + delta));
+
+        // Adjust pan so the canvas coordinates under cursor stay the same
+        const newPanX = cursorViewX - cursorCanvasX * newZoom;
+        const newPanY = cursorViewY - cursorCanvasY * newZoom;
+
+        setZoom(newZoom);
+        setPanX(newPanX);
+        setPanY(newPanY);
+      } else {
+        // Pan with wheel
+        setPanX((prev) => prev - e.deltaX);
+        setPanY((prev) => prev - e.deltaY);
+      }
+    },
+    [zoom, panX, panY]
+  );
 
   useEffect(() => {
     const container = containerRef.current;
@@ -411,7 +434,14 @@ export default function CanvasPage() {
   const conceptNotes = state.notes.filter((n) => n.isConcept);
 
   const handleProceedToSelect = () => {
-    if (conceptNotes.length >= 3) {
+    if (conceptNotes.length >= 2) {
+      // If only 2 concepts, show warning
+      if (conceptNotes.length === 2) {
+        const proceed = confirm(
+          "Having 3+ concepts gives you more options to compare and strengthens your final selection.\n\nContinue with just 2 concepts?"
+        );
+        if (!proceed) return;
+      }
       setPhase("select");
       router.push("/select");
     }
@@ -462,7 +492,7 @@ export default function CanvasPage() {
           </div>
           <button
             onClick={handleProceedToSelect}
-            disabled={conceptNotes.length < 3}
+            disabled={conceptNotes.length < 2}
             className="fun-button-primary flex items-center gap-2 text-sm font-black disabled:opacity-50 disabled:cursor-not-allowed py-3 px-6 shadow-lg hover:shadow-purple"
           >
             Select Concepts

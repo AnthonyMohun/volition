@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
+import { StickyNote } from "@/lib/types";
 import {
   ArrowLeft,
   ListRestart,
@@ -11,6 +12,12 @@ import {
   AlertCircle,
   Lightbulb,
   ArrowRight,
+  Plus,
+  X,
+  Heart,
+  RotateCcw,
+  ThumbsDown,
+  ThumbsUp,
 } from "lucide-react";
 
 export default function SelectPage() {
@@ -21,29 +28,162 @@ export default function SelectPage() {
     setSelectedConcepts: saveSelectedConcepts,
   } = useSession();
   const [selectedConcepts, setSelectedConcepts] = useState<string[]>([]);
+  const [skippedConcepts, setSkippedConcepts] = useState<string[]>([]);
+  const [swipeHistory, setSwipeHistory] = useState<
+    { id: string; direction: "left" | "right" }[]
+  >([]);
+
+  // Drag state for top card
+  const [dragState, setDragState] = useState({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    offsetX: 0,
+    offsetY: 0,
+  });
+  const [isAnimatingOut, setIsAnimatingOut] = useState<"left" | "right" | null>(
+    null
+  );
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
+  const minConcepts = 2;
+  const maxConcepts = Math.min(3, conceptNotes.length);
+
+  // Remaining cards to swipe
+  const remainingCards = conceptNotes.filter(
+    (note) =>
+      !selectedConcepts.includes(note.id) && !skippedConcepts.includes(note.id)
+  );
+
+  const isComplete =
+    remainingCards.length === 0 || selectedConcepts.length >= maxConcepts;
+  const topCard = remainingCards[0];
 
   useEffect(() => {
-    if (!state.hmwStatement || conceptNotes.length < 3) {
+    if (!state.hmwStatement || conceptNotes.length < minConcepts) {
       router.push("/canvas");
     }
   }, [state.hmwStatement, conceptNotes.length, router]);
 
-  const toggleConceptSelection = (noteId: string) => {
-    setSelectedConcepts((prev) => {
-      const newSelection = prev.includes(noteId)
-        ? prev.filter((id) => id !== noteId)
-        : prev.length < 3
-        ? [...prev, noteId]
-        : prev;
+  const handleSwipe = useCallback(
+    (noteId: string, direction: "left" | "right") => {
+      setSwipeHistory((prev) => [...prev, { id: noteId, direction }]);
 
-      return newSelection;
+      if (direction === "right") {
+        setSelectedConcepts((prev) => {
+          if (prev.length < maxConcepts) {
+            return [...prev, noteId];
+          }
+          return prev;
+        });
+      } else {
+        setSkippedConcepts((prev) => [...prev, noteId]);
+      }
+
+      // Reset states
+      setIsAnimatingOut(null);
+      setDragState({
+        isDragging: false,
+        startX: 0,
+        startY: 0,
+        offsetX: 0,
+        offsetY: 0,
+      });
+    },
+    [maxConcepts]
+  );
+
+  const animateOut = useCallback(
+    (direction: "left" | "right") => {
+      if (!topCard || isAnimatingOut) return;
+      setIsAnimatingOut(direction);
+      setTimeout(() => {
+        handleSwipe(topCard.id, direction);
+      }, 300);
+    },
+    [topCard, isAnimatingOut, handleSwipe]
+  );
+
+  // Mouse/Touch handlers
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (isAnimatingOut) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragState({
+      isDragging: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      offsetX: 0,
+      offsetY: 0,
     });
   };
 
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!dragState.isDragging || isAnimatingOut) return;
+    setDragState((prev) => ({
+      ...prev,
+      offsetX: e.clientX - prev.startX,
+      offsetY: (e.clientY - prev.startY) * 0.3,
+    }));
+  };
+
+  const handlePointerUp = () => {
+    if (!dragState.isDragging || isAnimatingOut) return;
+
+    const THRESHOLD = 100;
+    if (dragState.offsetX > THRESHOLD) {
+      animateOut("right");
+    } else if (dragState.offsetX < -THRESHOLD) {
+      animateOut("left");
+    } else {
+      setDragState({
+        isDragging: false,
+        startX: 0,
+        startY: 0,
+        offsetX: 0,
+        offsetY: 0,
+      });
+    }
+  };
+
+  // Keyboard controls
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isComplete || !topCard || isAnimatingOut) return;
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        animateOut("left");
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        animateOut("right");
+      } else if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isComplete, topCard, isAnimatingOut, animateOut]);
+
+  const handleUndo = () => {
+    if (swipeHistory.length === 0) return;
+
+    const lastAction = swipeHistory[swipeHistory.length - 1];
+    setSwipeHistory((prev) => prev.slice(0, -1));
+
+    if (lastAction.direction === "right") {
+      setSelectedConcepts((prev) => prev.filter((id) => id !== lastAction.id));
+    } else {
+      setSkippedConcepts((prev) => prev.filter((id) => id !== lastAction.id));
+    }
+  };
+
   const handleProceedToRefine = () => {
-    if (selectedConcepts.length === 3) {
+    if (
+      selectedConcepts.length >= minConcepts &&
+      selectedConcepts.length <= maxConcepts
+    ) {
       saveSelectedConcepts(selectedConcepts, {});
       setPhase("select");
       router.push("/refine");
@@ -58,45 +198,47 @@ export default function SelectPage() {
     }
   };
 
+  const handleReset = () => {
+    setSelectedConcepts([]);
+    setSkippedConcepts([]);
+    setSwipeHistory([]);
+  };
+
   const getFunColor = (color: string) => {
     const colorMap: Record<string, string> = {
-      "#fef3c7": "#fef3c7", // yellow
-      "#fecaca": "#fecaca", // red
-      "#bbf7d0": "#bbf7d0", // green
-      "#bfdbfe": "#bfdbfe", // blue
-      "#e9d5ff": "#e9d5ff", // purple
-      "#fbcfe8": "#fbcfe8", // pink
+      "#fef3c7": "#fef3c7",
+      "#fecaca": "#fecaca",
+      "#bbf7d0": "#bbf7d0",
+      "#bfdbfe": "#bfdbfe",
+      "#e9d5ff": "#e9d5ff",
+      "#fbcfe8": "#fbcfe8",
     };
     return colorMap[color] || "#ffffff";
   };
 
   const getAccentColor = (color: string) => {
     const accentMap: Record<string, string> = {
-      "#fef3c7": "#fbbf24", // yellow
-      "#fecaca": "#f87171", // red
-      "#bbf7d0": "#34d399", // green
-      "#bfdbfe": "#60a5fa", // blue
-      "#e9d5ff": "#a78bfa", // purple
-      "#fbcfe8": "#f472b6", // pink
+      "#fef3c7": "#fbbf24",
+      "#fecaca": "#f87171",
+      "#bbf7d0": "#34d399",
+      "#bfdbfe": "#60a5fa",
+      "#e9d5ff": "#a78bfa",
+      "#fbcfe8": "#f472b6",
     };
     return accentMap[color] || "#e5e7eb";
   };
 
-  const getShadowColor = (color: string) => {
-    const shadowMap: Record<string, string> = {
-      "#fef3c7": "rgba(251, 191, 36, 0.4)",
-      "#fecaca": "rgba(248, 113, 113, 0.4)",
-      "#bbf7d0": "rgba(52, 211, 153, 0.4)",
-      "#bfdbfe": "rgba(96, 165, 250, 0.4)",
-      "#e9d5ff": "rgba(167, 139, 250, 0.4)",
-      "#fbcfe8": "rgba(244, 114, 182, 0.4)",
-    };
-    return shadowMap[color] || "rgba(163, 177, 198, 0.3)";
-  };
+  // Calculate swipe indicator opacity
+  const swipeProgress = Math.min(Math.abs(dragState.offsetX) / 100, 1);
+  const swipeDirection =
+    dragState.offsetX > 30 ? "right" : dragState.offsetX < -30 ? "left" : null;
 
-  if (!state.hmwStatement || conceptNotes.length < 3) {
+  if (!state.hmwStatement || conceptNotes.length < minConcepts) {
     return null;
   }
+
+  // Card stack tilts - alternating slight rotations
+  const stackTilts = [0, -3, 2, -1.5, 2.5];
 
   return (
     <div className="min-h-screen fun-gradient-bg flex flex-col relative overflow-hidden">
@@ -126,7 +268,7 @@ export default function SelectPage() {
       </div>
 
       {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-purple-50/50 border-b-3 border-purple-200 px-6 py-5 flex items-center justify-between shadow-lg backdrop-blur-xl">
+      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-purple-50/50 border-b-3 border-purple-200 px-6 py-4 flex items-center justify-between shadow-lg backdrop-blur-xl">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push("/canvas")}
@@ -134,6 +276,14 @@ export default function SelectPage() {
             title="Back to canvas"
           >
             <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
+          </button>
+          <button
+            onClick={() => router.push("/canvas")}
+            className="px-4 py-2 text-sm font-bold text-purple-600 hover:bg-purple-50 rounded-xl transition-all flex items-center gap-1.5 border-2 border-purple-200"
+            title="Add more concepts"
+          >
+            <Plus className="w-4 h-4" />
+            Add More
           </button>
           <button
             onClick={handleStartNewProject}
@@ -144,17 +294,17 @@ export default function SelectPage() {
           </button>
           <div>
             <h1 className="text-xl font-black text-gray-800 flex items-center gap-2">
-              <span className="text-2xl">🎯</span>
-              Select Your Top Concepts
+              <span className="text-2xl">💕</span>
+              Swipe to Select
             </h1>
             <p className="text-sm text-gray-600 font-bold">
-              Choose 3 concepts to refine and evaluate ✨
+              Use arrow keys ← → or swipe ✨
             </p>
           </div>
         </div>
         <button
           onClick={handleProceedToRefine}
-          disabled={selectedConcepts.length !== 3}
+          disabled={selectedConcepts.length < minConcepts}
           className="fun-button-primary flex items-center gap-2 font-black disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 shadow-lg hover:shadow-purple whitespace-nowrap"
         >
           Continue to Refine
@@ -162,163 +312,268 @@ export default function SelectPage() {
         </button>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-6xl mx-auto">
-          {/* HMW Statement Display */}
-          <div className="fun-card p-6 mb-8 border-3 border-purple-300 bg-gradient-to-br from-white to-purple-50 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-200/30 to-transparent rounded-full blur-2xl"></div>
-            <div className="flex items-start gap-4 relative z-10">
-              <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-3 rounded-2xl shadow-md">
-                <Lightbulb className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-black text-purple-600 mb-2 uppercase tracking-wide">
-                  💭 Design Challenge
-                </h3>
-                <p className="text-lg text-gray-800 font-bold leading-relaxed">
-                  {state.hmwStatement}
-                </p>
-              </div>
+      {/* Main Content - Centered */}
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-6 w-full max-w-md">
+          {/* HMW Statement */}
+          <div className="w-full fun-card p-3 border-2 border-purple-300 bg-gradient-to-br from-white to-purple-50">
+            <div className="flex items-start gap-2">
+              <Lightbulb className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-gray-700 font-semibold leading-relaxed line-clamp-2">
+                {state.hmwStatement}
+              </p>
             </div>
           </div>
 
-          {/* Selection Section */}
-          <div className="fun-card p-8 border-3 border-gray-200 relative overflow-hidden">
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-pink-200/30 to-transparent rounded-full blur-2xl"></div>
+          {/* Card Stack Container */}
+          <div className="relative w-full h-[420px]">
+            {!isComplete ? (
+              <>
+                {/* Stacked cards behind (rendered first = behind) */}
+                {remainingCards
+                  .slice(1, 4)
+                  .reverse()
+                  .map((note, reverseIdx) => {
+                    const stackIdx =
+                      remainingCards.slice(1, 4).length - reverseIdx; // 1, 2, or 3
+                    const tilt = stackTilts[stackIdx] || 0;
+                    const yOffset = stackIdx * 6;
+                    const scale = 1 - stackIdx * 0.03;
 
-            <div className="flex items-center justify-between mb-8 relative z-10">
-              <div className="flex-1">
-                <h2 className="text-2xl font-black text-gray-800 mb-3 flex items-center gap-2">
-                  <span className="text-3xl">⭐</span>
-                  Select 3 Concepts to Review
-                </h2>
-                <p className="text-sm text-gray-600 font-semibold leading-relaxed">
-                  Click cards to select your strongest ideas. You'll refine each
-                  one in the next step.
-                  {conceptNotes.some((n) => n.image) && (
-                    <span className="block mt-2 text-purple-600 flex items-center gap-1">
-                      <span className="text-lg">✓</span> Sketches/images will be
-                      included in AI evaluation
-                    </span>
-                  )}
-                </p>
-              </div>
-              <div className="ml-6 flex flex-col items-end">
-                <div
-                  aria-live="polite"
-                  className="text-base text-gray-700 font-black mb-2"
-                >
-                  Selected {selectedConcepts.length}/3
-                </div>
-                {selectedConcepts.length === 3 && (
-                  <div className="bg-gradient-to-br from-green-100 to-green-200 p-2 rounded-2xl shadow-md animate-bounce">
-                    <CheckCircle2 className="w-7 h-7 text-green-600" />
-                  </div>
-                )}
-              </div>
-            </div>
+                    return (
+                      <div
+                        key={note.id}
+                        className="absolute inset-x-0 top-0 flex justify-center"
+                        style={{
+                          transform: `translateY(${yOffset}px) rotate(${tilt}deg) scale(${scale})`,
+                          zIndex: 10 - stackIdx,
+                        }}
+                      >
+                        <div
+                          className="w-full max-w-[340px] p-5 rounded-3xl border-4 shadow-xl"
+                          style={{
+                            backgroundColor: getFunColor(note.color),
+                            borderColor: getAccentColor(note.color),
+                          }}
+                        >
+                          <div className="h-[320px]" />{" "}
+                          {/* Placeholder height */}
+                        </div>
+                      </div>
+                    );
+                  })}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-              {conceptNotes.map((note) => {
-                const isSelected = selectedConcepts.includes(note.id);
-                const selectionDisabled =
-                  !isSelected && selectedConcepts.length >= 3;
-
-                return (
-                  <div key={note.id}>
-                    <button
-                      onClick={() => toggleConceptSelection(note.id)}
-                      disabled={selectionDisabled}
-                      title={
-                        selectionDisabled
-                          ? "You can only select up to 3 concepts"
-                          : undefined
-                      }
-                      aria-pressed={isSelected}
-                      className={`w-full p-5 rounded-3xl border-3 transition-all text-left h-full relative overflow-hidden ${
-                        isSelected
-                          ? "scale-105 ring-4 ring-purple-300 ring-offset-2"
-                          : "hover:scale-102 hover:-translate-y-1"
-                      } ${
-                        selectionDisabled && !isSelected
-                          ? "opacity-40 cursor-not-allowed"
-                          : ""
-                      }`}
+                {/* Top card (interactive) */}
+                {topCard && (
+                  <div
+                    className={`absolute inset-x-0 top-0 flex justify-center touch-none ${
+                      isAnimatingOut
+                        ? "transition-all duration-300 ease-out"
+                        : dragState.isDragging
+                        ? ""
+                        : "transition-transform duration-200"
+                    }`}
+                    style={{
+                      transform: isAnimatingOut
+                        ? `translateX(${
+                            isAnimatingOut === "right" ? 500 : -500
+                          }px) rotate(${
+                            isAnimatingOut === "right" ? 20 : -20
+                          }deg)`
+                        : `translateX(${dragState.offsetX}px) translateY(${
+                            dragState.offsetY
+                          }px) rotate(${dragState.offsetX * 0.05}deg)`,
+                      opacity: isAnimatingOut ? 0 : 1,
+                      zIndex: 20,
+                      cursor: "grab",
+                    }}
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerCancel={handlePointerUp}
+                  >
+                    <div
+                      className="w-full max-w-[340px] p-5 rounded-3xl border-4 shadow-2xl relative overflow-hidden select-none"
                       style={{
-                        backgroundColor: getFunColor(note.color),
-                        borderColor: isSelected
-                          ? "#a78bfa"
-                          : getAccentColor(note.color),
-                        boxShadow: isSelected
-                          ? `12px 12px 24px rgba(167, 139, 250, 0.5), -4px -4px 12px rgba(255, 255, 255, 0.8), inset 2px 2px 4px rgba(255, 255, 255, 0.5), inset -2px -2px 4px rgba(167, 139, 250, 0.3)`
-                          : `8px 8px 16px ${getShadowColor(
-                              note.color
-                            )}, -2px -2px 8px rgba(255, 255, 255, 0.6), inset 1px 1px 2px rgba(255, 255, 255, 0.3)`,
+                        backgroundColor: getFunColor(topCard.color),
+                        borderColor: getAccentColor(topCard.color),
                       }}
                     >
-                      {isSelected && (
-                        <div className="absolute -top-2 -right-2 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full p-2 shadow-lg animate-pulse z-10">
-                          <CheckCircle2 className="w-5 h-5 text-white" />
+                      {/* Swipe indicators */}
+                      <div
+                        className={`absolute left-4 top-4 bg-red-500 text-white px-3 py-1.5 rounded-xl font-black text-sm shadow-lg flex items-center gap-1.5 z-20 transition-opacity ${
+                          swipeDirection === "left"
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                        style={{
+                          opacity:
+                            swipeDirection === "left" ? swipeProgress : 0,
+                        }}
+                      >
+                        <ThumbsDown className="w-4 h-4" />
+                        NOPE
+                      </div>
+                      <div
+                        className={`absolute right-4 top-4 bg-green-500 text-white px-3 py-1.5 rounded-xl font-black text-sm shadow-lg flex items-center gap-1.5 z-20 transition-opacity ${
+                          swipeDirection === "right"
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                        style={{
+                          opacity:
+                            swipeDirection === "right" ? swipeProgress : 0,
+                        }}
+                      >
+                        LIKE
+                        <ThumbsUp className="w-4 h-4" />
+                      </div>
+
+                      {/* Card badge */}
+                      <div className="flex justify-end mb-3">
+                        <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-md">
+                          <Star className="w-4 h-4 text-yellow-500 fill-current inline-block mr-1" />
+                          <span className="font-bold text-gray-700 text-xs">
+                            Concept
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Image if present */}
+                      {topCard.image && (
+                        <img
+                          src={topCard.image.dataUrl}
+                          alt={topCard.image.caption || "Concept sketch"}
+                          className="w-full h-36 object-cover rounded-2xl border-3 border-white shadow-lg mb-4"
+                          draggable={false}
+                        />
+                      )}
+
+                      {/* Main text */}
+                      <p className="text-lg text-gray-800 font-bold leading-relaxed mb-4">
+                        {topCard.text}
+                      </p>
+
+                      {/* Details */}
+                      {topCard.details && topCard.details.trim() ? (
+                        <div className="bg-white/50 rounded-2xl p-3">
+                          <p className="text-sm text-gray-600 font-semibold leading-relaxed line-clamp-3">
+                            {topCard.details}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="bg-orange-100/50 rounded-2xl p-3 flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                          <p className="text-sm text-orange-600 font-semibold">
+                            No description added
+                          </p>
                         </div>
                       )}
 
-                      <div className="flex items-start justify-between mb-3">
-                        <Star
-                          className={`w-6 h-6 flex-shrink-0 ${
-                            isSelected
-                              ? "text-purple-500 fill-current drop-shadow-md"
-                              : "text-yellow-500 fill-current drop-shadow-sm"
-                          }`}
-                        />
-                        {isSelected && (
-                          <span className="text-xs font-black text-purple-600 bg-purple-100/80 px-3 py-1 rounded-full shadow-sm">
-                            Selected ✓
-                          </span>
-                        )}
+                      {/* Action buttons */}
+                      <div className="flex justify-center gap-8 mt-5 pt-4 border-t-2 border-white/50">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            animateOut("left");
+                          }}
+                          className="bg-white hover:bg-red-50 border-3 border-red-300 text-red-500 p-3 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 active:scale-95"
+                          title="Skip (← arrow key)"
+                        >
+                          <X className="w-6 h-6" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            animateOut("right");
+                          }}
+                          className="bg-white hover:bg-green-50 border-3 border-green-300 text-green-500 p-3 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 active:scale-95"
+                          title="Select (→ arrow key)"
+                        >
+                          <Heart className="w-6 h-6" />
+                        </button>
                       </div>
-                      {note.image && (
-                        <img
-                          src={note.image.dataUrl}
-                          alt={note.image.caption || "Concept"}
-                          className="w-full h-28 object-cover rounded-2xl mb-3 border-3 border-white shadow-md"
-                        />
-                      )}
-                      <p className="text-sm text-gray-800 line-clamp-3 mb-3 font-bold leading-relaxed">
-                        {note.text}
-                      </p>
-
-                      {note.details && note.details.trim() && (
-                        <p className="text-xs text-gray-600 italic line-clamp-2 border-t-2 border-gray-300/50 pt-3 font-semibold">
-                          {note.details}
-                        </p>
-                      )}
-                      {(!note.details || !note.details.trim()) && (
-                        <p className="text-xs text-orange-500 italic border-t-2 border-gray-300/50 pt-3 flex items-center gap-1 font-bold">
-                          <AlertCircle className="w-3.5 h-3.5" /> No description
-                          added
-                        </p>
-                      )}
-                    </button>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
+                )}
+              </>
+            ) : (
+              /* Completion state */
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center fun-card p-8 border-3 border-green-300 bg-gradient-to-br from-green-50 to-white">
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h3 className="text-2xl font-black text-gray-800 mb-2">
+                    All Done!
+                  </h3>
+                  <p className="text-gray-600 font-semibold mb-4">
+                    You've selected {selectedConcepts.length} concept
+                    {selectedConcepts.length !== 1 ? "s" : ""} to refine
+                  </p>
+                  {selectedConcepts.length < minConcepts && (
+                    <p className="text-orange-600 font-bold mb-4">
+                      ⚠️ You need at least {minConcepts} concepts. Reset and try
+                      again!
+                    </p>
+                  )}
+                  <button
+                    onClick={handleReset}
+                    className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-gray-700 transition-all flex items-center gap-2 mx-auto"
+                  >
+                    <RotateCcw className="w-5 h-5" />
+                    Start Over
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Info Box */}
-          <div className="mt-8 fun-card p-5 border-3 border-blue-300 bg-gradient-to-br from-blue-50 to-blue-100/50 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-200/40 to-transparent rounded-full blur-xl"></div>
-            <p className="text-sm text-blue-800 font-bold leading-relaxed relative z-10 flex items-start gap-3">
-              <span className="text-2xl flex-shrink-0">💡</span>
-              <span>
-                <strong className="font-black">Tip:</strong> Don't worry about
-                picking perfect concepts now—you'll have a chance to develop and
-                refine them in the next step. Focus on picking ideas with the
-                most potential!
-              </span>
-            </p>
-          </div>
+          {/* Controls & Status */}
+          {!isComplete && (
+            <div className="flex flex-col items-center gap-4">
+              {/* Selected count */}
+              <div className="flex items-center gap-3">
+                <span className="text-lg">💜</span>
+                <span className="font-bold text-gray-700">
+                  Selected: {selectedConcepts.length}/{maxConcepts}
+                </span>
+                {selectedConcepts.length >= minConcepts && (
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                )}
+              </div>
+
+              {/* Undo & cards left */}
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleUndo}
+                  disabled={swipeHistory.length === 0}
+                  className="px-3 py-1.5 bg-white hover:bg-gray-50 border-2 border-gray-200 rounded-lg font-bold text-gray-600 text-sm transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Undo
+                </button>
+                <span className="text-sm text-gray-500 font-semibold">
+                  {remainingCards.length} card
+                  {remainingCards.length !== 1 ? "s" : ""} left
+                </span>
+              </div>
+
+              {/* Keyboard hints */}
+              <div className="flex items-center justify-center gap-6 text-xs">
+                <div className="flex items-center gap-2 text-red-500 font-bold">
+                  <kbd className="px-2 py-1 bg-white border-2 border-red-200 rounded-lg shadow-sm">
+                    ←
+                  </kbd>
+                  Skip
+                </div>
+                <div className="flex items-center gap-2 text-green-500 font-bold">
+                  <kbd className="px-2 py-1 bg-white border-2 border-green-200 rounded-lg shadow-sm">
+                    →
+                  </kbd>
+                  Keep
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

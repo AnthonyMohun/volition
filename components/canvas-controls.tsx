@@ -51,7 +51,7 @@ export function CanvasControls({
       </button>
 
       {/* Zoom Level Display */}
-      <div className="w-full px-2 py-1 text-xs font-bold text-gray-400 text-center">
+      <div className="w-full px-2 py-1 text-xs font-bold text-gray-400 text-center flex items-center justify-center">
         {Math.round(zoom * 100)}%
       </div>
 

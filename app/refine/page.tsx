@@ -42,7 +42,7 @@ export default function RefinePage() {
   const conceptNotes = state.notes.filter((n) => n.isConcept);
 
   useEffect(() => {
-    if (!state.hmwStatement || conceptNotes.length < 3) {
+    if (!state.hmwStatement || conceptNotes.length < 2) {
       router.push("/canvas");
       return;
     }
@@ -54,7 +54,7 @@ export default function RefinePage() {
         : conceptNotes.slice(0, 3).map((n) => n.id);
 
     // If we have selected concepts, start the wizard immediately
-    if (selectedIds.length === 3) {
+    if (selectedIds.length >= 2) {
       const firstNote = conceptNotes.find((n) => n.id === selectedIds[0]);
       if (firstNote) {
         startEditingConcept(firstNote);
@@ -164,7 +164,7 @@ export default function RefinePage() {
     }
   };
 
-  if (!state.hmwStatement || conceptNotes.length < 3) {
+  if (!state.hmwStatement || conceptNotes.length < 2) {
     return null;
   }
 
@@ -202,9 +202,16 @@ export default function RefinePage() {
             <button
               onClick={() => router.push("/select")}
               className="p-2.5 hover:bg-purple-50 rounded-xl transition-all"
-              title="Back"
+              title="Back to Select"
             >
               <ArrowLeft className="w-5 h-5 text-gray-400 hover:text-purple-500" />
+            </button>
+            <button
+              onClick={() => router.push("/canvas")}
+              className="px-3 py-2 text-sm font-bold text-purple-600 hover:bg-purple-50 rounded-xl transition-all flex items-center gap-1"
+              title="Back to Canvas"
+            >
+              ← Canvas
             </button>
             <button
               onClick={handleStartNewProject}
