@@ -465,6 +465,13 @@ export function AIQuestionPanel() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-purple-50/30">
+        {isLoading && (
+          <div className="flex items-center justify-center gap-3 text-purple-600 py-6 bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-md border-3 border-purple-200 animate-pulse">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span className="text-sm font-black">Thinking... 🤔</span>
+          </div>
+        )}
+
         {state.questions.length === 0 && !isLoading && (
           <div className="text-center text-gray-600 text-sm py-12">
             <div className="bg-gradient-to-br from-purple-100 to-pink-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
@@ -479,12 +486,14 @@ export function AIQuestionPanel() {
 
         <AnimatePresence mode="popLayout">
           {(() => {
-            // display pinned questions first with an animated rearrange
+            // display pinned questions first, then newest questions on top
             const sortedQuestions = [...state.questions].sort((a, b) => {
-              if ((a.pinned ? 1 : 0) === (b.pinned ? 1 : 0)) {
-                return a.timestamp - b.timestamp;
+              if (a.pinned && b.pinned) {
+                return b.timestamp - a.timestamp; // newest pinned first
               }
-              return b.pinned ? 1 : -1; // pinned questions to the top
+              if (a.pinned) return -1;
+              if (b.pinned) return 1;
+              return b.timestamp - a.timestamp; // newest unpinned first
             });
             return sortedQuestions.map((question) => (
               <motion.div
@@ -502,7 +511,7 @@ export function AIQuestionPanel() {
                   question.pinned
                     ? "border-l-[6px] border-l-amber-400 ring-2 ring-amber-200"
                     : ""
-                }`}
+                } ${question.answered ? "opacity-50" : ""}`}
               >
                 <div className="flex-1">
                   <div className="flex items-start gap-2 w-full">
@@ -646,13 +655,6 @@ export function AIQuestionPanel() {
             ));
           })()}
         </AnimatePresence>
-
-        {isLoading && (
-          <div className="flex items-center justify-center gap-3 text-purple-600 py-6 bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-md border-3 border-purple-200 animate-pulse">
-            <Loader2 className="w-6 h-6 animate-spin" />
-            <span className="text-sm font-black">Thinking... 🤔</span>
-          </div>
-        )}
 
         {error && (
           <div className="p-4 bg-red-50 border-3 border-red-200 rounded-2xl shadow-md">
