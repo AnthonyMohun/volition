@@ -2,15 +2,30 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "@/lib/session-context";
+import { useToast } from "@/lib/toast-context";
 import {
   askAI,
   SOCRATIC_SYSTEM_PROMPT,
   buildConversationContext,
   MessageRole,
 } from "@/lib/ai-client";
-import { Bot, Sparkles, Loader2, Check, Plus, Pin, Coffee } from "lucide-react";
+import {
+  Bot,
+  Sparkles,
+  Loader2,
+  Check,
+  Plus,
+  Pin,
+  Coffee,
+  Volume2,
+  VolumeX,
+  HelpCircle,
+} from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
+import { VoiceInput } from "@/components/voice-input";
+import { VoiceCommand } from "@/lib/voice-commands";
+import { speak, stopSpeaking, isSpeechSynthesisSupported } from "@/lib/speech";
 
 // Stuck detection: nudge messages when user hasn't added notes in 5 minutes
 const STUCK_NUDGE_MESSAGES = [
@@ -32,13 +47,22 @@ export function AIQuestionPanel() {
     markQuestionAnswered,
     toggleQuestionAnswered,
     toggleQuestionPinned,
+    setVoiceMode,
+    setVoiceOutputEnabled,
+    setLastSpokenText,
+    updateNote,
   } = useSession();
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stuckNudge, setStuckNudge] = useState<string | null>(null);
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [isAISpeaking, setIsAISpeaking] = useState(false);
+  const [showVoiceHelp, setShowVoiceHelp] = useState(false);
   const hasAskedFirstQuestion = useRef(false);
   const lastNoteCountRef = useRef(state.notes.length);
   const stuckTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastCreatedNoteIdRef = useRef<string | null>(null);
 
   const currentQuestion = state.questions[state.questions.length - 1];
 
@@ -121,6 +145,12 @@ export function AIQuestionPanel() {
         answered: false,
         timestamp: Date.now(),
       });
+
+      // Auto-speak first AI response if voice output is enabled
+      if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
+        setIsAISpeaking(true);
+        speak(response).finally(() => setIsAISpeaking(false));
+      }
     } catch (err) {
       setError(
         "Failed to get question from AI. Make sure LM Studio is running."
@@ -179,6 +209,12 @@ export function AIQuestionPanel() {
         answered: false,
         timestamp: Date.now(),
       });
+
+      // Auto-speak AI response if voice output is enabled
+      if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
+        setIsAISpeaking(true);
+        speak(response).finally(() => setIsAISpeaking(false));
+      }
     } catch (err) {
       setError("Failed to get next question from AI.");
       console.error(err);
@@ -187,61 +223,245 @@ export function AIQuestionPanel() {
     }
   };
 
+  // Handle voice transcripts
+  const handleVoiceTranscript = useCallback(
+    (transcript: string, isFinal: boolean) => {
+      setVoiceTranscript(transcript);
+      if (isFinal) {
+        setLastSpokenText(transcript);
+      }
+    },
+    [setLastSpokenText]
+  );
+
+  // Handle voice commands
+  const handleVoiceCommand = useCallback(
+    (command: VoiceCommand, fullTranscript: string) => {
+      setVoiceTranscript("");
+
+      switch (command.type) {
+        case "save-note": {
+          // Use the payload (text before command) or the last spoken text
+          const noteText =
+            command.payload || state.lastSpokenText || fullTranscript;
+          if (noteText && noteText.trim()) {
+            const viewportCenterX = state.viewport?.centerX;
+            const viewportCenterY = state.viewport?.centerY;
+            const offsetX = (Math.random() - 0.5) * 200;
+            const offsetY = (Math.random() - 0.5) * 120;
+            const x =
+              viewportCenterX !== undefined
+                ? viewportCenterX + offsetX
+                : 80 + Math.floor(Math.random() * 200);
+            const y =
+              viewportCenterY !== undefined
+                ? viewportCenterY + offsetY
+                : 80 + Math.floor(Math.random() * 120);
+
+            const noteId = `note-${Date.now()}`;
+            addNote({
+              id: noteId,
+              text: noteText.trim(),
+              x,
+              y,
+              color:
+                STICKY_COLORS[Math.floor(Math.random() * STICKY_COLORS.length)],
+              isConcept: false,
+              createdAt: Date.now(),
+            });
+            lastCreatedNoteIdRef.current = noteId;
+            showToast("📝 Note saved!");
+            if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
+              setIsAISpeaking(true);
+              speak("Note saved").finally(() => setIsAISpeaking(false));
+            }
+          }
+          break;
+        }
+
+        case "next-question": {
+          showToast("🤔 Asking next question...");
+          askNextQuestion();
+          break;
+        }
+
+        case "stop-listening": {
+          setVoiceMode(false);
+          stopSpeaking();
+          showToast("🔇 Voice mode off");
+          break;
+        }
+
+        case "mark-concept": {
+          // Mark the last created note as a concept
+          if (lastCreatedNoteIdRef.current) {
+            const note = state.notes.find(
+              (n) => n.id === lastCreatedNoteIdRef.current
+            );
+            if (note) {
+              updateNote(note.id, { isConcept: true });
+              showToast("⭐ Marked as concept!");
+              if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
+                setIsAISpeaking(true);
+                speak("Marked as concept").finally(() =>
+                  setIsAISpeaking(false)
+                );
+              }
+            }
+          } else {
+            showToast("No recent note to mark as concept");
+          }
+          break;
+        }
+      }
+    },
+    [state, addNote, setVoiceMode, setLastSpokenText, showToast, updateNote]
+  );
+
+  // Toggle voice mode handler
+  const handleVoiceToggle = useCallback(() => {
+    const newMode = !state.voiceMode;
+    setVoiceMode(newMode);
+    if (!newMode) {
+      stopSpeaking();
+      setVoiceTranscript("");
+    } else {
+      showToast("🎤 Voice mode on - try saying 'save this' or 'next question'");
+    }
+  }, [state.voiceMode, setVoiceMode, showToast]);
+
+  // Toggle voice output handler
+  const handleVoiceOutputToggle = useCallback(() => {
+    const newEnabled = !state.voiceOutputEnabled;
+    setVoiceOutputEnabled(newEnabled);
+    if (!newEnabled) {
+      stopSpeaking();
+    }
+    showToast(newEnabled ? "🔊 Voice output on" : "🔇 Voice output off");
+  }, [state.voiceOutputEnabled, setVoiceOutputEnabled, showToast]);
+
   return (
     <div className="bg-gradient-to-b from-white to-purple-50/30 border-r-4 border-purple-200 w-80 flex flex-col order-first shadow-xl z-10">
-      <div className="p-5 border-b-3 border-purple-100 space-y-4 bg-gradient-to-br from-purple-50 to-pink-50">
-        {/* Bot Identifier */}
+      <div className="p-4 border-b-3 border-purple-100 space-y-3 bg-gradient-to-br from-purple-50 to-pink-50">
+        {/* Bot Identifier - Condensed */}
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-2 rounded-2xl shadow-md">
-              <Bot className="w-6 h-6 text-purple-600" />
+              <Bot className="w-5 h-5 text-purple-600" />
             </div>
-            <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-3 border-white animate-pulse"></span>
+            <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white animate-pulse"></span>
           </div>
           <div className="flex-1">
-            <h2 className="font-black text-gray-800 text-lg flex items-center gap-2">
-              Socratic AI <span className="text-sm">🤖</span>
+            <h2 className="font-black text-gray-800 text-base flex items-center gap-1.5">
+              Socratic AI <span className="text-xs">🤖</span>
             </h2>
-            <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-              ✓ Active & Ready
+          </div>
+          {/* Stats inline */}
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
+            <span title="Total questions">💬 {state.questions.length}</span>
+            <span title="Unanswered" className="text-purple-600">
+              ⏳ {state.questions.filter((q) => !q.answered).length}
             </span>
           </div>
         </div>
 
-        {/* HMW Statement */}
-        <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl p-4 space-y-2 border-3 border-purple-200 shadow-lg">
-          <p className="text-xs uppercase tracking-wider text-purple-600 font-black flex items-center gap-1">
-            <span>💭</span> Design Challenge
-          </p>
-          <p className="text-sm text-gray-800 line-clamp-3 leading-relaxed font-bold">
-            {state.hmwStatement}
-          </p>
+        {/* Voice Controls - Compact */}
+        <div className="flex items-center gap-2">
+          <VoiceInput
+            onTranscript={handleVoiceTranscript}
+            onCommand={handleVoiceCommand}
+            isEnabled={state.voiceMode || false}
+            onToggle={handleVoiceToggle}
+            isMuted={isAISpeaking}
+          />
+          <button
+            onClick={handleVoiceOutputToggle}
+            className={`p-2 rounded-xl transition-all ${
+              state.voiceOutputEnabled
+                ? "bg-purple-100 text-purple-600"
+                : "bg-gray-100 text-gray-400"
+            }`}
+            title={
+              state.voiceOutputEnabled ? "Mute AI voice" : "Unmute AI voice"
+            }
+          >
+            {state.voiceOutputEnabled ? (
+              <Volume2 className="w-4 h-4" />
+            ) : (
+              <VolumeX className="w-4 h-4" />
+            )}
+          </button>
+          {/* Voice Commands Help */}
+          <div className="relative">
+            <button
+              onClick={() => setShowVoiceHelp(!showVoiceHelp)}
+              className={`p-2 rounded-xl transition-all ${
+                showVoiceHelp
+                  ? "bg-purple-100 text-purple-600"
+                  : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+              }`}
+              title="Voice commands help"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </button>
+            <AnimatePresence>
+              {showVoiceHelp && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -5, scale: 0.95 }}
+                  className="absolute right-0 top-full mt-2 w-52 p-3 bg-white border-2 border-purple-200 rounded-xl shadow-lg z-50"
+                >
+                  <p className="font-bold text-gray-700 text-xs mb-2">
+                    🎤 Voice Commands
+                  </p>
+                  <ul className="space-y-1.5 text-xs text-gray-600">
+                    <li className="flex items-center gap-2">
+                      <span className="text-purple-500">•</span>
+                      <span>
+                        <strong>"Save this"</strong> - Create note
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-purple-500">•</span>
+                      <span>
+                        <strong>"Next question"</strong> - Ask AI
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-purple-500">•</span>
+                      <span>
+                        <strong>"Mark as concept"</strong> - Promote
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-purple-500">•</span>
+                      <span>
+                        <strong>"Stop listening"</strong> - Turn off
+                      </span>
+                    </li>
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="text-xs text-gray-600 flex items-center gap-3 pt-1 font-bold">
-          <span className="flex items-center gap-1">
-            <span className="text-base">💬</span>
-            {state.questions.length}
-          </span>
-          <span className="text-purple-600 flex items-center gap-1">
-            <span className="text-base">⏳</span>
-            {state.questions.filter((q) => !q.answered).length}
-          </span>
-          {(() => {
-            const pinnedCount = state.questions.filter((q) => q.pinned).length;
-            return (
-              <span
-                className="ml-auto flex items-center gap-1 text-amber-500 text-xs"
-                aria-label={`${pinnedCount} pinned questions`}
-              >
-                <Pin className="w-4 h-4 fill-current" />
-                <span aria-hidden="true">{pinnedCount}</span>
-                <span className="sr-only">{pinnedCount} pinned</span>
-              </span>
-            );
-          })()}
-        </div>
+        {/* Live transcript display */}
+        <AnimatePresence>
+          {voiceTranscript && state.voiceMode && (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              className="p-2 bg-white border-2 border-purple-200 rounded-xl shadow-sm"
+            >
+              <p className="text-xs text-gray-700">
+                <span className="text-gray-400">💬</span> {voiceTranscript}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-purple-50/30">

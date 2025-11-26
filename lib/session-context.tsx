@@ -46,6 +46,10 @@ interface SessionContextType {
   clearExampleSessionFlag: () => void;
   // viewport setter: center X/Y in world coords and zoom
   setViewport: (v: { centerX: number; centerY: number; zoom: number }) => void;
+  // Voice mode controls
+  setVoiceMode: (enabled: boolean) => void;
+  setVoiceOutputEnabled: (enabled: boolean) => void;
+  setLastSpokenText: (text: string) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -261,6 +265,18 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const setVoiceMode = useCallback((enabled: boolean) => {
+    setState((prev) => ({ ...prev, voiceMode: enabled }));
+  }, []);
+
+  const setVoiceOutputEnabled = useCallback((enabled: boolean) => {
+    setState((prev) => ({ ...prev, voiceOutputEnabled: enabled }));
+  }, []);
+
+  const setLastSpokenText = useCallback((text: string) => {
+    setState((prev) => ({ ...prev, lastSpokenText: text }));
+  }, []);
+
   return (
     <SessionContext.Provider
       value={{
@@ -282,6 +298,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         loadExampleSession,
         clearExampleSessionFlag,
         setViewport,
+        setVoiceMode,
+        setVoiceOutputEnabled,
+        setLastSpokenText,
         undo,
         redo,
         canUndo,

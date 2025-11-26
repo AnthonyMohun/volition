@@ -153,6 +153,10 @@ export interface SessionState {
   };
   createdAt: number;
   isExampleSession?: boolean;
+  // Voice mode settings
+  voiceMode?: boolean;
+  voiceOutputEnabled?: boolean;
+  lastSpokenText?: string;
 }
 
 export const INITIAL_SESSION_STATE: SessionState = {
@@ -168,6 +172,9 @@ export const INITIAL_SESSION_STATE: SessionState = {
   viewport: { centerX: 0, centerY: 0, zoom: 1 },
   createdAt: Date.now(),
   isExampleSession: false,
+  voiceMode: false,
+  voiceOutputEnabled: true,
+  lastSpokenText: "",
 };
 
 // Original light colors for reference/mapping
