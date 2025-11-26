@@ -302,7 +302,7 @@ export function VoiceInput({
             >
               {/* Pulsing indicator */}
               <div className="flex gap-1">
-                {[0, 1, 2].map((i) => (
+                {[0, 1].map((i) => (
                   <motion.div
                     key={i}
                     className={`w-1.5 h-4 rounded-full ${
