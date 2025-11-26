@@ -26,7 +26,10 @@ import {
   Check,
   TrendingUp,
   Zap,
+  FileText,
 } from "lucide-react";
+import { pdf } from "@react-pdf/renderer";
+import { SummaryPDF } from "@/components/summary-pdf";
 
 // Emoji reactions for different score levels
 const SCORE_REACTIONS = [
@@ -78,6 +81,7 @@ export default function FinalPage() {
   const [aiEvalComplete, setAiEvalComplete] = useState(false);
   const aiEvalStartedRef = useRef(false);
   const [criteriaExpanded, setCriteriaExpanded] = useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
   const selectedNotes = state.selectedConceptIds
@@ -171,6 +175,8 @@ export default function FinalPage() {
     for (let i = 0; i < selectedNotes.length; i++) {
       const note = selectedNotes[i];
       try {
+        const hasVisualContent = note.image || note.drawing?.dataUrl;
+
         const prompt = `You are a design thinking expert evaluating a student's concept for their course project.
 
 Design Challenge: "${state.hmwStatement}"
@@ -178,11 +184,21 @@ Design Challenge: "${state.hmwStatement}"
 Concept to Evaluate:
 Title: "${note.text}"
 ${note.details ? `Description: "${note.details}"` : "No description provided."}
+${
+  hasVisualContent
+    ? "\nVisual Content: The student has attached an image or sketch to help communicate their concept. Please analyze it as part of your evaluation."
+    : ""
+}
 
 Evaluate this concept on three criteria (score 1-5 each):
 1. Problem Fit: How well does this concept address the design challenge?
 2. Originality: How fresh and creative is this approach?
 3. Feasibility: How realistic is it to implement within a course project?
+${
+  hasVisualContent
+    ? "\nWhen evaluating, consider how well the visual content communicates the concept, demonstrates feasibility, or adds clarity."
+    : ""
+}
 
 Respond in this exact JSON format (no markdown, just raw JSON):
 {
@@ -193,14 +209,46 @@ Respond in this exact JSON format (no markdown, just raw JSON):
   "improvements": ["improvement 1"]
 }`;
 
+        // Build multimodal content if visual content exists
+        type MessageContent =
+          | string
+          | Array<
+              | { type: "text"; text: string }
+              | { type: "image_url"; image_url: { url: string } }
+            >;
+        let userContent: MessageContent = prompt;
+
+        if (hasVisualContent) {
+          const contentParts: Array<
+            | { type: "text"; text: string }
+            | { type: "image_url"; image_url: { url: string } }
+          > = [{ type: "text", text: prompt }];
+
+          if (note.image?.dataUrl) {
+            contentParts.push({
+              type: "image_url",
+              image_url: { url: note.image.dataUrl },
+            });
+          }
+
+          if (note.drawing?.dataUrl) {
+            contentParts.push({
+              type: "image_url",
+              image_url: { url: note.drawing.dataUrl },
+            });
+          }
+
+          userContent = contentParts;
+        }
+
         const response = await askAI(
           [
             {
               role: "system",
               content:
-                "You are a supportive design thinking coach. Evaluate student concepts constructively. Always respond with valid JSON only, no markdown formatting.",
+                "You are a supportive design thinking coach with vision capabilities. Evaluate student concepts constructively. When images or sketches are provided, analyze them to understand the concept's visual communication, feasibility signals, and overall clarity. Always respond with valid JSON only, no markdown formatting.",
             },
-            { role: "user", content: prompt },
+            { role: "user", content: userContent },
           ],
           0.5,
           400
@@ -298,8 +346,57 @@ Respond in this exact JSON format (no markdown, just raw JSON):
     // User must click "Continue to Self-Assessment" button to proceed
   };
 
-  // Export function to generate downloadable summary
-  const handleExport = () => {
+  // Export function to generate downloadable PDF summary
+  const handleExport = async () => {
+    setIsGeneratingPDF(true);
+
+    try {
+      const rankedConcepts = selectedNotes
+        .map((note, idx) => ({
+          note,
+          score: calculateConceptScore(idx),
+          ratings: evaluations[idx]?.ratings || [],
+          aiEval: aiEvaluations[idx],
+        }))
+        .sort((a, b) => b.score - a.score);
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      // Generate PDF
+      const pdfDoc = (
+        <SummaryPDF
+          hmwStatement={state.hmwStatement}
+          rankedConcepts={rankedConcepts}
+          aiInsight={aiInsight}
+          generatedDate={dateStr}
+        />
+      );
+
+      const blob = await pdf(pdfDoc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `concept-summary-${now.toISOString().split("T")[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+      // Fallback to markdown export
+      handleExportMarkdown();
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  // Fallback markdown export
+  const handleExportMarkdown = () => {
     const rankedConcepts = selectedNotes
       .map((note, idx) => ({
         note,
@@ -1080,13 +1177,25 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 flex-wrap">
             <button
               onClick={handleExport}
+              disabled={isGeneratingPDF}
+              className="fun-button-secondary flex items-center gap-2 disabled:opacity-50"
+            >
+              {isGeneratingPDF ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Download className="w-5 h-5" />
+              )}
+              {isGeneratingPDF ? "Generating..." : "Download PDF"}
+            </button>
+            <button
+              onClick={handleExportMarkdown}
               className="fun-button-secondary flex items-center gap-2"
             >
-              <Download className="w-5 h-5" />
-              Download Summary
+              <FileText className="w-5 h-5" />
+              Markdown
             </button>
             <button
               onClick={() => {

@@ -2,16 +2,18 @@
 
 import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
-import { StickyNote as StickyNoteType } from "@/lib/types";
+import { StickyNote as StickyNoteType, DrawingData } from "@/lib/types";
 import {
   Trash2,
   Image as ImageIcon,
   Star,
   X,
-  Edit2,
   FileText,
+  Pencil,
+  Type,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DrawingCanvas, DrawingCanvasHandle } from "./drawing-canvas";
 
 interface StickyNoteProps {
   note: StickyNoteType;
@@ -33,8 +35,11 @@ export function StickyNote({
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsText, setDetailsText] = useState(note.details || "");
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [showDrawingModal, setShowDrawingModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const drawingCanvasRef = useRef<DrawingCanvasHandle>(null);
 
   const handleTextSave = () => {
     if (editText.trim()) {
@@ -87,6 +92,31 @@ export function StickyNote({
   const handleSaveDetails = () => {
     onUpdate({ details: detailsText.trim() });
     setShowDetailsModal(false);
+  };
+
+  const handleOpenDrawing = () => {
+    setShowDrawingModal(true);
+  };
+
+  const handleSaveDrawing = async () => {
+    if (drawingCanvasRef.current) {
+      const drawing = await drawingCanvasRef.current.save();
+      if (drawing) {
+        onUpdate({
+          drawing,
+          contentType:
+            note.text && note.text !== "New note..." ? "both" : "drawing",
+        });
+      }
+    }
+    setShowDrawingModal(false);
+  };
+
+  const handleRemoveDrawing = () => {
+    onUpdate({
+      drawing: undefined,
+      contentType: note.text ? "text" : undefined,
+    });
   };
 
   // Fun mode color palette with vibrant pastel colors
@@ -190,6 +220,19 @@ export function StickyNote({
             >
               <ImageIcon className="w-4 h-4" />
             </button>
+            <button
+              onClick={handleOpenDrawing}
+              onPointerDown={(e) => e.stopPropagation()}
+              className={cn(
+                "p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all shadow-sm",
+                note.drawing
+                  ? "text-blue-500 hover:text-blue-700"
+                  : "text-gray-500 hover:text-gray-700"
+              )}
+              title={note.drawing ? "Edit sketch" : "Add sketch"}
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
             {note.isConcept && (
               <button
                 onClick={() => {
@@ -203,17 +246,6 @@ export function StickyNote({
                 <FileText className="w-4 h-4" />
               </button>
             )}
-            <button
-              onClick={() => {
-                setIsEditing(true);
-                setEditText(note.text);
-              }}
-              onPointerDown={(e) => e.stopPropagation()}
-              className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-gray-500 hover:text-gray-700 shadow-sm"
-              title="Edit note"
-            >
-              <Edit2 className="w-4 h-4" />
-            </button>
             <button
               onClick={onDelete}
               onPointerDown={(e) => e.stopPropagation()}
@@ -247,6 +279,29 @@ export function StickyNote({
                 {note.image.caption}
               </p>
             )}
+          </div>
+        )}
+
+        {/* Drawing */}
+        {note.drawing?.dataUrl && (
+          <div className="mb-3 relative group">
+            <img
+              src={note.drawing.dataUrl}
+              alt="Sketch"
+              className="w-full h-32 object-contain rounded-lg cursor-pointer border border-gray-200 hover:border-gray-300 transition-colors bg-white/50"
+              onClick={handleOpenDrawing}
+              onPointerDown={(e) => e.stopPropagation()}
+            />
+            <button
+              onClick={handleRemoveDrawing}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="absolute top-1.5 right-1.5 p-1 bg-white text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md hover:bg-red-50"
+            >
+              <X className="w-3 h-3" />
+            </button>
+            <div className="absolute bottom-1.5 left-1.5 px-2 py-0.5 bg-white/80 rounded-md text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-all">
+              Click to edit
+            </div>
           </div>
         )}
 
@@ -357,6 +412,57 @@ export function StickyNote({
                   className="flex-1 px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all text-sm font-black shadow-lg hover:shadow-purple transform hover:scale-105"
                 >
                   Save Details ✨
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* Drawing Modal */}
+      {showDrawingModal &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed inset-0 bg-purple-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+            onClick={() => setShowDrawingModal(false)}
+          >
+            <div
+              className="fun-card max-w-2xl w-full"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor: getFunColor(note.color),
+                padding: "48px",
+              }}
+            >
+              <h3 className="text-2xl font-black text-gray-800 mb-3 flex items-center gap-2">
+                <span className="text-3xl">✏️</span>
+                Sketch Your Concept
+              </h3>
+              <p className="text-sm text-gray-600 mb-6 font-medium">
+                Draw out your idea! Use the tools below to sketch.
+              </p>
+
+              <DrawingCanvas
+                ref={drawingCanvasRef}
+                initialDrawing={note.drawing}
+                noteColor={note.color}
+                width={520}
+                height={380}
+              />
+
+              <div className="flex gap-4 mt-8">
+                <button
+                  onClick={() => setShowDrawingModal(false)}
+                  className="flex-1 px-5 py-3 border-3 border-gray-200 text-gray-600 rounded-2xl hover:bg-gray-50 transition-all text-sm font-black shadow-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveDrawing}
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all text-sm font-black shadow-lg transform hover:scale-105"
+                >
+                  Save Sketch ✨
                 </button>
               </div>
             </div>

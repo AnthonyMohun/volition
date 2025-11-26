@@ -69,6 +69,8 @@ export class UpdateNoteCommand implements ICommand {
       this.label = "Edit note";
     } else if (changedKeys.includes("color")) {
       this.label = "Change note color";
+    } else if (changedKeys.includes("drawing")) {
+      this.label = next.drawing ? "Add sketch" : "Remove sketch";
     } else {
       this.label = "Update note";
     }

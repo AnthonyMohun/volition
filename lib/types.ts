@@ -8,6 +8,22 @@ export interface ImageAttachment {
   caption?: string;
 }
 
+export interface CanvasPath {
+  drawMode: boolean;
+  strokeColor: string;
+  strokeWidth: number;
+  paths: { x: number; y: number }[];
+}
+
+export interface DrawingData {
+  paths: CanvasPath[];
+  dataUrl?: string; // Thumbnail for display
+  width: number;
+  height: number;
+}
+
+export type NoteContentType = "text" | "drawing" | "both";
+
 export interface StickyNote {
   id: string;
   text: string;
@@ -16,6 +32,8 @@ export interface StickyNote {
   color: string;
   isConcept: boolean;
   image?: ImageAttachment;
+  drawing?: DrawingData;
+  contentType?: NoteContentType;
   details?: string;
   createdAt: number;
 }
