@@ -63,6 +63,12 @@ export function AIQuestionPanel() {
   const lastNoteCountRef = useRef(state.notes.length);
   const stuckTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastCreatedNoteIdRef = useRef<string | null>(null);
+  const stateRef = useRef(state);
+
+  // Keep stateRef in sync with current state
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   const currentQuestion = state.questions[state.questions.length - 1];
 
@@ -294,19 +300,26 @@ export function AIQuestionPanel() {
 
         case "mark-concept": {
           // Mark the last created note as a concept
+          // Use stateRef to get the current state (avoids stale closure)
+          const currentNotes = stateRef.current.notes;
           if (lastCreatedNoteIdRef.current) {
-            const note = state.notes.find(
+            const note = currentNotes.find(
               (n) => n.id === lastCreatedNoteIdRef.current
             );
             if (note) {
               updateNote(note.id, { isConcept: true });
               showToast("⭐ Marked as concept!");
-              if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
+              if (
+                stateRef.current.voiceOutputEnabled &&
+                isSpeechSynthesisSupported()
+              ) {
                 setIsAISpeaking(true);
                 speak("Marked as concept").finally(() =>
                   setIsAISpeaking(false)
                 );
               }
+            } else {
+              showToast("Note no longer exists");
             }
           } else {
             showToast("No recent note to mark as concept");

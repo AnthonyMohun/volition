@@ -147,14 +147,18 @@ export function VoiceInput({
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      // "aborted" is normal when we intentionally stop recognition (e.g., when AI speaks)
+      // "no-speech" is normal when user is silent
+      if (event.error === "aborted" || event.error === "no-speech") {
+        setError(null);
+        return;
+      }
+
       console.error("Speech recognition error:", event.error);
 
       if (event.error === "not-allowed") {
         setError("Microphone access denied. Please allow microphone access.");
         setIsListening(false);
-      } else if (event.error === "no-speech") {
-        // This is normal, just restart
-        setError(null);
       } else if (event.error === "network") {
         setError("Network error. Please check your connection.");
       } else {
@@ -327,21 +331,6 @@ export function VoiceInput({
                 {isMuted ? "Paused (AI speaking)..." : "Listening..."}
               </span>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Live Transcript Preview */}
-      <AnimatePresence>
-        {interimTranscript && isListening && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="px-3 py-2 bg-white border-2 border-gray-200 rounded-xl shadow-sm"
-          >
-            <p className="text-xs text-gray-500 font-semibold mb-1">Hearing:</p>
-            <p className="text-sm text-gray-700 italic">{interimTranscript}</p>
           </motion.div>
         )}
       </AnimatePresence>

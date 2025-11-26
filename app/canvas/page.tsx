@@ -609,18 +609,18 @@ export default function CanvasPage() {
             </DndContext>
 
             {state.notes.length === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-gray-500">
-                  <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-8 rounded-full shadow-2xl mb-6 inline-block animate-pulse">
-                    <Plus className="w-16 h-16 text-purple-500" />
-                  </div>
-                  <p className="text-2xl font-black text-gray-700 mb-2 flex items-center justify-center gap-2">
-                    <span className="text-3xl">✨</span>
-                    Click the + button to start!
+                  <p className="text-2xl font-black text-gray-700 mb-4">
+                    Respond to the AI's questions with your ideas
                   </p>
-                  <p className="text-lg mt-3 text-gray-600 font-bold">
-                    Respond to the AI's questions with your ideas 💡
-                  </p>
+                  <button
+                    onClick={handleAddNote}
+                    className="bg-gradient-to-br from-purple-500 to-pink-500 text-white px-6 py-3 rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple transform hover:scale-105 active:scale-95 font-bold flex items-center gap-2 mx-auto"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Create your first sticky note
+                  </button>
                 </div>
               </div>
             )}

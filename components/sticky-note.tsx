@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { StickyNote as StickyNoteType, DrawingData } from "@/lib/types";
 import {
@@ -11,9 +11,12 @@ import {
   FileText,
   Pencil,
   Type,
+  Mic,
+  MicOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DrawingCanvas, DrawingCanvasHandle } from "./drawing-canvas";
+import { motion } from "framer-motion";
 
 interface StickyNoteProps {
   note: StickyNoteType;
@@ -37,9 +40,80 @@ export function StickyNote({
   const [detailsText, setDetailsText] = useState(note.details || "");
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const [showDrawingModal, setShowDrawingModal] = useState(false);
+  const [isRecordingDetails, setIsRecordingDetails] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const drawingCanvasRef = useRef<DrawingCanvasHandle>(null);
+  const detailsRecognitionRef = useRef<any>(null);
+
+  // Speech recognition for details modal
+  const startDetailsRecording = useCallback(() => {
+    const SpeechRecognitionAPI =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      alert("Speech recognition is not supported in this browser");
+      return;
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: any) => {
+      let finalTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+      if (finalTranscript) {
+        setDetailsText((prev) =>
+          prev ? prev + " " + finalTranscript : finalTranscript
+        );
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      if (event.error !== "aborted" && event.error !== "no-speech") {
+        console.error("Speech recognition error:", event.error);
+      }
+      setIsRecordingDetails(false);
+    };
+
+    recognition.onend = () => {
+      setIsRecordingDetails(false);
+    };
+
+    detailsRecognitionRef.current = recognition;
+    recognition.start();
+    setIsRecordingDetails(true);
+  }, []);
+
+  const stopDetailsRecording = useCallback(() => {
+    if (detailsRecognitionRef.current) {
+      detailsRecognitionRef.current.stop();
+      detailsRecognitionRef.current = null;
+    }
+    setIsRecordingDetails(false);
+  }, []);
+
+  // Cleanup speech recognition on unmount or modal close
+  useEffect(() => {
+    return () => {
+      if (detailsRecognitionRef.current) {
+        detailsRecognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!showDetailsModal && detailsRecognitionRef.current) {
+      detailsRecognitionRef.current.stop();
+      setIsRecordingDetails(false);
+    }
+  }, [showDetailsModal]);
 
   const handleTextSave = () => {
     if (editText.trim()) {
@@ -392,14 +466,47 @@ export function StickyNote({
                 Provide more information about this concept to help the AI
                 evaluate it better.
               </p>
-              <textarea
-                value={detailsText}
-                onChange={(e) => setDetailsText(e.target.value)}
-                placeholder="e.g., Why is this concept important? How does it address the HMW? What are its key features?"
-                className="w-full p-4 border-3 border-purple-200 rounded-2xl text-sm resize-none bg-white text-gray-800 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all placeholder:text-gray-400 font-semibold shadow-inner"
-                rows={5}
-                autoFocus
-              />
+              <div className="relative">
+                <textarea
+                  value={detailsText}
+                  onChange={(e) => setDetailsText(e.target.value)}
+                  placeholder="e.g., Why is this concept important? How does it address the HMW? What are its key features?"
+                  className="w-full p-4 pr-14 border-3 border-purple-200 rounded-2xl text-sm resize-none bg-white text-gray-800 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all placeholder:text-gray-400 font-semibold shadow-inner"
+                  rows={5}
+                  autoFocus
+                />
+                <button
+                  onClick={
+                    isRecordingDetails
+                      ? stopDetailsRecording
+                      : startDetailsRecording
+                  }
+                  className={`absolute right-3 top-3 p-2 rounded-xl transition-all ${
+                    isRecordingDetails
+                      ? "bg-red-500 text-white hover:bg-red-600"
+                      : "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                  }`}
+                  title={
+                    isRecordingDetails ? "Stop recording" : "Start recording"
+                  }
+                >
+                  {isRecordingDetails ? (
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1 }}
+                    >
+                      <Mic className="w-5 h-5" />
+                    </motion.div>
+                  ) : (
+                    <Mic className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+              {isRecordingDetails && (
+                <p className="text-xs text-purple-600 mt-2 font-semibold animate-pulse">
+                  🎤 Listening... speak your concept details
+                </p>
+              )}
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setShowDetailsModal(false)}

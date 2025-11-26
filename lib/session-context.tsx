@@ -141,10 +141,26 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateNote = (id: string, updates: Partial<StickyNote>) => {
-    const prevNote = state.notes.find((n) => n.id === id);
-    if (!prevNote) return;
-    const nextNote: StickyNote = { ...prevNote, ...updates };
-    pushCommand(new UpdateNoteCommand(prevNote, nextNote));
+    // Use setState callback to access current state and avoid stale closures
+    setState((currentState) => {
+      const prevNote = currentState.notes.find((n) => n.id === id);
+      if (!prevNote) {
+        console.warn("[updateNote] Note not found:", id);
+        return currentState;
+      }
+      const nextNote: StickyNote = { ...prevNote, ...updates };
+      // We need to push to undo stack, so we do this via a side effect
+      // and return the updated state directly
+      setUndoStack((prev) => [
+        ...prev,
+        new UpdateNoteCommand(prevNote, nextNote),
+      ]);
+      setRedoStack([]);
+      return {
+        ...currentState,
+        notes: currentState.notes.map((n) => (n.id === id ? nextNote : n)),
+      };
+    });
   };
 
   const deleteNote = (id: string) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import {
@@ -10,13 +10,18 @@ import {
   Edit3,
   CheckCircle2,
   ChevronDown,
+  Mic,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface ConceptEditForm {
   title: string;
   description: string;
   extras: string;
 }
+
+// Type for which field is being recorded
+type RecordingField = "title" | "description" | "extras" | null;
 
 // Simplified: just title + description, with optional extras
 
@@ -38,8 +43,91 @@ export default function RefinePage() {
   const [showExtras, setShowExtras] = useState(false);
   const [wizardComplete, setWizardComplete] = useState(false);
   const [guidedIndex, setGuidedIndex] = useState(0);
+  const [recordingField, setRecordingField] = useState<RecordingField>(null);
+  const recognitionRef = useRef<any>(null);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
+
+  // Speech recognition for form fields
+  const startRecording = useCallback((field: RecordingField) => {
+    const SpeechRecognitionAPI =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      alert("Speech recognition is not supported in this browser");
+      return;
+    }
+
+    // Stop any existing recognition
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: any) => {
+      let finalTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+      if (finalTranscript && field) {
+        setEditForm((prev) => ({
+          ...prev,
+          [field]: prev[field]
+            ? prev[field] + " " + finalTranscript
+            : finalTranscript,
+        }));
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      if (event.error !== "aborted" && event.error !== "no-speech") {
+        console.error("Speech recognition error:", event.error);
+      }
+      setRecordingField(null);
+    };
+
+    recognition.onend = () => {
+      setRecordingField(null);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setRecordingField(field);
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setRecordingField(null);
+  }, []);
+
+  const toggleRecording = useCallback(
+    (field: RecordingField) => {
+      if (recordingField === field) {
+        stopRecording();
+      } else {
+        startRecording(field);
+      }
+    },
+    [recordingField, startRecording, stopRecording]
+  );
+
+  // Cleanup speech recognition on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!state.hmwStatement || conceptNotes.length < 2) {
@@ -309,18 +397,49 @@ export default function RefinePage() {
                         <label className="text-sm font-black text-gray-700 mb-2 block flex items-center gap-2">
                           <span>💡</span> Concept Name
                         </label>
-                        <input
-                          type="text"
-                          value={editForm.title}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              title: e.target.value,
-                            })
-                          }
-                          placeholder="Give your idea a catchy name"
-                          className="w-full px-4 py-3 bg-white border-3 border-purple-200 rounded-2xl text-gray-800 text-lg placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all font-bold shadow-sm"
-                        />
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={editForm.title}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                title: e.target.value,
+                              })
+                            }
+                            placeholder="Give your idea a catchy name"
+                            className="w-full px-4 py-3 pr-12 bg-white border-3 border-purple-200 rounded-2xl text-gray-800 text-lg placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all font-bold shadow-sm"
+                          />
+                          <button
+                            onClick={() => toggleRecording("title")}
+                            className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
+                              recordingField === "title"
+                                ? "bg-red-500 text-white hover:bg-red-600"
+                                : "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                            }`}
+                            title={
+                              recordingField === "title"
+                                ? "Stop recording"
+                                : "Start recording"
+                            }
+                          >
+                            {recordingField === "title" ? (
+                              <motion.div
+                                animate={{ scale: [1, 1.2, 1] }}
+                                transition={{ repeat: Infinity, duration: 1 }}
+                              >
+                                <Mic className="w-4 h-4" />
+                              </motion.div>
+                            ) : (
+                              <Mic className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                        {recordingField === "title" && (
+                          <p className="text-xs text-purple-600 mt-1 font-semibold animate-pulse">
+                            🎤 Listening...
+                          </p>
+                        )}
                       </div>
 
                       {/* Description - combines problem + solution */}
@@ -328,18 +447,49 @@ export default function RefinePage() {
                         <label className="text-sm font-black text-gray-700 mb-2 block flex items-center gap-2">
                           <span>📝</span> What&apos;s the idea?
                         </label>
-                        <textarea
-                          value={editForm.description}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              description: e.target.value,
-                            })
-                          }
-                          placeholder="Describe your concept in a few sentences..."
-                          rows={4}
-                          className="w-full px-4 py-3 bg-white border-3 border-purple-200 rounded-2xl text-gray-800 placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all resize-none font-semibold shadow-sm"
-                        />
+                        <div className="relative">
+                          <textarea
+                            value={editForm.description}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                description: e.target.value,
+                              })
+                            }
+                            placeholder="Describe your concept in a few sentences..."
+                            rows={4}
+                            className="w-full px-4 py-3 pr-12 bg-white border-3 border-purple-200 rounded-2xl text-gray-800 placeholder:text-gray-400 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all resize-none font-semibold shadow-sm"
+                          />
+                          <button
+                            onClick={() => toggleRecording("description")}
+                            className={`absolute right-3 top-3 p-2 rounded-xl transition-all ${
+                              recordingField === "description"
+                                ? "bg-red-500 text-white hover:bg-red-600"
+                                : "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                            }`}
+                            title={
+                              recordingField === "description"
+                                ? "Stop recording"
+                                : "Start recording"
+                            }
+                          >
+                            {recordingField === "description" ? (
+                              <motion.div
+                                animate={{ scale: [1, 1.2, 1] }}
+                                transition={{ repeat: Infinity, duration: 1 }}
+                              >
+                                <Mic className="w-4 h-4" />
+                              </motion.div>
+                            ) : (
+                              <Mic className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                        {recordingField === "description" && (
+                          <p className="text-xs text-purple-600 mt-1 font-semibold animate-pulse">
+                            🎤 Listening...
+                          </p>
+                        )}
                       </div>
 
                       {/* Collapsible extras */}
@@ -358,18 +508,49 @@ export default function RefinePage() {
                         </button>
 
                         {showExtras && (
-                          <textarea
-                            value={editForm.extras}
-                            onChange={(e) =>
-                              setEditForm({
-                                ...editForm,
-                                extras: e.target.value,
-                              })
-                            }
-                            placeholder="Implementation ideas, user benefits, technical notes..."
-                            rows={3}
-                            className="w-full mt-3 px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-700 placeholder:text-gray-400 focus:border-purple-300 focus:ring-4 focus:ring-purple-100 transition-all resize-none text-sm"
-                          />
+                          <div className="relative mt-3">
+                            <textarea
+                              value={editForm.extras}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  extras: e.target.value,
+                                })
+                              }
+                              placeholder="Implementation ideas, user benefits, technical notes..."
+                              rows={3}
+                              className="w-full px-4 py-3 pr-12 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-700 placeholder:text-gray-400 focus:border-purple-300 focus:ring-4 focus:ring-purple-100 transition-all resize-none text-sm"
+                            />
+                            <button
+                              onClick={() => toggleRecording("extras")}
+                              className={`absolute right-3 top-3 p-2 rounded-xl transition-all ${
+                                recordingField === "extras"
+                                  ? "bg-red-500 text-white hover:bg-red-600"
+                                  : "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                              }`}
+                              title={
+                                recordingField === "extras"
+                                  ? "Stop recording"
+                                  : "Start recording"
+                              }
+                            >
+                              {recordingField === "extras" ? (
+                                <motion.div
+                                  animate={{ scale: [1, 1.2, 1] }}
+                                  transition={{ repeat: Infinity, duration: 1 }}
+                                >
+                                  <Mic className="w-4 h-4" />
+                                </motion.div>
+                              ) : (
+                                <Mic className="w-4 h-4" />
+                              )}
+                            </button>
+                            {recordingField === "extras" && (
+                              <p className="text-xs text-purple-600 mt-1 font-semibold animate-pulse">
+                                🎤 Listening...
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
