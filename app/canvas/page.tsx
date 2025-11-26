@@ -653,10 +653,10 @@ export default function CanvasPage() {
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-10 h-10 rounded-2xl transition-all ${
+                      className={`w-10 h-10 rounded-2xl transition-all relative ${
                         selectedColor === color
-                          ? "scale-125 shadow-lg ring-4 ring-offset-2 ring-offset-white ring-gray-400"
-                          : "hover:scale-110 border-3 border-white shadow-md"
+                          ? "hover:scale-110 border-3 border-white shadow-md after:absolute after:-bottom-3.5 after:left-1/2 after:-translate-x-1/2 after:w-2 after:h-1 after:bg-gray-400 after:rounded-full after:transition-all after:duration-300"
+                          : "hover:scale-110 border-3 border-white shadow-md after:absolute after:-bottom-3.5 after:left-1/2 after:-translate-x-1/2 after:w-2 after:h-1 after:bg-gray-400 after:rounded-full after:transition-all after:duration-300 after:opacity-0"
                       }`}
                       style={{
                         backgroundColor: displayColor,
