@@ -12,6 +12,7 @@ export default function Tooltip({ children, content, placement = "top" }: Toolti
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const [tooltipId] = useState(() => `tooltip-${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
@@ -53,11 +54,13 @@ export default function Tooltip({ children, content, placement = "top" }: Toolti
       }}
       role="button"
       aria-pressed={open}
+      aria-describedby={open ? tooltipId : undefined}
     >
       {children}
 
       <div
         ref={tooltipRef}
+        id={tooltipId}
         role="tooltip"
         aria-hidden={!open}
         className={`z-50 pointer-events-none transition-opacity duration-150 ${
