@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { SummaryPDF } from "@/components/summary-pdf";
+import Tooltip from "@/components/tooltip";
 
 // Emoji reactions for different score levels
 const SCORE_REACTIONS = [
@@ -784,11 +785,14 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                   </div>
                   <div className="text-xs text-gray-700 font-bold mt-2 flex items-center gap-2 justify-center">
                     <span>AI Score</span>
-                    <Info
-                      className="w-3 h-3 text-gray-400 cursor-help"
-                      title={`Rubric: Problem Fit, Originality, Feasibility. Each criterion is scored 1-5 and the AI converts the average into an overall percentage.`}
-                      aria-label="Rubric explanation"
-                    />
+                    <Tooltip
+                      content={
+                        "Rubric: Problem Fit, Originality, Feasibility — 1–5 on each. The AI converts the average into an overall % in the UI."
+                      }
+                      placement="top"
+                    >
+                      <Info className="w-4 h-4 text-gray-400 cursor-pointer" />
+                    </Tooltip>
                   </div>
                 </div>
               </div>
