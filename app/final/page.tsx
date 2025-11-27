@@ -322,9 +322,9 @@ Respond in this exact JSON format (no markdown, just raw JSON):
 
         // For concepts with no details, be maximally critical
         if (hasNoDetails) {
-          parsed.problemFit.score = 1;
-          parsed.feasibility.score = 1;
-          parsed.originality.score = 1;
+          parsed.problemFit.score = 0;
+          parsed.feasibility.score = 0;
+          parsed.originality.score = 0;
         }
 
         // Recompute overall after potential clamping
@@ -378,7 +378,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
           !note.details ||
           note.details.trim().length < MIN_DETAILS_LENGTH_FALLBACK;
         const hasNoDetails = !note.details || note.details.trim().length === 0;
-        const baseScore = isIncomplete ? 1 : 3; // Lower base score if incomplete
+        const baseScore = isIncomplete ? (hasNoDetails ? 0 : 1) : 3; // Lower base score if incomplete
         const baseOverallScore = isIncomplete ? 20 : 60; // Lower overall if incomplete
         const completenessMultiplier = isIncomplete ? 0.5 : 1.0;
         let overallScore = Math.round(
