@@ -9,11 +9,17 @@ interface TooltipProps {
   placement?: "top" | "bottom" | "left" | "right";
 }
 
-export default function Tooltip({ children, content, placement = "top" }: TooltipProps) {
+export default function Tooltip({
+  children,
+  content,
+  placement = "top",
+}: TooltipProps) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
-  const [tooltipId] = useState(() => `tooltip-${Math.random().toString(36).slice(2)}`);
+  const [tooltipId] = useState(
+    () => `tooltip-${Math.random().toString(36).slice(2)}`
+  );
 
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
@@ -76,6 +82,11 @@ export default function Tooltip({ children, content, placement = "top" }: Toolti
         top = triggerRect.top - ttHeight - gap;
       }
 
+      // Clamp within viewport vertically to prevent clipping by headers
+      if (top < padding) top = padding;
+      if (top + ttHeight > viewportHeight - padding)
+        top = Math.max(padding, viewportHeight - ttHeight - padding);
+
       setCoords({ left, top });
     }
 
@@ -91,7 +102,9 @@ export default function Tooltip({ children, content, placement = "top" }: Toolti
   }, [open, placement]);
 
   // Positioning via portal to avoid clipping by parent elements with overflow hidden.
-  const [coords, setCoords] = useState<{ left: number; top: number } | null>(null);
+  const [coords, setCoords] = useState<{ left: number; top: number } | null>(
+    null
+  );
   return (
     <div
       ref={wrapperRef}
@@ -102,8 +115,8 @@ export default function Tooltip({ children, content, placement = "top" }: Toolti
       onFocus={() => setOpen(true)}
       onBlur={() => setOpen(false)}
       onClick={(e) => {
-            // Toggle on click/tap (useful for touch devices)
-            setOpen((s) => !s);
+        // Toggle on click/tap (useful for touch devices)
+        setOpen((s) => !s);
       }}
       onKeyDown={(e) => {
         if (e.key === "Escape") {
@@ -127,20 +140,29 @@ export default function Tooltip({ children, content, placement = "top" }: Toolti
             id={tooltipId}
             role="tooltip"
             aria-hidden={!open}
-            className={`z-50 pointer-events-auto transition-opacity duration-150 ${open ? "opacity-100" : "opacity-0"} bg-gray-900 text-white text-xs font-semibold px-3 py-2 rounded-lg drop-shadow-lg transform-gpu max-w-xs whitespace-normal`}
-            style={{ position: "fixed", left: coords?.left ?? -9999, top: coords?.top ?? -9999 }}
+            className={`z-50 pointer-events-auto transition-opacity duration-150 ${
+              open ? "opacity-100" : "opacity-0"
+            } bg-gray-900 text-white text-xs font-semibold px-3 py-2 rounded-lg drop-shadow-lg transform-gpu max-w-xs whitespace-normal`}
+            style={{
+              position: "fixed",
+              left: coords?.left ?? -9999,
+              top: coords?.top ?? -9999,
+              zIndex: 9999,
+            }}
           >
             <div className="relative">
               {content}
               <span
-                className={`absolute w-2 h-2 bg-gray-900 transform rotate-45` +
+                className={
+                  `absolute w-2 h-2 bg-gray-900 transform rotate-45` +
                   (placement === "top"
                     ? " left-1/2 -translate-x-1/2 bottom-[-6px]"
                     : placement === "bottom"
                     ? " left-1/2 -translate-x-1/2 top-[-6px]"
                     : placement === "left"
                     ? " right-[-6px] top-1/2 -translate-y-1/2"
-                    : " left-[-6px] top-1/2 -translate-y-1/2")}
+                    : " left-[-6px] top-1/2 -translate-y-1/2")
+                }
               />
             </div>
           </div>,
