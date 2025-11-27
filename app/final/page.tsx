@@ -320,6 +320,13 @@ Respond in this exact JSON format (no markdown, just raw JSON):
           parsed.originality.score = Math.min(parsed.originality.score, 3);
         }
 
+        // For concepts with no details, be maximally critical
+        if (hasNoDetails) {
+          parsed.problemFit.score = 1;
+          parsed.feasibility.score = 1;
+          parsed.originality.score = 1;
+        }
+
         // Recompute overall after potential clamping
         const recomputedOverall = Math.round(
           ((parsed.problemFit.score +
