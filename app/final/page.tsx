@@ -342,7 +342,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
 
         // For concepts with no details at all, force a very low score to prevent any AI leniency
         if (hasNoDetails) {
-          adjustedOverallScore = Math.min(adjustedOverallScore, 15);
+          adjustedOverallScore = 0;
         }
 
         setAiEvaluations((prev) =>
@@ -379,7 +379,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
         );
         // For concepts with no details, force very low score
         if (hasNoDetails) {
-          overallScore = Math.min(overallScore, 10);
+          overallScore = 0;
         }
         setAiEvaluations((prev) =>
           prev.map((e, idx) =>
