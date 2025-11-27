@@ -21,6 +21,8 @@ export default function Tooltip({
     () => `tooltip-${Math.random().toString(36).slice(2)}`
   );
 
+  const [activePlacement, setActivePlacement] = useState(placement);
+
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
       if (
@@ -50,6 +52,7 @@ export default function Tooltip({
       let top = 0;
       const gap = 8; // px gap between trigger and tooltip
 
+      let computedPlacement = placement;
       if (placement === "top") {
         left = triggerRect.left + triggerRect.width / 2 - ttWidth / 2;
         top = triggerRect.top - ttHeight - gap;
@@ -75,11 +78,13 @@ export default function Tooltip({
       // If it runs off top, flip to bottom
       if (top < padding && placement === "top") {
         top = triggerRect.bottom + gap;
+        computedPlacement = "bottom";
       }
 
       // If it runs off bottom, flip to top
       if (top + ttHeight > viewportHeight - padding && placement === "bottom") {
         top = triggerRect.top - ttHeight - gap;
+        computedPlacement = "top";
       }
 
       // Clamp within viewport vertically to prevent clipping by headers
@@ -88,6 +93,7 @@ export default function Tooltip({
         top = Math.max(padding, viewportHeight - ttHeight - padding);
 
       setCoords({ left, top });
+      setActivePlacement(computedPlacement as any);
     }
 
     if (open) {
@@ -155,11 +161,11 @@ export default function Tooltip({
               <span
                 className={
                   `absolute w-2 h-2 bg-gray-900 transform rotate-45` +
-                  (placement === "top"
+                  (activePlacement === "top"
                     ? " left-1/2 -translate-x-1/2 bottom-[-6px]"
-                    : placement === "bottom"
+                    : activePlacement === "bottom"
                     ? " left-1/2 -translate-x-1/2 top-[-6px]"
-                    : placement === "left"
+                    : activePlacement === "left"
                     ? " right-[-6px] top-1/2 -translate-y-1/2"
                     : " left-[-6px] top-1/2 -translate-y-1/2")
                 }
