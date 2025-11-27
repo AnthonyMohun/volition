@@ -179,6 +179,7 @@ export default function FinalPage() {
       try {
         const hasVisualContent = note.image || note.drawing?.dataUrl;
 
+        // Strong evaluation prompt - instruct the model to be critical and penalize minimal inputs
         const prompt = `You are a design thinking expert evaluating a student's concept for their course project.
 
 Design Challenge: "${state.hmwStatement}"
@@ -201,6 +202,8 @@ ${
     ? "\nWhen evaluating, consider how well the visual content communicates the concept, demonstrates feasibility, or adds clarity."
     : ""
 }
+
+Important: Be critical and realistic in your evaluation. If the concept lacks sufficient detail (e.g., only a title with no description or a description shorter than 40 characters), penalize it — especially on Problem Fit and Feasibility. For title-only or minimal inputs, aim for low scores: Problem Fit 1–2, Feasibility 1–2, Originality 2–3. If no description is provided, set the overall score in the lower range (15–35). Always include practical, specific suggestions for improvement in the "improvements" array if the concept is incomplete.
 
 Respond in this exact JSON format (no markdown, just raw JSON):
 {
@@ -248,7 +251,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
             {
               role: "system",
               content:
-                "You are a supportive design thinking coach with vision capabilities. Evaluate student concepts constructively. When images or sketches are provided, analyze them to understand the concept's visual communication, feasibility signals, and overall clarity. Always respond with valid JSON only, no markdown formatting.",
+                "You are a critical, pragmatic design thinking coach with vision capabilities. Be constructive but realistic in your scoring. When images or sketches are provided, analyze them to understand the concept's visual communication, feasibility signals, and overall clarity. Always respond with valid JSON only, no markdown formatting.",
             },
             { role: "user", content: userContent },
           ],
@@ -266,23 +269,26 @@ Respond in this exact JSON format (no markdown, just raw JSON):
             .trim();
           parsed = JSON.parse(cleanedResponse);
         } catch {
-          // Fallback if parsing fails
+          // Fallback if parsing fails - be conservative and prompt students to add details
           parsed = {
             problemFit: {
-              score: 3,
-              feedback: "Shows potential for addressing the challenge.",
+              score: 2,
+              feedback:
+                "Insufficient detail to confidently assess problem fit.",
             },
             originality: {
-              score: 3,
+              score: 2,
               feedback:
-                "A solid approach with room for more creative exploration.",
+                "Originality is unclear without more description or examples.",
             },
             feasibility: {
-              score: 4,
-              feedback: "This seems achievable within the project scope.",
+              score: 2,
+              feedback: "Feasibility is uncertain — please add more specifics.",
             },
-            strengths: ["Good starting point"],
-            improvements: ["Consider adding more detail to the concept"],
+            strengths: ["Concept submitted"],
+            improvements: [
+              "Add more detail (what, why, how) to clarify concept and scope",
+            ],
           };
         }
 
@@ -294,12 +300,57 @@ Respond in this exact JSON format (no markdown, just raw JSON):
             100
         );
 
+        // Normalize and clamp parsed scores to 1-5 and apply stricter completeness checks
+        const clampScore = (s: number) =>
+          Math.max(1, Math.min(5, Math.round(s)));
+        parsed.problemFit.score = clampScore(parsed.problemFit.score);
+        parsed.originality.score = clampScore(parsed.originality.score);
+        parsed.feasibility.score = clampScore(parsed.feasibility.score);
+
+        // Apply stricter completeness checks and clamp parsed scores if incomplete
+        const MIN_DETAILS_LENGTH = 40; // Require a longer description to be considered complete
+        const isIncomplete =
+          !note.details || note.details.trim().length < MIN_DETAILS_LENGTH;
+        const hasNoDetails = !note.details || note.details.trim().length === 0;
+
+        if (isIncomplete) {
+          // Clamp per-criteria scores so AI can't give unusually high marks to minimal inputs
+          parsed.problemFit.score = Math.min(parsed.problemFit.score, 2);
+          parsed.feasibility.score = Math.min(parsed.feasibility.score, 2);
+          parsed.originality.score = Math.min(parsed.originality.score, 3);
+        }
+
+        // Recompute overall after potential clamping
+        const recomputedOverall = Math.round(
+          ((parsed.problemFit.score +
+            parsed.originality.score +
+            parsed.feasibility.score) /
+            15) *
+            100
+        );
+
+        // Apply stronger penalty for incomplete concepts
+        const completenessMultiplier = isIncomplete ? 0.5 : 1.0;
+        let adjustedOverallScore = Math.round(
+          recomputedOverall * completenessMultiplier
+        );
+
+        // Ensure noisy edge cases don't produce unexpectedly high scores for incomplete entries
+        if (isIncomplete) {
+          adjustedOverallScore = Math.min(adjustedOverallScore, 40);
+        }
+
+        // For concepts with no details at all, force a very low score to prevent any AI leniency
+        if (hasNoDetails) {
+          adjustedOverallScore = Math.min(adjustedOverallScore, 15);
+        }
+
         setAiEvaluations((prev) =>
           prev.map((e, idx) =>
             idx === i
               ? {
                   ...e,
-                  overallScore,
+                  overallScore: adjustedOverallScore,
                   criteria: {
                     problemFit: parsed.problemFit,
                     originality: parsed.originality,
@@ -314,28 +365,56 @@ Respond in this exact JSON format (no markdown, just raw JSON):
         );
       } catch (error) {
         console.error(`Failed to evaluate concept ${i}:`, error);
+        // Fallback - be more critical for incomplete concepts
+        const MIN_DETAILS_LENGTH_FALLBACK = 40;
+        const isIncomplete =
+          !note.details ||
+          note.details.trim().length < MIN_DETAILS_LENGTH_FALLBACK;
+        const hasNoDetails = !note.details || note.details.trim().length === 0;
+        const baseScore = isIncomplete ? 1 : 3; // Lower base score if incomplete
+        const baseOverallScore = isIncomplete ? 20 : 60; // Lower overall if incomplete
+        const completenessMultiplier = isIncomplete ? 0.5 : 1.0;
+        let overallScore = Math.round(
+          baseOverallScore * completenessMultiplier
+        );
+        // For concepts with no details, force very low score
+        if (hasNoDetails) {
+          overallScore = Math.min(overallScore, 10);
+        }
         setAiEvaluations((prev) =>
           prev.map((e, idx) =>
             idx === i
               ? {
                   ...e,
-                  overallScore: 60,
+                  overallScore,
                   criteria: {
                     problemFit: {
-                      score: 3,
-                      feedback: "Unable to fully evaluate - try again.",
+                      score: baseScore,
+                      feedback: isIncomplete
+                        ? "Concept lacks detail, making it hard to evaluate problem fit."
+                        : "Unable to fully evaluate - try again.",
                     },
                     originality: {
-                      score: 3,
-                      feedback: "Unable to fully evaluate - try again.",
+                      score: baseScore,
+                      feedback: isIncomplete
+                        ? "Without details, originality is difficult to assess."
+                        : "Unable to fully evaluate - try again.",
                     },
                     feasibility: {
-                      score: 3,
-                      feedback: "Unable to fully evaluate - try again.",
+                      score: baseScore,
+                      feedback: isIncomplete
+                        ? "Incomplete concepts are harder to implement realistically."
+                        : "Unable to fully evaluate - try again.",
                     },
                   },
-                  strengths: ["Concept submitted for evaluation"],
-                  improvements: ["Add more details for better feedback"],
+                  strengths: isIncomplete
+                    ? ["Concept submitted"]
+                    : ["Concept submitted for evaluation"],
+                  improvements: isIncomplete
+                    ? [
+                        "Add more details to make the concept clearer and more evaluable",
+                      ]
+                    : ["Add more details for better feedback"],
                   isLoading: false,
                 }
               : e
@@ -703,6 +782,11 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 <p className="text-sm text-gray-600 font-bold">
                   See how your concepts measure up
                 </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Note: AI evaluation is critical and penalizes incomplete or
+                  title-only concepts to help you improve clarity and
+                  feasibility.
+                </p>
               </div>
             </div>
 
@@ -787,7 +871,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                     <span>AI Score</span>
                     <Tooltip
                       content={
-                        "The AI score combines three factors: how well the idea solves the challenge (Problem Fit), how original it is (Originality), and how realistic it is to build (Feasibility). Each factor is scored 1–5 and combined into a single percentage."
+                        "The AI score combines three factors: how well the idea solves the challenge (Problem Fit), how original it is (Originality), and how realistic it is to build (Feasibility). Each factor is scored 1–5 and combined into a single percentage. Incomplete or title-only concepts are penalized to encourage clearer descriptions."
                       }
                       placement="top"
                     >
