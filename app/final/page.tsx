@@ -787,11 +787,14 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                     <span>AI Score</span>
                     <Tooltip
                       content={
-                        "Rubric: Problem Fit, Originality, Feasibility — 1–5 on each. The AI converts the average into an overall % in the UI."
+                        "The AI score combines three factors: how well the idea solves the challenge (Problem Fit), how original it is (Originality), and how realistic it is to build (Feasibility). Each factor is scored 1–5 and combined into a single percentage."
                       }
                       placement="top"
                     >
-                      <Info className="w-4 h-4 text-gray-400 cursor-pointer" />
+                      <Info
+                        className="w-4 h-4 text-gray-400 cursor-pointer"
+                        aria-hidden
+                      />
                     </Tooltip>
                   </div>
                 </div>

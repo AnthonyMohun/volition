@@ -65,7 +65,7 @@ export default function Tooltip({ children, content, placement = "top" }: Toolti
         aria-hidden={!open}
         className={`z-50 pointer-events-none transition-opacity duration-150 ${
           open ? "opacity-100" : "opacity-0"
-        } absolute whitespace-nowrap bg-gray-900 text-white text-xs font-semibold px-3 py-2 rounded-lg drop-shadow-lg transform-gpu` +
+          } absolute whitespace-normal max-w-xs bg-gray-900 text-white text-xs font-semibold px-3 py-2 rounded-lg drop-shadow-lg transform-gpu` +
           (placement === "top"
             ? " bottom-full left-1/2 -translate-x-1/2 mb-3"
             : placement === "bottom"
