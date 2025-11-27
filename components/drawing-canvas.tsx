@@ -15,8 +15,8 @@ import { DrawingData, CanvasPath, STICKY_COLORS } from "@/lib/types";
 interface DrawingCanvasProps {
   initialDrawing?: DrawingData;
   strokeColor?: string;
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
   onSave?: (drawing: DrawingData) => void;
   onDrawingChange?: (hasContent: boolean) => void;
   noteColor?: string;
@@ -46,6 +46,7 @@ const STROKE_WIDTHS = [
   { value: 2, label: "Thin" },
   { value: 4, label: "Medium" },
   { value: 8, label: "Thick" },
+  { value: 12, label: "Extra Thick" },
 ];
 
 export const DrawingCanvas = forwardRef<
@@ -64,7 +65,9 @@ export const DrawingCanvas = forwardRef<
   ref
 ) {
   const canvasRef = useRef<ReactSketchCanvasRef>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const colorInputRef = useRef<HTMLInputElement>(null);
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [strokeWidth, setStrokeWidth] = useState(4);
   const [strokeColor, setStrokeColor] = useState(
     propStrokeColor || getStrokeColor(noteColor)
@@ -98,6 +101,32 @@ export const DrawingCanvas = forwardRef<
       setStrokeColor(getStrokeColor(noteColor));
     }
   }, [noteColor, propStrokeColor]);
+
+  // Measure container size
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateSize = () => {
+      if (containerRef.current) {
+        const { clientWidth, clientHeight } = containerRef.current;
+        setContainerSize({ width: clientWidth, height: clientHeight });
+      }
+    };
+
+    // Initial measure
+    updateSize();
+
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Calculate effective dimensions
+  const effectiveWidth =
+    typeof width === "number" ? width : Math.max(containerSize.width, 100);
+  const effectiveHeight =
+    typeof height === "number" ? height : Math.max(containerSize.height, 100);
 
   const handleUndo = () => {
     canvasRef.current?.undo();
@@ -175,18 +204,22 @@ export const DrawingCanvas = forwardRef<
 
   return (
     <div
-      className="flex flex-col gap-4"
+      className={cn("flex flex-col gap-4", height === "100%" ? "h-full" : "")}
       onPointerDown={(e) => e.stopPropagation()}
     >
       {/* Drawing Canvas */}
       <div
-        className="rounded-xl overflow-hidden border-2 border-gray-200 bg-white shadow-inner mx-auto"
-        style={{ width, height }}
+        ref={containerRef}
+        className={cn(
+          "rounded-xl overflow-hidden border-2 border-gray-200 bg-white shadow-inner mx-auto",
+          height === "100%" ? "flex-1 w-full" : ""
+        )}
+        style={height === "100%" ? { width: "100%" } : { width, height }}
       >
         <ReactSketchCanvas
           ref={canvasRef}
-          width={`${width}px`}
-          height={`${height}px`}
+          width={`${effectiveWidth}px`}
+          height={`${effectiveHeight}px`}
           strokeWidth={strokeWidth}
           strokeColor={strokeColor}
           canvasColor="transparent"

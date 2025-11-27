@@ -18,8 +18,8 @@ export interface CanvasPath {
 export interface DrawingData {
   paths: CanvasPath[];
   dataUrl?: string; // Thumbnail for display
-  width: number;
-  height: number;
+  width: number | string;
+  height: number | string;
 }
 
 export type NoteContentType = "text" | "drawing" | "both";

@@ -13,6 +13,8 @@ import {
   Type,
   Mic,
   MicOff,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DrawingCanvas, DrawingCanvasHandle } from "./drawing-canvas";
@@ -40,6 +42,7 @@ export function StickyNote({
   const [detailsText, setDetailsText] = useState(note.details || "");
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const [showDrawingModal, setShowDrawingModal] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [isRecordingDetails, setIsRecordingDetails] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -535,28 +538,48 @@ export function StickyNote({
             onClick={() => setShowDrawingModal(false)}
           >
             <div
-              className="fun-card max-w-2xl w-full"
+              className={cn(
+                "fun-card w-full transition-all duration-300 flex flex-col",
+                isFullScreen
+                  ? "fixed inset-4 max-w-none z-[60]"
+                  : "max-w-2xl"
+              )}
               onClick={(e) => e.stopPropagation()}
               style={{
                 backgroundColor: getFunColor(note.color),
-                padding: "48px",
+                padding: isFullScreen ? "24px" : "48px",
               }}
             >
-              <h3 className="text-2xl font-black text-gray-800 mb-3 flex items-center gap-2">
-                <span className="text-3xl">✏️</span>
-                Sketch Your Concept
-              </h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-2xl font-black text-gray-800 flex items-center gap-2">
+                  <span className="text-3xl">✏️</span>
+                  Sketch Your Concept
+                </h3>
+                <button
+                  onClick={() => setIsFullScreen(!isFullScreen)}
+                  className="p-2 rounded-xl hover:bg-black/5 text-gray-600 transition-all"
+                  title={isFullScreen ? "Exit full screen" : "Full screen"}
+                >
+                  {isFullScreen ? (
+                    <Minimize2 className="w-5 h-5" />
+                  ) : (
+                    <Maximize2 className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
               <p className="text-sm text-gray-600 mb-6 font-medium">
                 Draw out your idea! Use the tools below to sketch.
               </p>
 
-              <DrawingCanvas
-                ref={drawingCanvasRef}
-                initialDrawing={note.drawing}
-                noteColor={note.color}
-                width={520}
-                height={380}
-              />
+              <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+                <DrawingCanvas
+                  ref={drawingCanvasRef}
+                  initialDrawing={note.drawing}
+                  noteColor={note.color}
+                  width={isFullScreen ? "100%" : 520}
+                  height={isFullScreen ? "100%" : 380}
+                />
+              </div>
 
               <div className="flex gap-4 mt-8">
                 <button
