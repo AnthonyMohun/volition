@@ -93,7 +93,7 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
     {
       id: "note-7",
       text: "Mindful Study Break App",
-      color: "#e9d5ff", // purple
+      color: "#dcfce7", // teal
       isConcept: true,
       details:
         "Problem: Students forget to take breaks during intense study sessions, leading to mental fatigue, stress buildup, and decreased retention over time.\n\nSolution: An app that integrates with study timers and automatically prompts students to take 2-5 minute mindfulness breaks. Offers guided meditations, breathing exercises, progressive muscle relaxation, and stress-relief visualizations tailored for exam stress.\n\nUser Value: Prevents burnout by ensuring regular mental breaks, reduces anxiety through proven relaxation techniques, and improves focus and retention when returning to study. Students feel calmer and more balanced.\n\nImplementation: Mobile app with timer integration APIs, library of 50+ guided audio sessions recorded by wellness experts, customizable break intervals, and offline mode for library use. Partner with university counseling centers for content validation.",

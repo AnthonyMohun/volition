@@ -200,8 +200,8 @@ export function StickyNote({
       "#fecaca": "#fecaca", // red
       "#bbf7d0": "#bbf7d0", // green
       "#bfdbfe": "#bfdbfe", // blue
-      "#e9d5ff": "#e9d5ff", // purple
-      "#fbcfe8": "#fbcfe8", // pink
+      "#dbeafe": "#dbeafe", // light blue
+      "#dcfce7": "#dcfce7", // light teal
     };
     return colorMap[color] || "#ffffff";
   };
@@ -213,8 +213,8 @@ export function StickyNote({
       "#fecaca": "#f87171", // red
       "#bbf7d0": "#34d399", // green
       "#bfdbfe": "#60a5fa", // blue
-      "#e9d5ff": "#a78bfa", // purple
-      "#fbcfe8": "#f472b6", // pink
+      "#dbeafe": "#3b82f6", // light blue
+      "#dcfce7": "#14b8a6", // light teal
     };
     return accentMap[color] || "#e5e7eb";
   };
@@ -226,8 +226,8 @@ export function StickyNote({
       "#fecaca": "rgba(248, 113, 113, 0.4)", // red
       "#bbf7d0": "rgba(52, 211, 153, 0.4)", // green
       "#bfdbfe": "rgba(96, 165, 250, 0.4)", // blue
-      "#e9d5ff": "rgba(167, 139, 250, 0.4)", // purple
-      "#fbcfe8": "rgba(244, 114, 182, 0.4)", // pink
+      "#dbeafe": "rgba(59, 130, 246, 0.4)", // blue
+      "#dcfce7": "rgba(20, 184, 166, 0.4)", // teal
     };
     return shadowMap[color] || "rgba(163, 177, 198, 0.3)";
   };
@@ -314,7 +314,7 @@ export function StickyNote({
                   setDetailsText(note.details || "");
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
-                className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-purple-500 hover:text-purple-700 shadow-sm"
+                className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-teal-500 hover:text-teal-700 shadow-sm"
                 title="Edit concept details"
               >
                 <FileText className="w-4 h-4" />
@@ -389,7 +389,7 @@ export function StickyNote({
               onFocus={(e) => {
                 e.currentTarget.select();
               }}
-              className="w-full p-3 border-2 border-gray-300 rounded-xl text-sm resize-none bg-white/70 text-gray-800 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 focus:bg-white transition-all placeholder:text-gray-400 font-semibold shadow-inner"
+              className="w-full p-3 border-2 border-gray-300 rounded-xl text-sm resize-none bg-white/70 text-gray-800 focus:border-teal-400 focus:ring-4 focus:ring-teal-200 focus:bg-white transition-all placeholder:text-gray-400 font-semibold shadow-inner"
               rows={3}
               autoFocus
               onBlur={handleTextSave}
@@ -427,7 +427,7 @@ export function StickyNote({
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="fixed inset-0 bg-purple-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 bg-teal-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
             onClick={() => setShowImagePreview(false)}
           >
             <div className="max-w-4xl max-h-full bg-white p-4 rounded-3xl shadow-2xl border-4 border-white">
@@ -451,7 +451,7 @@ export function StickyNote({
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="fixed inset-0 bg-purple-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 bg-teal-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
             onClick={() => setShowDetailsModal(false)}
           >
             <div
@@ -471,7 +471,7 @@ export function StickyNote({
                   value={detailsText}
                   onChange={(e) => setDetailsText(e.target.value)}
                   placeholder="e.g., Why is this concept important? How does it address the HMW? What are its key features?"
-                  className="w-full p-4 pr-14 border-3 border-purple-200 rounded-2xl text-sm resize-none bg-white text-gray-800 focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all placeholder:text-gray-400 font-semibold shadow-inner"
+                  className="w-full p-4 pr-14 border-3 border-teal-200 rounded-2xl text-sm resize-none bg-white text-gray-800 focus:border-teal-400 focus:ring-4 focus:ring-teal-200 transition-all placeholder:text-gray-400 font-semibold shadow-inner"
                   rows={5}
                   autoFocus
                 />
@@ -484,7 +484,7 @@ export function StickyNote({
                   className={`absolute right-3 top-3 p-2 rounded-xl transition-all ${
                     isRecordingDetails
                       ? "bg-red-500 text-white hover:bg-red-600"
-                      : "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                      : "bg-teal-100 text-teal-600 hover:bg-teal-200"
                   }`}
                   title={
                     isRecordingDetails ? "Stop recording" : "Start recording"
@@ -503,7 +503,7 @@ export function StickyNote({
                 </button>
               </div>
               {isRecordingDetails && (
-                <p className="text-xs text-purple-600 mt-2 font-semibold animate-pulse">
+                <p className="text-xs text-teal-600 mt-2 font-semibold animate-pulse">
                   🎤 Listening... speak your concept details
                 </p>
               )}
@@ -516,7 +516,7 @@ export function StickyNote({
                 </button>
                 <button
                   onClick={handleSaveDetails}
-                  className="flex-1 px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all text-sm font-black shadow-lg hover:shadow-purple transform hover:scale-105"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-2xl hover:from-blue-600 hover:to-teal-600 transition-all text-sm font-black shadow-lg hover:shadow-teal transform hover:scale-105"
                 >
                   Save Details ✨
                 </button>
@@ -531,7 +531,7 @@ export function StickyNote({
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="fixed inset-0 bg-purple-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 bg-teal-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
             onClick={() => setShowDrawingModal(false)}
           >
             <div
@@ -567,7 +567,7 @@ export function StickyNote({
                 </button>
                 <button
                   onClick={handleSaveDrawing}
-                  className="flex-1 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all text-sm font-black shadow-lg transform hover:scale-105"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-2xl hover:from-blue-600 hover:to-teal-600 transition-all text-sm font-black shadow-lg transform hover:scale-105"
                 >
                   Save Sketch ✨
                 </button>

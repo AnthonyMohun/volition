@@ -95,7 +95,7 @@ export const SELF_EVAL_CRITERIA: SelfEvaluationCriteria[] = [
     description: "How well does this solve the real problem?",
     lowLabel: "Doesn't quite fit",
     highLabel: "Perfect match!",
-    color: "#f472b6", // pink
+    color: "#14b8a6", // teal
   },
   {
     id: "user-love",
@@ -104,7 +104,7 @@ export const SELF_EVAL_CRITERIA: SelfEvaluationCriteria[] = [
     description: "Would users actually want this?",
     lowLabel: "Meh, maybe",
     highLabel: "They'd love it!",
-    color: "#a78bfa", // purple
+    color: "#3b82f6", // blue
   },
   {
     id: "doability",
@@ -183,8 +183,8 @@ const LIGHT_COLORS = {
   red: "#fecaca",
   green: "#bbf7d0",
   blue: "#bfdbfe",
-  purple: "#e9d5ff",
-  pink: "#fbcfe8",
+  purple: "#dbeafe",
+  pink: "#dcfce7",
 };
 
 // Dark mode sticky note colors - these are the base background colors

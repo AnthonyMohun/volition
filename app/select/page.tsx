@@ -277,18 +277,18 @@ export default function SelectPage() {
       </div>
 
       {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-purple-50/50 border-b-3 border-purple-200 px-6 py-4 flex items-center justify-between shadow-lg backdrop-blur-xl">
+      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-4 flex items-center justify-between shadow-lg backdrop-blur-xl">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push("/canvas")}
-            className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
+            className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-teal-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
             title="Back to canvas"
           >
             <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
           </button>
           <button
             onClick={() => router.push("/canvas")}
-            className="px-4 py-2 text-sm font-bold text-purple-600 hover:bg-purple-50 rounded-xl transition-all flex items-center gap-1.5 border-2 border-purple-200"
+            className="px-4 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 rounded-xl transition-all flex items-center gap-1.5 border-2 border-blue-200"
             title="Add more concepts"
           >
             <Plus className="w-4 h-4" />
@@ -325,9 +325,9 @@ export default function SelectPage() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="flex flex-col items-center gap-6 w-full max-w-md">
           {/* HMW Statement */}
-          <div className="w-full fun-card p-4 border-2 border-purple-300 bg-gradient-to-br from-white to-purple-50">
+          <div className="w-full fun-card p-4 border-2 border-blue-300 bg-gradient-to-br from-white to-blue-50">
             <div className="flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+              <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-gray-700 font-semibold leading-relaxed line-clamp-2">
                 {state.hmwStatement}
               </p>
@@ -493,7 +493,7 @@ export default function SelectPage() {
                   {selectedConcepts.length >= minConcepts ? (
                     <button
                       onClick={handleProceedToRefine}
-                      className="fun-button-primary flex items-center gap-2 font-black px-6 py-3 shadow-lg hover:shadow-purple mx-auto"
+                      className="fun-button-primary flex items-center gap-2 font-black px-6 py-3 shadow-lg hover:shadow-blue mx-auto"
                     >
                       Continue to Refine
                       <ArrowRight className="w-5 h-5" />
@@ -536,7 +536,7 @@ export default function SelectPage() {
               {/* Center info - minimal pill */}
               <div className="flex flex-col items-center gap-3">
                 <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-100">
-                  <Heart className="w-4 h-4 text-purple-500 fill-purple-500" />
+                  <Heart className="w-4 h-4 text-blue-500 fill-blue-500" />
                   <span className="font-bold text-gray-700">
                     {selectedConcepts.length}/{maxConcepts}
                   </span>

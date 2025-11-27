@@ -354,13 +354,13 @@ export function AIQuestionPanel() {
   }, [state.voiceOutputEnabled, setVoiceOutputEnabled, showToast]);
 
   return (
-    <div className="bg-gradient-to-b from-white to-purple-50/30 border-r-4 border-purple-200 w-80 flex flex-col order-first shadow-xl z-10">
-      <div className="p-4 border-b-3 border-purple-100 space-y-3 bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="bg-gradient-to-b from-white to-blue-50/30 border-r-4 border-blue-200 w-80 flex flex-col order-first shadow-xl z-10">
+      <div className="p-4 border-b-3 border-blue-100 space-y-3 bg-gradient-to-br from-blue-50 to-teal-50">
         {/* Bot Identifier - Condensed */}
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-2 rounded-2xl shadow-md">
-              <Bot className="w-5 h-5 text-purple-600" />
+            <div className="bg-gradient-to-br from-blue-100 to-teal-100 p-2 rounded-2xl shadow-md">
+              <Bot className="w-5 h-5 text-teal-600" />
             </div>
             <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white animate-pulse"></span>
           </div>
@@ -372,7 +372,7 @@ export function AIQuestionPanel() {
           {/* Stats inline */}
           <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
             <span title="Total questions">💬 {state.questions.length}</span>
-            <span title="Unanswered" className="text-purple-600">
+            <span title="Unanswered" className="text-teal-600">
               ⏳ {state.questions.filter((q) => !q.answered).length}
             </span>
           </div>
@@ -391,7 +391,7 @@ export function AIQuestionPanel() {
             onClick={handleVoiceOutputToggle}
             className={`p-2 rounded-xl transition-all ${
               state.voiceOutputEnabled
-                ? "bg-purple-100 text-purple-600"
+                ? "bg-teal-100 text-teal-600"
                 : "bg-gray-100 text-gray-400"
             }`}
             title={
@@ -410,7 +410,7 @@ export function AIQuestionPanel() {
               onClick={() => setShowVoiceHelp(!showVoiceHelp)}
               className={`p-2 rounded-xl transition-all ${
                 showVoiceHelp
-                  ? "bg-purple-100 text-purple-600"
+                  ? "bg-teal-100 text-teal-600"
                   : "bg-gray-100 text-gray-400 hover:bg-gray-200"
               }`}
               title="Voice commands help"
@@ -423,32 +423,32 @@ export function AIQuestionPanel() {
                   initial={{ opacity: 0, y: -5, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-52 p-3 bg-white border-2 border-purple-200 rounded-xl shadow-lg z-50"
+                  className="absolute right-0 top-full mt-2 w-52 p-3 bg-white border-2 border-blue-200 rounded-xl shadow-lg z-50"
                 >
                   <p className="font-bold text-gray-700 text-xs mb-2">
                     🎤 Voice Commands
                   </p>
                   <ul className="space-y-1.5 text-xs text-gray-600">
                     <li className="flex items-center gap-2">
-                      <span className="text-purple-500">•</span>
+                      <span className="text-teal-500">•</span>
                       <span>
                         <strong>"Save this"</strong> - Create note
                       </span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-purple-500">•</span>
+                      <span className="text-teal-500">•</span>
                       <span>
                         <strong>"Next question"</strong> - Ask AI
                       </span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-purple-500">•</span>
+                      <span className="text-teal-500">•</span>
                       <span>
                         <strong>"Mark as concept"</strong> - Promote
                       </span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-purple-500">•</span>
+                      <span className="text-teal-500">•</span>
                       <span>
                         <strong>"Stop listening"</strong> - Turn off
                       </span>
@@ -467,7 +467,7 @@ export function AIQuestionPanel() {
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
-              className="p-2 bg-white border-2 border-purple-200 rounded-xl shadow-sm"
+              className="p-2 bg-white border-2 border-blue-200 rounded-xl shadow-sm"
             >
               <p className="text-xs text-gray-700">
                 <span className="text-gray-400">💬</span> {voiceTranscript}
@@ -477,9 +477,9 @@ export function AIQuestionPanel() {
         </AnimatePresence>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-purple-50/30">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-blue-50/30">
         {isLoading && (
-          <div className="flex items-center justify-center gap-3 text-purple-600 py-6 bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-md border-3 border-purple-200 animate-pulse">
+          <div className="flex items-center justify-center gap-3 text-teal-600 py-6 bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-md border-3 border-blue-200 animate-pulse">
             <Loader2 className="w-6 h-6 animate-spin" />
             <span className="text-sm font-black">Thinking... 🤔</span>
           </div>
@@ -487,8 +487,8 @@ export function AIQuestionPanel() {
 
         {state.questions.length === 0 && !isLoading && (
           <div className="text-center text-gray-600 text-sm py-12">
-            <div className="bg-gradient-to-br from-purple-100 to-pink-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
-              <Sparkles className="w-10 h-10 text-purple-500" />
+            <div className="bg-gradient-to-br from-blue-100 to-teal-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+              <Sparkles className="w-10 h-10 text-teal-500" />
             </div>
             <p className="font-black text-lg mb-2">Ready to explore! ✨</p>
             <p className="font-semibold text-gray-500">
@@ -518,7 +518,7 @@ export function AIQuestionPanel() {
                 transition={{ duration: 0.14 }}
                 className={`p-5 rounded-2xl flex items-start gap-3 shadow-md hover:shadow-lg transition-all ${
                   question.fromAI
-                    ? "bg-gradient-to-br from-white to-purple-50 border-3 border-purple-200"
+                    ? "bg-gradient-to-br from-white to-blue-50 border-3 border-blue-200"
                     : "bg-gradient-to-br from-white to-gray-50 border-3 border-gray-200"
                 } ${
                   question.pinned
@@ -618,7 +618,7 @@ export function AIQuestionPanel() {
                         createdAt: Date.now(),
                       });
                     }}
-                    className="p-2 rounded-xl hover:bg-purple-100 hover:scale-110 transition-all text-gray-400 hover:text-purple-600 shadow-sm"
+                    className="p-2 rounded-xl hover:bg-teal-100 hover:scale-110 transition-all text-gray-400 hover:text-teal-600 shadow-sm"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -705,11 +705,11 @@ export function AIQuestionPanel() {
         )}
       </div>
 
-      <div className="p-5 border-t-3 border-purple-100 bg-gradient-to-br from-purple-50 to-pink-50">
+      <div className="p-5 border-t-3 border-blue-100 bg-gradient-to-br from-blue-50 to-teal-50">
         <button
           onClick={askNextQuestion}
           disabled={isLoading || state.notes.length === 0}
-          className="w-full fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-purple"
+          className="w-full fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-teal"
         >
           <Sparkles className="w-5 h-5" />
           <span className="font-black">

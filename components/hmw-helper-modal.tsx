@@ -286,7 +286,7 @@ export function HMWHelperModal({
                 <button
                   onClick={handleSubmit}
                   disabled={!isComplete}
-                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:from-indigo-500 hover:to-purple-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-indigo-500/30"
+                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-teal-600 text-white font-bold hover:from-indigo-500 hover:to-teal-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-indigo-500/30"
                 >
                   {isComplete ? "Use This Statement" : "Fill in all fields"}
                 </button>

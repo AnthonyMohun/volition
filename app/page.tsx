@@ -111,8 +111,8 @@ export default function Home() {
         {/* Main Card */}
         <div className="fun-card p-8 mb-8 relative overflow-hidden">
           {/* Decorative gradient overlay */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-200/30 to-transparent rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-pink-200/30 to-transparent rounded-full blur-2xl"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/30 to-transparent rounded-full blur-2xl"></div>
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-teal-200/30 to-transparent rounded-full blur-2xl"></div>
 
           <form onSubmit={handleSubmit} className="relative z-10">
             <div className="mb-6">
@@ -127,7 +127,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={handleTryExample}
-                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-black text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full transition-all shadow-sm hover:shadow-purple transform hover:scale-105"
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-black text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full transition-all shadow-sm hover:shadow-blue transform hover:scale-105"
                   title="Load a complete example session"
                 >
                   <PlayCircle className="w-4 h-4" />
@@ -140,14 +140,14 @@ export default function Home() {
                   value={hmwInput}
                   onChange={(e) => setHmwInput(e.target.value)}
                   placeholder="✏️ Frame your challenge as a 'How Might We' statement to begin..."
-                  className="w-full px-6 py-5 pr-16 bg-gradient-to-br from-white to-gray-50/50 border-3 border-purple-200 rounded-2xl focus:ring-4 focus:ring-purple-200 focus:border-purple-400 resize-none text-gray-800 placeholder:text-gray-400 transition-all text-lg font-semibold shadow-sm hover:shadow-md"
+                  className="w-full px-6 py-5 pr-16 bg-gradient-to-br from-white to-gray-50/50 border-3 border-blue-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-400 resize-none text-gray-800 placeholder:text-gray-400 transition-all text-lg font-semibold shadow-sm hover:shadow-md"
                   rows={3}
                   required
                 />
                 <button
                   type="button"
                   onClick={handleRandomExample}
-                  className="absolute bottom-4 right-4 text-2xl hover:scale-125 transition-transform p-2 hover:bg-purple-50 rounded-xl"
+                  className="absolute bottom-4 right-4 text-2xl hover:scale-125 transition-transform p-2 hover:bg-blue-50 rounded-xl"
                   title="Insert a random example 'How Might We' statement"
                   aria-label="Insert a random example How Might We statement"
                 >
@@ -184,7 +184,7 @@ export default function Home() {
         <div className="text-center mt-8">
           <button
             onClick={() => setShowHowItWorks(true)}
-            className="inline-flex items-center gap-2 text-sm font-black text-gray-600 hover:text-purple-600 transition-all bg-white/60 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm hover:shadow-md transform hover:scale-105"
+            className="inline-flex items-center gap-2 text-sm font-black text-gray-600 hover:text-blue-600 transition-all bg-white/60 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm hover:shadow-md transform hover:scale-105"
           >
             <Info className="w-4 h-4" />
             How it works ✨
@@ -194,7 +194,7 @@ export default function Home() {
 
       {/* How It Works Modal */}
       {showHowItWorks && (
-        <div className="fixed inset-0 bg-purple-900/30 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-blue-900/30 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-300">
           <div className="fun-card p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto animate-in zoom-in duration-300">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-black fun-gradient-text flex items-center gap-3">
@@ -223,8 +223,8 @@ export default function Home() {
                 </p>
               </div>
               <div className="text-center group">
-                <div className="bg-gradient-to-br from-pink-100 to-pink-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-pink">
-                  <Sparkles className="w-12 h-12 text-pink-600 mx-auto drop-shadow-sm" />
+                <div className="bg-gradient-to-br from-teal-100 to-teal-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-teal">
+                  <Sparkles className="w-12 h-12 text-teal-600 mx-auto drop-shadow-sm" />
                 </div>
                 <h3 className="font-black text-gray-800 mb-2 text-lg">
                   ✨ Refine
@@ -235,8 +235,8 @@ export default function Home() {
                 </p>
               </div>
               <div className="text-center group">
-                <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-purple">
-                  <HelpCircle className="w-12 h-12 text-purple-600 mx-auto drop-shadow-sm" />
+                <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-blue">
+                  <HelpCircle className="w-12 h-12 text-blue-600 mx-auto drop-shadow-sm" />
                 </div>
                 <h3 className="font-black text-gray-800 mb-2 text-lg">
                   🎯 Feedback

@@ -689,7 +689,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.push("/refine")}
-                className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
+                className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-teal-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
               >
                 <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
               </button>
@@ -713,7 +713,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                   disabled={aiEvaluations[idx]?.isLoading}
                   className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${
                     idx === currentAIEvalIndex
-                      ? "bg-gradient-to-br from-blue-500 to-purple-500 text-white scale-110 shadow-lg"
+                      ? "bg-gradient-to-br from-blue-500 to-teal-500 text-white scale-110 shadow-lg"
                       : aiEvaluations[idx]?.isLoading
                       ? "bg-gray-200 text-gray-400 animate-pulse"
                       : "bg-white text-gray-600 hover:bg-blue-50"
@@ -762,7 +762,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             {/* AI Evaluation Results */}
             {currentEval?.isLoading ? (
               <div className="fun-card p-8 border-3 border-blue-200 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-teal-100 mb-4">
                   <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                 </div>
                 <h3 className="text-lg font-black text-gray-800 mb-2">
@@ -775,7 +775,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             ) : currentEval ? (
               <div className="space-y-4">
                 {/* Overall Score */}
-                <div className="fun-card p-6 border-3 border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50">
+                <div className="fun-card p-6 border-3 border-blue-200 bg-gradient-to-br from-blue-50 to-teal-50">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-black text-gray-800 mb-1">
@@ -790,7 +790,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                         currentEval.overallScore >= 80
                           ? "bg-gradient-to-br from-green-400 to-emerald-500"
                           : currentEval.overallScore >= 60
-                          ? "bg-gradient-to-br from-blue-400 to-purple-500"
+                          ? "bg-gradient-to-br from-blue-400 to-teal-500"
                           : "bg-gradient-to-br from-orange-400 to-pink-500"
                       }`}
                     >
@@ -869,7 +869,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                     className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-teal-500 flex items-center justify-center">
                         <Star className="w-4 h-4 text-white" />
                       </div>
                       <h4 className="font-black text-gray-800">
@@ -910,7 +910,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                           emoji: "✨",
                           label: "Originality",
                           data: currentEval.criteria.originality,
-                          color: "from-purple-500 to-indigo-500",
+                          color: "from-blue-500 to-teal-500",
                         },
                         {
                           key: "feasibility",
@@ -1049,7 +1049,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 className={`fun-card p-6 border-3 transition-all ${
                   idx === 0
                     ? "border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50"
-                    : "border-purple-200"
+                    : "border-teal-200"
                 }`}
               >
                 <div className="flex items-start gap-5">
@@ -1118,7 +1118,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                         item.score >= 80
                           ? "bg-gradient-to-br from-green-400 to-emerald-500"
                           : item.score >= 60
-                          ? "bg-gradient-to-br from-blue-400 to-purple-500"
+                          ? "bg-gradient-to-br from-blue-400 to-teal-500"
                           : "bg-gradient-to-br from-orange-400 to-pink-500"
                       }`}
                     >
@@ -1142,9 +1142,9 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           </div>
 
           {/* AI Insight Card */}
-          <div className="fun-card p-6 border-3 border-blue-300 bg-gradient-to-br from-blue-50 to-purple-50 mb-8">
+          <div className="fun-card p-6 border-3 border-blue-300 bg-gradient-to-br from-blue-50 to-teal-50 mb-8">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center shadow-lg">
+              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-teal-400 flex items-center justify-center shadow-lg">
                 {isLoadingInsight ? (
                   <Loader2 className="w-6 h-6 text-white animate-spin" />
                 ) : (
@@ -1166,7 +1166,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 ) : (
                   <p className="text-gray-600 font-semibold leading-relaxed">
                     Your top-rated concept is{" "}
-                    <span className="text-purple-600 font-black">
+                    <span className="text-teal-600 font-black">
                       &quot;{rankedConcepts[0]?.note.text}&quot;
                     </span>
                     . Trust your instincts—you know your design challenge best!
@@ -1268,12 +1268,12 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
       </div>
 
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-purple-50/50 border-b-3 border-purple-200 px-6 py-4 backdrop-blur-xl shadow-lg">
+      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-teal-50/50 border-b-3 border-teal-200 px-6 py-4 backdrop-blur-xl shadow-lg">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push("/refine")}
-              className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
+              className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-teal-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
               title="Back to refine"
             >
               <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
@@ -1300,7 +1300,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           <div className="flex-1 max-w-xs mx-8">
             <div className="h-3 rounded-full bg-gray-200 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-teal-500 transition-all duration-500"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -1313,7 +1313,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 key={idx}
                 className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${
                   idx === currentConceptIndex
-                    ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white scale-110 shadow-lg"
+                    ? "bg-gradient-to-br from-blue-500 to-teal-500 text-white scale-110 shadow-lg"
                     : idx < currentConceptIndex
                     ? "bg-green-400 text-white"
                     : "bg-gray-200 text-gray-400"
@@ -1331,7 +1331,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
         <div className="w-full max-w-2xl">
           {/* Current Concept Card */}
           <div
-            className={`fun-card p-6 border-3 border-purple-200 mb-8 transition-all duration-300 ${
+            className={`fun-card p-6 border-3 border-teal-200 mb-8 transition-all duration-300 ${
               isTransitioning
                 ? "opacity-0 translate-x-8"
                 : "opacity-100 translate-x-0"
@@ -1346,7 +1346,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 />
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-black text-purple-600 uppercase tracking-wide mb-1">
+                <p className="text-xs font-black text-teal-600 uppercase tracking-wide mb-1">
                   Concept {currentConceptIndex + 1}
                 </p>
                 <h2 className="text-xl font-black text-gray-800 mb-2 leading-tight">

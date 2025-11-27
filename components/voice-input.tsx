@@ -266,8 +266,8 @@ export function VoiceInput({
         onClick={onToggle}
         className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all shadow-md ${
           isEnabled
-            ? "bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600"
-            : "bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600"
+            ? "bg-gradient-to-r from-red-500 to-teal-500 text-white hover:from-red-600 hover:to-teal-600"
+            : "bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600"
         }`}
       >
         {isEnabled ? (
@@ -301,7 +301,7 @@ export function VoiceInput({
               className={`flex items-center gap-2 px-3 py-2 border-2 rounded-xl ${
                 isMuted
                   ? "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200"
-                  : "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200"
+                  : "bg-gradient-to-r from-blue-50 to-teal-50 border-blue-200"
               }`}
             >
               {/* Pulsing indicator */}
@@ -310,7 +310,7 @@ export function VoiceInput({
                   <motion.div
                     key={i}
                     className={`w-1.5 h-4 rounded-full ${
-                      isMuted ? "bg-amber-400" : "bg-purple-500"
+                      isMuted ? "bg-amber-400" : "bg-teal-500"
                     }`}
                     animate={{
                       scaleY: isMuted ? 1 : [1, 1.5, 1],
@@ -325,7 +325,7 @@ export function VoiceInput({
               </div>
               <span
                 className={`text-xs font-bold ${
-                  isMuted ? "text-amber-700" : "text-purple-700"
+                  isMuted ? "text-amber-700" : "text-teal-700"
                 }`}
               >
                 {isMuted ? "Paused (AI speaking)..." : "Listening..."}

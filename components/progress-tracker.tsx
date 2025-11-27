@@ -122,7 +122,7 @@ export function ProgressTracker({
 
   if (variant === "compact") {
     return (
-      <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200 shadow-sm">
+      <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-blue-200 shadow-sm">
         {PROGRESS_STEPS.map((step, index) => {
           const isComplete = index < currentPhaseIndex;
           const isCurrent = step.phase === state.currentPhase;
@@ -133,7 +133,7 @@ export function ProgressTracker({
               <div
                 className={`flex items-center gap-1.5 px-2 py-1 rounded-xl transition-all ${
                   isCurrent
-                    ? "bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-purple-300"
+                    ? "bg-gradient-to-br from-blue-100 to-teal-100 border-2 border-blue-300"
                     : isComplete
                     ? "opacity-60"
                     : "opacity-40"
@@ -144,7 +144,7 @@ export function ProgressTracker({
                   <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                 )}
                 {isCurrent && qualityResult?.met && (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-500" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-500" />
                 )}
               </div>
               {index < PROGRESS_STEPS.length - 1 && (
@@ -164,7 +164,7 @@ export function ProgressTracker({
   }
 
   return (
-    <div className="fun-card p-5 border-3 border-purple-200 bg-gradient-to-br from-white to-purple-50/50">
+    <div className="fun-card p-5 border-3 border-blue-200 bg-gradient-to-br from-white to-blue-50/50">
       {/* Progress Steps */}
       <div className="flex items-center justify-between mb-4">
         {PROGRESS_STEPS.map((step, index) => {
@@ -178,7 +178,7 @@ export function ProgressTracker({
                 <div
                   className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${
                     isCurrent
-                      ? "bg-gradient-to-br from-purple-400 to-pink-400 text-white shadow-lg scale-110 ring-4 ring-purple-200"
+                      ? "bg-gradient-to-br from-blue-400 to-teal-400 text-white shadow-lg scale-110 ring-4 ring-blue-200"
                       : isComplete
                       ? "bg-gradient-to-br from-green-100 to-green-200 text-green-600 shadow-md"
                       : "bg-gray-100 text-gray-400"
@@ -193,7 +193,7 @@ export function ProgressTracker({
                 <span
                   className={`text-xs font-bold mt-2 text-center ${
                     isCurrent
-                      ? "text-purple-700"
+                      ? "text-teal-700"
                       : isComplete
                       ? "text-green-600"
                       : "text-gray-400"
@@ -229,8 +229,8 @@ export function ProgressTracker({
 
       {/* Encouragement Message */}
       {showEncouragement && (
-        <div className="mt-4 pt-4 border-t-2 border-purple-100">
-          <p className="text-sm text-purple-700 font-semibold text-center animate-pulse">
+        <div className="mt-4 pt-4 border-t-2 border-blue-100">
+          <p className="text-sm text-teal-700 font-semibold text-center animate-pulse">
             {getRandomMessage(state.currentPhase)}
           </p>
         </div>
@@ -269,7 +269,7 @@ export function QualitySummary() {
       value: questionsAnswered,
       target: 5,
       emoji: "💬",
-      color: "purple",
+      color: "teal",
     },
   ];
 

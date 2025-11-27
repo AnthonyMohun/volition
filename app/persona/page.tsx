@@ -15,10 +15,10 @@ export default function PersonaPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 mb-6 silver-glow">
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-blue-600 to-teal-600 mb-6 silver-glow">
             <User className="w-12 h-12 text-white" />
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent mb-3">
             User Persona
           </h1>
           <p className="text-gray-400 text-lg">
@@ -31,8 +31,8 @@ export default function PersonaPage() {
           {/* Age & Role */}
           <div className="glass rounded-2xl p-6 border border-gray-700/50 silver-border">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <User className="w-6 h-6 text-purple-400" />
+              <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <User className="w-6 h-6 text-blue-400" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-100">
@@ -143,7 +143,7 @@ export default function PersonaPage() {
           <blockquote className="text-2xl font-light text-gray-300 italic leading-relaxed">
             "I want a tool that helps me think deeper,
             <br />
-            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">
+            <span className="bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent font-semibold">
               not one that thinks for me
             </span>
             ."

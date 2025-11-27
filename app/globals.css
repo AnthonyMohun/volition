@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fff5f7;
+  --background: #f0f9ff;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
   --foreground: #1a1a2e;
   --foreground-secondary: #6b7280;
   --border: #e2e8f0;
-  --accent-purple: #a78bfa;
-  --accent-pink: #f472b6;
+  --accent-purple: #3b82f6;
+  --accent-pink: #14b8a6;
   --accent-blue: #60a5fa;
   --accent-yellow: #fbbf24;
   --accent-green: #34d399;
@@ -25,11 +25,11 @@
 body {
   background: linear-gradient(
     135deg,
-    #fff5f7 0%,
+    #f0f9ff 0%,
     #fef3c7 25%,
-    #ddd6fe 50%,
-    #fecaca 75%,
-    #fff5f7 100%
+    #dbeafe 50%,
+    #dcfce7 75%,
+    #f0f9ff 100%
   );
   background-size: 400% 400%;
   animation: gradientShift 20s ease infinite;
@@ -71,15 +71,15 @@ body {
 }
 
 .fun-button-primary {
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
   background-size: 200% 200%;
   animation: gradientFlow 3s ease infinite;
   color: white;
   border-radius: 20px;
   padding: 14px 28px;
   font-weight: 700;
-  box-shadow: 0 8px 16px rgba(167, 139, 250, 0.4),
-    0 4px 8px rgba(244, 114, 182, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4),
+    0 4px 8px rgba(20, 184, 166, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(255, 255, 255, 0.2);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: none;
@@ -98,8 +98,8 @@ body {
 
 .fun-button-primary:hover {
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 12px 24px rgba(167, 139, 250, 0.5),
-    0 6px 12px rgba(244, 114, 182, 0.4), inset 0 -2px 6px rgba(0, 0, 0, 0.15),
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.5),
+    0 6px 12px rgba(20, 184, 166, 0.4), inset 0 -2px 6px rgba(0, 0, 0, 0.15),
     inset 0 2px 6px rgba(255, 255, 255, 0.3);
 }
 
@@ -163,8 +163,8 @@ body {
   padding: 4px;
   background: linear-gradient(
     135deg,
-    #a78bfa 0%,
-    #f472b6 25%,
+    #3b82f6 0%,
+    #14b8a6 25%,
     #fb923c 50%,
     #fbbf24 75%,
     #34d399 100%
@@ -179,13 +179,13 @@ body {
 
 /* Fun vibrant gradients */
 .fun-gradient-bg {
-  background: linear-gradient(135deg, #fef3c7 0%, #ddd6fe 50%, #fecaca 100%);
+  background: linear-gradient(135deg, #fef3c7 0%, #dbeafe 50%, #dcfce7 100%);
   background-size: 200% 200%;
   animation: gradientFlow 8s ease infinite;
 }
 
 .fun-gradient-text {
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
   background-size: 200% 200%;
   animation: gradientFlow 3s ease infinite;
   -webkit-background-clip: text;
@@ -200,19 +200,19 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: linear-gradient(to right, #fef3c7, #ddd6fe);
+  background: linear-gradient(to right, #fef3c7, #dbeafe);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #a78bfa, #f472b6);
+  background: linear-gradient(135deg, #3b82f6, #14b8a6);
   border-radius: 10px;
   border: 3px solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  background: linear-gradient(135deg, #1d4ed8, #0f766e);
   background-clip: padding-box;
 }
 
@@ -270,11 +270,11 @@ body {
 
 /* Colorful shadows for different elements */
 .shadow-purple {
-  box-shadow: 0 10px 25px rgba(167, 139, 250, 0.4);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
 }
 
 .shadow-pink {
-  box-shadow: 0 10px 25px rgba(244, 114, 182, 0.4);
+  box-shadow: 0 10px 25px rgba(20, 184, 166, 0.4);
 }
 
 .shadow-orange {
@@ -351,10 +351,10 @@ body {
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
   }
   50% {
-    box-shadow: 0 0 40px rgba(167, 139, 250, 0.6);
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
   }
 }
 

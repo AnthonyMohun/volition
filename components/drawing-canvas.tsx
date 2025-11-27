@@ -35,8 +35,8 @@ const getStrokeColor = (noteColor: string): string => {
     "#fecaca": "#991b1b", // red -> red-800
     "#bbf7d0": "#166534", // green -> green-800
     "#bfdbfe": "#1e40af", // blue -> blue-800
-    "#e9d5ff": "#6b21a8", // purple -> purple-800
-    "#fbcfe8": "#9d174d", // pink -> pink-800
+    "#dbeafe": "#1e40af", // light blue -> blue-800
+    "#dcfce7": "#0f766e", // light teal -> teal-800
   };
   return strokeMap[noteColor] || "#374151"; // default gray-700
 };
@@ -296,7 +296,7 @@ export const DrawingCanvas = forwardRef<
             className={cn(
               "p-1.5 rounded-lg transition-all",
               isEraser
-                ? "bg-pink-100 text-pink-600"
+                ? "bg-teal-100 text-teal-600"
                 : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
             )}
             title="Eraser"

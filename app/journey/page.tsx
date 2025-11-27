@@ -80,8 +80,8 @@ const JOURNEY_STAGES: JourneyStage[] = [
       "lib/commands.ts",
       "lib/session-context.tsx",
     ],
-    color: "from-purple-600 to-pink-600",
-    accentColor: "text-purple-400",
+    color: "from-blue-600 to-teal-600",
+    accentColor: "text-blue-400",
   },
   {
     id: "ai-panel",
@@ -179,7 +179,7 @@ const JOURNEY_STAGES: JourneyStage[] = [
       "resetSession() returns INITIAL_SESSION_STATE and clears persistence",
     ],
     files: ["app/final/page.tsx", "lib/session-context.tsx"],
-    color: "from-indigo-600 to-purple-600",
+    color: "from-indigo-600 to-teal-600",
     accentColor: "text-indigo-400",
   },
 ];
@@ -359,7 +359,7 @@ export default function JourneyPage() {
     >
       {/* Header */}
       <div className="text-center py-12 px-4">
-        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent mb-4">
+        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 via-teal-400 to-blue-400 bg-clip-text text-transparent mb-4">
           User Journey Map
         </h1>
         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
@@ -372,7 +372,7 @@ export default function JourneyPage() {
         <div className="relative">
           {/* Timeline Line */}
           <div
-            className="absolute top-14 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 via-purple-500 via-blue-500 via-amber-500 via-rose-500 to-indigo-500 opacity-30 z-0"
+            className="absolute top-14 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 via-blue-500 via-amber-500 via-rose-500 to-indigo-500 opacity-30 z-0"
             style={{ width: "calc(100% - 2rem)", marginLeft: "1rem" }}
           />
 

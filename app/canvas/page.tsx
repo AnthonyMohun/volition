@@ -461,9 +461,9 @@ export default function CanvasPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-teal-50 to-yellow-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-white to-purple-50/50 border-b-3 border-purple-200 px-6 py-5 flex items-center justify-between shadow-lg z-20">
+      <div className="bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-5 flex items-center justify-between shadow-lg z-20">
         <div className="flex items-center gap-4">
           <button
             onClick={handleStartNewProject}
@@ -493,7 +493,7 @@ export default function CanvasPage() {
           <button
             onClick={handleProceedToSelect}
             disabled={conceptNotes.length < 2}
-            className="fun-button-primary flex items-center gap-2 text-sm font-black disabled:opacity-50 disabled:cursor-not-allowed py-3 px-6 shadow-lg hover:shadow-purple"
+            className="fun-button-primary flex items-center gap-2 text-sm font-black disabled:opacity-50 disabled:cursor-not-allowed py-3 px-6 shadow-lg hover:shadow-blue"
           >
             Select Concepts
             <ArrowRight className="w-5 h-5" />
@@ -508,7 +508,7 @@ export default function CanvasPage() {
         {/* Main Canvas */}
         <div
           ref={containerRef}
-          className="flex-1 relative overflow-hidden bg-gradient-to-br from-purple-50/30 via-transparent to-pink-50/30"
+          className="flex-1 relative overflow-hidden bg-gradient-to-br from-blue-50/30 via-transparent to-teal-50/30"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -616,7 +616,7 @@ export default function CanvasPage() {
                   </p>
                   <button
                     onClick={handleAddNote}
-                    className="bg-gradient-to-br from-purple-500 to-pink-500 text-white px-6 py-3 rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple transform hover:scale-105 active:scale-95 font-bold flex items-center gap-2 mx-auto"
+                    className="bg-gradient-to-br from-blue-500 to-teal-500 text-white px-6 py-3 rounded-2xl hover:from-blue-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-teal transform hover:scale-105 active:scale-95 font-bold flex items-center gap-2 mx-auto"
                   >
                     <Plus className="w-5 h-5" />
                     Create your first sticky note
@@ -631,7 +631,7 @@ export default function CanvasPage() {
             <div className="fun-card px-6 py-4 flex items-center gap-5 shadow-2xl">
               <button
                 onClick={handleAddNote}
-                className="bg-gradient-to-br from-purple-500 to-pink-500 text-white p-4 rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-purple transform hover:scale-110 active:scale-95"
+                className="bg-gradient-to-br from-blue-500 to-teal-500 text-white p-4 rounded-2xl hover:from-blue-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-teal transform hover:scale-110 active:scale-95"
                 title="Add sticky note"
               >
                 <Plus className="w-7 h-7" />
@@ -644,8 +644,8 @@ export default function CanvasPage() {
                     "#fecaca": "#f87171", // red
                     "#bbf7d0": "#34d399", // green
                     "#bfdbfe": "#60a5fa", // blue
-                    "#e9d5ff": "#a78bfa", // purple
-                    "#fbcfe8": "#f472b6", // pink
+                    "#dbeafe": "#3b82f6", // light blue
+                    "#dcfce7": "#14b8a6", // light teal
                   };
                   const displayColor = colorMap[color.toLowerCase()] || color;
 
@@ -666,14 +666,14 @@ export default function CanvasPage() {
                   );
                 })}
               </div>
-              <div className="border-l-3 border-purple-200 h-10 mx-2" />
+              <div className="border-l-3 border-blue-200 h-10 mx-2" />
               <div className="flex items-center gap-3 ml-2">
                 <button
                   onClick={undo}
                   disabled={!canUndo}
                   className={`p-2.5 rounded-xl transition-all shadow-sm ${
                     canUndo
-                      ? "text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-110"
+                      ? "text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:scale-110"
                       : "text-gray-300"
                   }`}
                   title="Undo (Ctrl/Cmd + Z)"
@@ -685,7 +685,7 @@ export default function CanvasPage() {
                   disabled={!canRedo}
                   className={`p-2.5 rounded-xl transition-all shadow-sm ${
                     canRedo
-                      ? "text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-110"
+                      ? "text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:scale-110"
                       : "text-gray-300"
                   }`}
                   title="Redo (Ctrl/Cmd + Y / Shift + Cmd + Z)"
@@ -693,13 +693,13 @@ export default function CanvasPage() {
                   <RotateCw className="w-5 h-5" />
                 </button>
               </div>
-              <div className="border-l-3 border-purple-200 h-10 mx-2" />
+              <div className="border-l-3 border-blue-200 h-10 mx-2" />
               <button
                 onClick={() => setShowControls((prev) => !prev)}
                 className={`p-2.5 rounded-xl transition-all shadow-sm hover:scale-110 ${
                   showControls
-                    ? "bg-gradient-to-br from-purple-100 to-pink-100 text-purple-600"
-                    : "text-gray-400 hover:bg-purple-50"
+                    ? "bg-gradient-to-br from-blue-100 to-teal-100 text-teal-600"
+                    : "text-gray-400 hover:bg-teal-50"
                 }`}
                 title={`Toggle toolbar ${showControls ? "shown" : "hidden"}`}
               >
