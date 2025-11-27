@@ -26,6 +26,7 @@ import {
   Check,
   TrendingUp,
   Zap,
+  Info,
   FileText,
 } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
@@ -732,29 +733,63 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
 
         {/* Main Content */}
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="w-full max-w-2xl">
-            {/* Concept Card */}
+          <div className="w-full max-w-4xl">
+            {/* Concept Card (expanded, with AI Score on the right) */}
             <div className="fun-card p-6 border-3 border-blue-200 mb-6">
-              <div className="flex items-start gap-4">
-                {currentNote?.image && (
-                  <img
-                    src={currentNote.image.dataUrl}
-                    alt="Concept"
-                    className="w-20 h-20 rounded-2xl object-cover border-3 border-white shadow-lg flex-shrink-0"
-                  />
-                )}
-                <div className="flex-1">
-                  <p className="text-xs font-black text-blue-600 uppercase tracking-wide mb-1">
-                    Concept {currentAIEvalIndex + 1} of {selectedNotes.length}
-                  </p>
-                  <h2 className="text-xl font-black text-gray-800">
-                    {currentNote?.text}
-                  </h2>
-                  {currentNote?.details && (
-                    <p className="text-sm text-gray-600 font-semibold mt-1 line-clamp-2">
-                      {currentNote.details}
-                    </p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4 flex-1">
+                  {currentNote?.image && (
+                    <img
+                      src={currentNote.image.dataUrl}
+                      alt="Concept"
+                      className="w-20 h-20 rounded-2xl object-cover border-3 border-white shadow-lg flex-shrink-0"
+                    />
                   )}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-black text-blue-600 uppercase tracking-wide mb-1">
+                          Concept {currentAIEvalIndex + 1} of{" "}
+                          {selectedNotes.length}
+                        </p>
+                        <h2 className="text-xl font-black text-gray-800">
+                          {currentNote?.text}
+                        </h2>
+                        {currentNote?.details && (
+                          <p className="text-sm text-gray-600 font-semibold mt-1 line-clamp-2">
+                            {currentNote.details}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Inline AI Score square */}
+                <div className="flex-shrink-0 ml-4 text-center w-28">
+                  <div
+                    className={`w-24 h-24 rounded-lg flex items-center justify-center text-3xl font-black text-white shadow-lg mx-auto ${
+                      currentEval?.overallScore >= 80
+                        ? "bg-gradient-to-br from-green-400 to-emerald-500"
+                        : currentEval?.overallScore >= 60
+                        ? "bg-gradient-to-br from-blue-400 to-teal-500"
+                        : "bg-gradient-to-br from-orange-400 to-pink-500"
+                    }`}
+                  >
+                    {currentEval?.isLoading ? (
+                      <Loader2 className="w-8 h-8 text-white animate-spin" />
+                    ) : (
+                      currentEval?.overallScore
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-700 font-bold mt-2 flex items-center gap-2 justify-center">
+                    <span>AI Score</span>
+                    <Info
+                      className="w-3 h-3 text-gray-400 cursor-help"
+                      title={`Rubric: Problem Fit, Originality, Feasibility. Each criterion is scored 1-5 and the AI converts the average into an overall percentage.`}
+                      aria-label="Rubric explanation"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -774,30 +809,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
               </div>
             ) : currentEval ? (
               <div className="space-y-4">
-                {/* Overall Score */}
-                <div className="fun-card p-6 border-3 border-blue-200 bg-gradient-to-br from-blue-50 to-teal-50">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-black text-gray-800 mb-1">
-                        AI Score
-                      </h3>
-                      <p className="text-sm text-gray-600 font-semibold">
-                        Based on rubric criteria
-                      </p>
-                    </div>
-                    <div
-                      className={`w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-black text-white shadow-lg ${
-                        currentEval.overallScore >= 80
-                          ? "bg-gradient-to-br from-green-400 to-emerald-500"
-                          : currentEval.overallScore >= 60
-                          ? "bg-gradient-to-br from-blue-400 to-teal-500"
-                          : "bg-gradient-to-br from-orange-400 to-pink-500"
-                      }`}
-                    >
-                      {currentEval.overallScore}
-                    </div>
-                  </div>
-                </div>
+                {/* NOTE: Overall Score moved inline with Concept Card (above) */}
 
                 {/* Strengths & Improvements - Visual Showcase */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
