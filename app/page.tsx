@@ -88,18 +88,9 @@ export default function Home() {
       <div className="max-w-3xl w-full relative z-10">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <span className="text-6xl bounce-hover">🌈</span>
-            <h1 className="text-7xl font-black fun-gradient-text tracking-tight">
-              Volition
-            </h1>
-            <span
-              className="text-6xl bounce-hover"
-              style={{ animationDelay: "0.2s" }}
-            >
-              ✨
-            </span>
-          </div>
+          <h1 className="text-7xl font-black fun-gradient-text tracking-tight mb-4">
+            Volition
+          </h1>
           <p className="text-gray-700 text-2xl font-bold mb-2">
             Discover concepts through guided exploration
           </p>
