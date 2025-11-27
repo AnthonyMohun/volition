@@ -33,16 +33,26 @@ export default function Tooltip({ children, content, placement = "top" }: Toolti
     <div
       ref={wrapperRef}
       className="relative inline-block"
+      tabIndex={0}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       onFocus={() => setOpen(true)}
       onBlur={() => setOpen(false)}
       onClick={(e) => {
-        // Prevent toggling if user is using mouse hover — e.g. avoid double triggers.
-        // But on mobile, click should toggle visible state.
+        // Toggle on click/tap (useful for touch devices)
         setOpen((s) => !s);
-        // Allow click events to bubble if children have handlers
       }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          setOpen(false);
+        }
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setOpen((s) => !s);
+        }
+      }}
+      role="button"
+      aria-pressed={open}
     >
       {children}
 
