@@ -21,7 +21,7 @@ const COMMAND_PATTERNS: Record<VoiceCommand["type"], RegExp[]> = {
     /(next question|new question|ask me|another question|give me a question|ask another)/i,
   ],
   "delve-deeper": [
-    /(delve deeper|delve deep|deepen this|explore this|develop this|go deeper|dig deeper|elaborate on this)/i,
+    /(delve deeper|delve deep|del deeper|deepen this|explore this|develop this|go deeper|dig deeper|elaborate on this|dive deeper|explore more|develop further)/i,
   ],
   "stop-listening": [
     /(stop listening|stop voice|pause listening|mute|turn off voice|voice off)/i,
@@ -30,7 +30,7 @@ const COMMAND_PATTERNS: Record<VoiceCommand["type"], RegExp[]> = {
     /(mark as concept|make this a concept|this is a concept|promote to concept|concept this)/i,
   ],
   "delete-note": [
-    /(delete that|remove that|erase that|delete this|remove this|erase this|undo that|take that back)/i,
+    /(delete that|remove that|erase that|delete this|remove this|erase this|undo that|take that back|del that|erase the last|remove last note)/i,
   ],
   none: [],
 };
