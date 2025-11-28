@@ -59,6 +59,7 @@ interface VoiceInputProps {
   onCommand: (command: VoiceCommand, fullTranscript: string) => void;
   isEnabled: boolean;
   onToggle: () => void;
+  onSetEnabled?: (enabled: boolean) => void; // optional push-to-talk setter (true while pressed)
   isMuted?: boolean; // Mutes mic when AI is speaking to prevent feedback
 }
 
@@ -263,7 +264,13 @@ export function VoiceInput({
     <div className="space-y-2">
       {/* Mic Toggle Button */}
       <button
+        title={
+          "Hold Space or the microphone to record. Say 'save this' or 'next question'. AI output is paused while recording."
+        }
         onClick={onToggle}
+        onPointerDown={() => onSetEnabled?.(true)}
+        onPointerUp={() => onSetEnabled?.(false)}
+        onPointerLeave={() => onSetEnabled?.(false)}
         className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all shadow-md ${
           isEnabled
             ? "bg-gradient-to-r from-red-500 to-teal-500 text-white hover:from-red-600 hover:to-teal-600"

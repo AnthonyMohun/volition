@@ -7,6 +7,7 @@ import React, {
   useState,
   useCallback,
 } from "react";
+import { stopSpeaking } from "./speech";
 import { useToast } from "./toast-context";
 import {
   ICommand,
@@ -282,6 +283,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   );
 
   const setVoiceMode = useCallback((enabled: boolean) => {
+    // Stop any current speech when enabling voice mode (push-to-talk) to avoid feedback
+    if (enabled) {
+      try {
+        stopSpeaking();
+      } catch (e) {
+        // ignore
+      }
+    }
     setState((prev) => ({ ...prev, voiceMode: enabled }));
   }, []);
 

@@ -9,7 +9,10 @@ import {
   Map,
   AlignJustify,
   Grid3x3,
+  Mic,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { useSession } from "@/lib/session-context";
 
 interface CanvasControlsProps {
   zoom: number;
@@ -38,6 +41,45 @@ export function CanvasControls({
   gridSnap,
   onToggleGridSnap,
 }: CanvasControlsProps) {
+  const { state, setVoiceMode } = useSession();
+  const isRecording = state.voiceMode || false;
+  const spacePressedRef = useRef(false);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in an input or a textarea
+      const el = e.target as HTMLElement | null;
+      if (
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          el.isContentEditable)
+      ) {
+        return;
+      }
+
+      // Spacebar push-to-talk
+      if ((e.code === "Space" || e.key === " ") && !spacePressedRef.current) {
+        spacePressedRef.current = true;
+        e.preventDefault();
+        setVoiceMode(true);
+      }
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space" || e.key === " ") {
+        spacePressedRef.current = false;
+        setVoiceMode(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, [setVoiceMode]);
   return (
     <div className="fixed bottom-24 right-6 w-14 fun-card p-2 flex flex-col items-start gap-2 z-20">
       {/* Zoom In */}
@@ -98,6 +140,31 @@ export function CanvasControls({
         title="Toggle minimap (Ctrl/Cmd + M)"
       >
         <Map className="w-5 h-5" />
+      </button>
+      {/* Microphone / Push-to-talk */}
+      <div className="w-full border-t border-gray-200 my-1" />
+      <button
+        onPointerDown={() => setVoiceMode(true)}
+        onPointerUp={() => setVoiceMode(false)}
+        onPointerLeave={() => isRecording && setVoiceMode(false)}
+        onTouchStart={() => setVoiceMode(true)}
+        onTouchEnd={() => setVoiceMode(false)}
+        className={`w-full flex items-center justify-start pl-2 p-2 rounded-lg transition-all ${
+          isRecording
+            ? "bg-red-100 text-red-600"
+            : "text-gray-500 hover:bg-indigo-50 hover:text-indigo-600"
+        } ${isRecording ? "animate-pulse" : ""}`}
+        title={
+          isRecording
+            ? "Release to stop speaking"
+            : "Hold to speak (or hold spacebar)"
+        }
+        aria-label={
+          isRecording ? "Recording" : "Press and hold to record (spacebar)"
+        }
+        aria-pressed={isRecording}
+      >
+        <Mic className="w-5 h-5" />
       </button>
       {/* Divider separating minimap from alignment toggle */}
       <div className="w-full border-t border-gray-200 my-1" />

@@ -209,6 +209,7 @@ Text-to-speech flow:
 - `lib/speech.ts` implements a small queue that uses `SpeechSynthesisUtterance` for TTS.
 - We select an English voice (macOS/Chrome/Windows preferences fall back to a default) and queue the utterance — `speak(text)` returns a Promise and resolves when finished.
 - `AIQuestionPanel` uses this to automatically read AI questions when `state.voiceOutputEnabled` is enabled.
+  - New: We added a push-to-talk flow that lets users record by holding the microphone button in the canvas toolbar or holding the spacebar. AI TTS will not play while the user is recording (this prevents feedback). The mute AI toggle has been removed from the sidebar UI in favor of automatic TTS muting.
 
 Privacy considerations:
 

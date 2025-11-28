@@ -17,8 +17,6 @@ import {
   Plus,
   Pin,
   Coffee,
-  Volume2,
-  VolumeX,
   HelpCircle,
 } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
@@ -48,11 +46,54 @@ export function AIQuestionPanel() {
     toggleQuestionAnswered,
     toggleQuestionPinned,
     setVoiceMode,
-    setVoiceOutputEnabled,
     setLastSpokenText,
     updateNote,
   } = useSession();
   const { showToast } = useToast();
+  // Use a ref to ensure trySpeak always reads the latest state (avoids stale closures)
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  const trySpeak = useCallback(
+    async (text: string) => {
+      if (!isSpeechSynthesisSupported()) {
+        showToast("🔈 Browser does not support speech synthesis");
+        return;
+      }
+      if (!stateRef.current.voiceOutputEnabled) {
+        showToast(
+          "🔇 AI voice output is turned off. Enable it in Settings to hear the AI."
+        );
+        return;
+      }
+      // If voice mode is active, wait briefly for it to clear before speaking.
+      // This handles the common race where the user issues a voice command and
+      // releases the push-to-talk slightly before we try to speak.
+      const maxWaitMs = 800;
+      const pollInterval = 50;
+      let waited = 0;
+      while (stateRef.current.voiceMode && waited < maxWaitMs) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        waited += pollInterval;
+      }
+      if (stateRef.current.voiceMode) {
+        // Still in voice mode — don't attempt to speak.
+        showToast("🔇 AI voice is paused while you're recording");
+        return;
+      }
+      setIsAISpeaking(true);
+      try {
+        await speak(text);
+      } finally {
+        setIsAISpeaking(false);
+      }
+    },
+    [showToast]
+  );
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stuckNudge, setStuckNudge] = useState<string | null>(null);
@@ -63,7 +104,6 @@ export function AIQuestionPanel() {
   const lastNoteCountRef = useRef(state.notes.length);
   const stuckTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastCreatedNoteIdRef = useRef<string | null>(null);
-  const stateRef = useRef(state);
 
   // Keep stateRef in sync with current state
   useEffect(() => {
@@ -152,11 +192,8 @@ export function AIQuestionPanel() {
         timestamp: Date.now(),
       });
 
-      // Auto-speak first AI response if voice output is enabled
-      if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
-        setIsAISpeaking(true);
-        speak(response).finally(() => setIsAISpeaking(false));
-      }
+      // Auto-speak first AI response if voice output is enabled and user is not currently recording
+      trySpeak(response);
     } catch (err) {
       setError(
         "Failed to get question from AI. Make sure LM Studio is running."
@@ -216,11 +253,8 @@ export function AIQuestionPanel() {
         timestamp: Date.now(),
       });
 
-      // Auto-speak AI response if voice output is enabled
-      if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
-        setIsAISpeaking(true);
-        speak(response).finally(() => setIsAISpeaking(false));
-      }
+      // Auto-speak AI response if voice output is enabled and user is not currently recording
+      trySpeak(response);
     } catch (err) {
       setError("Failed to get next question from AI.");
       console.error(err);
@@ -277,17 +311,18 @@ export function AIQuestionPanel() {
             });
             lastCreatedNoteIdRef.current = noteId;
             showToast("📝 Note saved!");
-            if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
-              setIsAISpeaking(true);
-              speak("Note saved").finally(() => setIsAISpeaking(false));
-            }
+            trySpeak("Note saved");
           }
           break;
         }
 
         case "next-question": {
+          // If we're currently in voice mode, ensure we exit push-to-talk *before*
+          // asking the next question so the AI voice output is not blocked.
+          // Small delay ensures recognition is stopped and state updates before TTS.
+          setVoiceMode(false);
           showToast("🤔 Asking next question...");
-          askNextQuestion();
+          setTimeout(() => askNextQuestion(), 120);
           break;
         }
 
@@ -309,15 +344,7 @@ export function AIQuestionPanel() {
             if (note) {
               updateNote(note.id, { isConcept: true });
               showToast("⭐ Marked as concept!");
-              if (
-                stateRef.current.voiceOutputEnabled &&
-                isSpeechSynthesisSupported()
-              ) {
-                setIsAISpeaking(true);
-                speak("Marked as concept").finally(() =>
-                  setIsAISpeaking(false)
-                );
-              }
+              trySpeak("Marked as concept");
             } else {
               showToast("Note no longer exists");
             }
@@ -343,15 +370,7 @@ export function AIQuestionPanel() {
     }
   }, [state.voiceMode, setVoiceMode, showToast]);
 
-  // Toggle voice output handler
-  const handleVoiceOutputToggle = useCallback(() => {
-    const newEnabled = !state.voiceOutputEnabled;
-    setVoiceOutputEnabled(newEnabled);
-    if (!newEnabled) {
-      stopSpeaking();
-    }
-    showToast(newEnabled ? "🔊 Voice output on" : "🔇 Voice output off");
-  }, [state.voiceOutputEnabled, setVoiceOutputEnabled, showToast]);
+  // Voice output toggle removed in favor of automatic muting during push-to-talk
 
   return (
     <div className="bg-gradient-to-b from-white to-blue-50/30 border-r-4 border-blue-200 w-80 flex flex-col order-first shadow-xl z-10">
@@ -385,25 +404,9 @@ export function AIQuestionPanel() {
             onCommand={handleVoiceCommand}
             isEnabled={state.voiceMode || false}
             onToggle={handleVoiceToggle}
+            onSetEnabled={(enabled: boolean) => setVoiceMode(enabled)}
             isMuted={isAISpeaking}
           />
-          <button
-            onClick={handleVoiceOutputToggle}
-            className={`p-2 rounded-xl transition-all ${
-              state.voiceOutputEnabled
-                ? "bg-teal-100 text-teal-600"
-                : "bg-gray-100 text-gray-400"
-            }`}
-            title={
-              state.voiceOutputEnabled ? "Mute AI voice" : "Unmute AI voice"
-            }
-          >
-            {state.voiceOutputEnabled ? (
-              <Volume2 className="w-4 h-4" />
-            ) : (
-              <VolumeX className="w-4 h-4" />
-            )}
-          </button>
           {/* Voice Commands Help */}
           <div className="relative">
             <button
@@ -427,6 +430,10 @@ export function AIQuestionPanel() {
                 >
                   <p className="font-bold text-gray-700 text-xs mb-2">
                     🎤 Voice Commands
+                  </p>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Tip: Hold <strong>Space</strong> or press-and-hold the
+                    microphone to record.
                   </p>
                   <ul className="space-y-1.5 text-xs text-gray-600">
                     <li className="flex items-center gap-2">
