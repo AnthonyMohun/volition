@@ -9,16 +9,7 @@ import {
   buildConversationContext,
   MessageRole,
 } from "@/lib/ai-client";
-import {
-  Bot,
-  Sparkles,
-  Loader2,
-  Check,
-  Plus,
-  Pin,
-  Coffee,
-  HelpCircle,
-} from "lucide-react";
+import { Bot, Sparkles, Loader2, Check, Plus, Pin, Coffee } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "@/components/voice-input";
@@ -99,7 +90,6 @@ export function AIQuestionPanel() {
   const [stuckNudge, setStuckNudge] = useState<string | null>(null);
   const [voiceTranscript, setVoiceTranscript] = useState("");
   const [isAISpeaking, setIsAISpeaking] = useState(false);
-  const [showVoiceHelp, setShowVoiceHelp] = useState(false);
   const hasAskedFirstQuestion = useRef(false);
   const lastNoteCountRef = useRef(state.notes.length);
   const stuckTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -407,64 +397,7 @@ export function AIQuestionPanel() {
             onSetEnabled={(enabled: boolean) => setVoiceMode(enabled)}
             isMuted={isAISpeaking}
           />
-          {/* Voice Commands Help */}
-          <div className="relative">
-            <button
-              onClick={() => setShowVoiceHelp(!showVoiceHelp)}
-              className={`p-2 rounded-xl transition-all ${
-                showVoiceHelp
-                  ? "bg-teal-100 text-teal-600"
-                  : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-              }`}
-              title="Voice commands help"
-            >
-              <HelpCircle className="w-4 h-4" />
-            </button>
-            <AnimatePresence>
-              {showVoiceHelp && (
-                <motion.div
-                  initial={{ opacity: 0, y: -5, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-52 p-3 bg-white border-2 border-blue-200 rounded-xl shadow-lg z-50"
-                >
-                  <p className="font-bold text-gray-700 text-xs mb-2">
-                    🎤 Voice Commands
-                  </p>
-                  <p className="text-xs text-gray-500 mb-2">
-                    Tip: Hold <strong>Space</strong> or press-and-hold the
-                    microphone to record.
-                  </p>
-                  <ul className="space-y-1.5 text-xs text-gray-600">
-                    <li className="flex items-center gap-2">
-                      <span className="text-teal-500">•</span>
-                      <span>
-                        <strong>"Save this"</strong> - Create note
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-teal-500">•</span>
-                      <span>
-                        <strong>"Next question"</strong> - Ask AI
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-teal-500">•</span>
-                      <span>
-                        <strong>"Mark as concept"</strong> - Promote
-                      </span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-teal-500">•</span>
-                      <span>
-                        <strong>"Stop listening"</strong> - Turn off
-                      </span>
-                    </li>
-                  </ul>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          {/* Voice Commands Help moved to top toolbar near microphone */}
         </div>
 
         {/* Live transcript display */}

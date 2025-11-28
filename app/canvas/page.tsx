@@ -22,9 +22,12 @@ import {
   ArrowRight,
   RotateCcw,
   RotateCw,
-  Menu,
   ListRestart,
+  Mic,
+  HelpCircle,
 } from "lucide-react";
+import { VoiceCommandsHelp } from "@/components/voice-commands-help";
+import { AnimatePresence, motion } from "framer-motion";
 import { STICKY_COLORS } from "@/lib/types";
 
 export default function CanvasPage() {
@@ -42,12 +45,18 @@ export default function CanvasPage() {
     canRedo,
     setViewport,
     clearExampleSessionFlag,
+    setVoiceMode,
   } = useSession();
   const [selectedColor, setSelectedColor] = useState(STICKY_COLORS[0]);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const spaceKeyDownRef = useRef(false);
+  const [showVoiceHelpTooltip, setShowVoiceHelpTooltip] = useState(false);
+  const [showVoiceHelpPopover, setShowVoiceHelpPopover] = useState(false);
+  const micHelpButtonRef = useRef<HTMLButtonElement | null>(null);
+  const micHelpPopoverRef = useRef<HTMLDivElement | null>(null);
 
   // Canvas navigation state
   const [zoom, setZoom] = useState(1);
@@ -58,12 +67,13 @@ export default function CanvasPage() {
   const [gridSnap, setGridSnap] = useState(false);
   const [showMinimap, setShowMinimap] = useState(true);
   const [showAlignment, setShowAlignment] = useState(true);
-  const [showControls, setShowControls] = useState(true);
+  // Controls are handled with internal collapsed/open state in the CanvasControls component
   const [previewNote, setPreviewNote] = useState<{
     id: string;
     x: number;
     y: number;
   } | null>(null);
+  const isRecording = state.voiceMode || false;
   const [alignmentGuides, setAlignmentGuides] = useState<{
     vertical: number[];
     horizontal: number[];
@@ -302,6 +312,74 @@ export default function CanvasPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleZoomIn, handleZoomOut, handleFitToContent, handleResetView]);
+
+  // Global Spacebar push-to-talk (single owner in page.tsx)
+  useEffect(() => {
+    const handlePTTKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== "Space") return;
+
+      // Ignore when typing in inputs / contentEditable
+      const active = document.activeElement as HTMLElement | null;
+      if (
+        active &&
+        (active.tagName === "INPUT" ||
+          active.tagName === "TEXTAREA" ||
+          active.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (!spaceKeyDownRef.current) {
+        e.preventDefault();
+        spaceKeyDownRef.current = true;
+        setVoiceMode(true);
+        setShowVoiceHelpTooltip(true);
+      }
+    };
+
+    const handlePTTKeyUp = (e: KeyboardEvent) => {
+      if (e.code !== "Space") return;
+      if (spaceKeyDownRef.current) {
+        spaceKeyDownRef.current = false;
+        setVoiceMode(false);
+        setShowVoiceHelpTooltip(false);
+      }
+    };
+
+    const handleWindowBlur = () => {
+      if (spaceKeyDownRef.current) {
+        spaceKeyDownRef.current = false;
+        setVoiceMode(false);
+        setShowVoiceHelpTooltip(false);
+      }
+    };
+
+    window.addEventListener("keydown", handlePTTKeyDown);
+    window.addEventListener("keyup", handlePTTKeyUp);
+    window.addEventListener("blur", handleWindowBlur);
+    return () => {
+      window.removeEventListener("keydown", handlePTTKeyDown);
+      window.removeEventListener("keyup", handlePTTKeyUp);
+      window.removeEventListener("blur", handleWindowBlur);
+    };
+  }, [setVoiceMode]);
+
+  // Close help popover when clicking outside
+  useEffect(() => {
+    if (!showVoiceHelpPopover) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node | null;
+      if (
+        micHelpButtonRef.current?.contains(target) ||
+        micHelpPopoverRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setShowVoiceHelpPopover(false);
+    };
+    window.addEventListener("mousedown", handleClickOutside);
+    return () => window.removeEventListener("mousedown", handleClickOutside);
+  }, [showVoiceHelpPopover]);
 
   const handleAddNote = () => {
     const container = containerRef.current;
@@ -705,36 +783,99 @@ export default function CanvasPage() {
                 </button>
               </div>
               <div className="border-l-3 border-blue-200 h-10 mx-2" />
-              <button
-                onClick={() => setShowControls((prev) => !prev)}
-                className={`p-2.5 rounded-xl transition-all shadow-sm hover:scale-110 ${
-                  showControls
-                    ? "bg-gradient-to-br from-blue-100 to-teal-100 text-teal-600"
-                    : "text-gray-400 hover:bg-teal-50"
-                }`}
-                title={`Toggle toolbar ${showControls ? "shown" : "hidden"}`}
-              >
-                <Menu className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-3 ml-2">
+                <div className="relative flex items-center">
+                  <button
+                    onPointerDown={() => setVoiceMode(true)}
+                    onPointerUp={() => setVoiceMode(false)}
+                    onPointerLeave={() => isRecording && setVoiceMode(false)}
+                    onTouchStart={() => setVoiceMode(true)}
+                    onTouchEnd={() => setVoiceMode(false)}
+                    className={`p-2.5 rounded-xl transition-all shadow-sm ${
+                      isRecording
+                        ? "bg-red-100 text-red-600 animate-pulse"
+                        : "text-gray-500 hover:bg-teal-50 hover:text-teal-600"
+                    }`}
+                    title={
+                      isRecording
+                        ? "Release to stop speaking"
+                        : "Hold to speak (or hold spacebar)"
+                    }
+                    aria-label={
+                      isRecording
+                        ? "Recording"
+                        : "Press and hold to record (spacebar)"
+                    }
+                    aria-pressed={isRecording}
+                  >
+                    <Mic className="w-5 h-5" />
+                  </button>
+
+                  <button
+                    ref={micHelpButtonRef}
+                    onClick={() => {
+                      setShowVoiceHelpPopover((prev) => {
+                        const next = !prev;
+                        if (next) setShowVoiceHelpTooltip(false);
+                        return next;
+                      });
+                    }}
+                    className={`absolute top-0 right-0 -mt-1 -mr-1 p-1 rounded-full transition-all ${
+                      showVoiceHelpPopover
+                        ? "text-teal-600"
+                        : "text-gray-400 hover:text-gray-500"
+                    }`}
+                    title="Voice commands help"
+                  >
+                    <HelpCircle className="w-3 h-3" />
+                  </button>
+
+                  <AnimatePresence>
+                    {showVoiceHelpTooltip && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                        className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50"
+                      >
+                        <VoiceCommandsHelp compact />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <AnimatePresence>
+                    {showVoiceHelpPopover && (
+                      <motion.div
+                        ref={micHelpPopoverRef}
+                        initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                        className="absolute bottom-full mb-2 right-0 z-50"
+                      >
+                        <VoiceCommandsHelp />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+              {/* Moved toolbar toggle into CanvasControls; the full panel is managed internally */}
             </div>
           </div>
 
           {/* Canvas Controls */}
-          {showControls && (
-            <CanvasControls
-              zoom={zoom}
-              onZoomIn={handleZoomIn}
-              onZoomOut={handleZoomOut}
-              onFitToContent={handleFitToContent}
-              onResetView={handleResetView}
-              showMinimap={showMinimap}
-              onToggleMinimap={() => setShowMinimap(!showMinimap)}
-              showAlignment={showAlignment}
-              onToggleAlignment={() => setShowAlignment(!showAlignment)}
-              gridSnap={gridSnap}
-              onToggleGridSnap={() => setGridSnap(!gridSnap)}
-            />
-          )}
+          <CanvasControls
+            zoom={zoom}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onFitToContent={handleFitToContent}
+            onResetView={handleResetView}
+            showMinimap={showMinimap}
+            onToggleMinimap={() => setShowMinimap(!showMinimap)}
+            showAlignment={showAlignment}
+            onToggleAlignment={() => setShowAlignment(!showAlignment)}
+            gridSnap={gridSnap}
+            onToggleGridSnap={() => setGridSnap(!gridSnap)}
+          />
 
           {/* Minimap */}
           {showMinimap && containerRef.current && (
