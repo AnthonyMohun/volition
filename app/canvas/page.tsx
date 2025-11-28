@@ -54,6 +54,8 @@ export default function CanvasPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const spaceKeyDownRef = useRef(false);
   const panTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastPinchDistanceRef = useRef<number | null>(null);
+  const lastPinchCenterRef = useRef<{ x: number; y: number } | null>(null);
   const [showVoiceHelpTooltip, setShowVoiceHelpTooltip] = useState(false);
   const [showVoiceHelpPopover, setShowVoiceHelpPopover] = useState(false);
   const micHelpButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -268,6 +270,129 @@ export default function CanvasPage() {
       setIsPanning(false);
     }
   }, [isPanning]);
+
+  // Touch gesture handlers for iPad
+  const getTouchDistance = (touch1: React.Touch, touch2: React.Touch) => {
+    return Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) +
+        Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+  };
+
+  const getTouchCenter = (touch1: React.Touch, touch2: React.Touch) => {
+    return {
+      x: (touch1.clientX + touch2.clientX) / 2,
+      y: (touch1.clientY + touch2.clientY) / 2,
+    };
+  };
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      // Don't start canvas panning if we're dragging a note
+      if (isDragging) return;
+
+      e.preventDefault(); // Prevent default touch behaviors
+
+      if (e.touches.length === 1) {
+        // Single finger - potential pan or tap
+        const touch = e.touches[0];
+        const container = containerRef.current;
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+        // Start panning immediately for touch
+        setIsPanning(true);
+        setPanStart({ x: touch.clientX - panX, y: touch.clientY - panY });
+      } else if (e.touches.length === 2) {
+        // Two fingers - start pinch gesture
+        e.preventDefault();
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+
+        lastPinchDistanceRef.current = getTouchDistance(touch1, touch2);
+        lastPinchCenterRef.current = getTouchCenter(touch1, touch2);
+        setIsPanning(false); // Stop any single-finger panning
+      }
+    },
+    [panX, panY, isDragging]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      // Don't handle canvas touch moves if we're dragging a note
+      if (isDragging) return;
+
+      e.preventDefault(); // Prevent scrolling/zooming
+
+      if (e.touches.length === 1 && isPanning) {
+        // Single finger pan
+        const touch = e.touches[0];
+        setPanX(touch.clientX - panStart.x);
+        setPanY(touch.clientY - panStart.y);
+      } else if (e.touches.length === 2) {
+        // Pinch gesture
+        e.preventDefault();
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+
+        const currentDistance = getTouchDistance(touch1, touch2);
+        const currentCenter = getTouchCenter(touch1, touch2);
+
+        if (lastPinchDistanceRef.current && lastPinchCenterRef.current) {
+          // Calculate zoom
+          const scaleChange = currentDistance / lastPinchDistanceRef.current;
+          const newZoom = Math.max(0.25, Math.min(2, zoom * scaleChange));
+
+          // Calculate pan adjustment to zoom towards pinch center
+          const container = containerRef.current;
+          if (container) {
+            const containerRect = container.getBoundingClientRect();
+            const pinchViewX = currentCenter.x - containerRect.left;
+            const pinchViewY = currentCenter.y - containerRect.top;
+
+            // Convert pinch center to canvas coordinates
+            const pinchCanvasX = (pinchViewX - panX) / zoom;
+            const pinchCanvasY = (pinchViewY - panY) / zoom;
+
+            // Adjust pan so pinch center stays in place
+            const newPanX = pinchViewX - pinchCanvasX * newZoom;
+            const newPanY = pinchViewY - pinchCanvasY * newZoom;
+
+            setZoom(newZoom);
+            setPanX(newPanX);
+            setPanY(newPanY);
+          }
+
+          lastPinchDistanceRef.current = currentDistance;
+          lastPinchCenterRef.current = currentCenter;
+        }
+      }
+    },
+    [isPanning, panStart, zoom, panX, panY, isDragging]
+  );
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      // Don't handle canvas touch end if we're dragging a note
+      if (isDragging) return;
+
+      if (e.touches.length === 0) {
+        // All fingers lifted
+        setIsPanning(false);
+        lastPinchDistanceRef.current = null;
+        lastPinchCenterRef.current = null;
+      } else if (e.touches.length === 1) {
+        // One finger remaining - could switch to single finger pan
+        lastPinchDistanceRef.current = null;
+        lastPinchCenterRef.current = null;
+
+        // Continue with single finger panning
+        const touch = e.touches[0];
+        setPanStart({ x: touch.clientX - panX, y: touch.clientY - panY });
+      }
+    },
+    [panX, panY, isDragging]
+  );
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -636,10 +761,13 @@ export default function CanvasPage() {
         {/* Main Canvas */}
         <div
           ref={containerRef}
-          className="flex-1 relative overflow-hidden bg-gradient-to-br from-blue-50/30 via-transparent to-teal-50/30"
+          className="flex-1 relative overflow-hidden bg-gradient-to-br from-blue-50/30 via-transparent to-teal-50/30 touch-none"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           onDoubleClick={handleCanvasClick}
           style={{ cursor: isPanning ? "grabbing" : "default" }}
         >
