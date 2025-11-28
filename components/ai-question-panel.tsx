@@ -9,7 +9,17 @@ import {
   buildConversationContext,
   MessageRole,
 } from "@/lib/ai-client";
-import { Bot, Sparkles, Loader2, Check, Plus, Pin, Coffee } from "lucide-react";
+import {
+  Bot,
+  Sparkles,
+  Loader2,
+  Check,
+  Plus,
+  Pin,
+  Coffee,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "@/components/voice-input";
@@ -48,6 +58,16 @@ export function AIQuestionPanel() {
     stateRef.current = state;
   }, [state]);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [stuckNudge, setStuckNudge] = useState<string | null>(null);
+  const [isAISpeaking, setIsAISpeaking] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const hasAskedFirstQuestion = useRef(false);
+  const lastNoteCountRef = useRef(state.notes.length);
+  const stuckTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastCreatedNoteIdRef = useRef<string | null>(null);
+
   const trySpeak = useCallback(
     async (text: string) => {
       if (!isSpeechSynthesisSupported()) {
@@ -58,6 +78,10 @@ export function AIQuestionPanel() {
         showToast(
           "🔇 AI voice output is turned off. Enable it in Settings to hear the AI."
         );
+        return;
+      }
+      if (isMuted) {
+        showToast("🔇 AI voice is muted in this chat");
         return;
       }
       // If voice mode is active, wait briefly for it to clear before speaking.
@@ -83,17 +107,8 @@ export function AIQuestionPanel() {
         setIsAISpeaking(false);
       }
     },
-    [showToast]
+    [showToast, isMuted]
   );
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [stuckNudge, setStuckNudge] = useState<string | null>(null);
-  const [isAISpeaking, setIsAISpeaking] = useState(false);
-  const hasAskedFirstQuestion = useRef(false);
-  const lastNoteCountRef = useRef(state.notes.length);
-  const stuckTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastCreatedNoteIdRef = useRef<string | null>(null);
 
   // Keep stateRef in sync with current state
   useEffect(() => {
@@ -384,6 +399,23 @@ export function AIQuestionPanel() {
               Socratic AI <span className="text-xs">🤖</span>
             </h2>
           </div>
+          {/* Mute Button */}
+          <button
+            onClick={() => setIsMuted(!isMuted)}
+            title={isMuted ? "Unmute AI voice" : "Mute AI voice"}
+            aria-label={isMuted ? "Unmute AI voice" : "Mute AI voice"}
+            className={`p-2 rounded-xl hover:scale-110 transition-all shadow-sm ${
+              isMuted
+                ? "text-red-500 bg-red-100"
+                : "text-gray-400 hover:bg-gray-100"
+            }`}
+          >
+            {isMuted ? (
+              <VolumeX className="w-4 h-4" />
+            ) : (
+              <Volume2 className="w-4 h-4" />
+            )}
+          </button>
           {/* Stats inline */}
           <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
             <span title="Total questions">💬 {state.questions.length}</span>
