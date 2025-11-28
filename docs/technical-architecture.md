@@ -52,6 +52,7 @@ This document explains the implementation details in an approachable way while g
 ## Core Ideas & Tech Stack
 
 - Framework: Next.js (App Router)
+  - Note: This project targets Next.js 16 (App Router) — tests and local dev assume Next 16+ features.
 - Styling: Tailwind CSS
 - State Management: React Context (single SessionProvider) plus localStorage persistence
 - AI Integration: a small server API route (`/api/ai`) is a proxy to an LLM endpoint (LM Studio in our setup)
@@ -155,6 +156,7 @@ The system prompt used to enforce Socratic behavior is `SOCRATIC_SYSTEM_PROMPT` 
 Implementation details:
 
 - `askAI()` handles the client-side POST and parses the JSON response.
+- The client also includes helpers in `lib/ai-client.ts` such as `improveTranscript()` (to rewrite and clean up speech transcripts) and `classifyVoiceCommand()` (to help classify short spoken directives into the app's voice command types). These are used by the voice input flow.
 - The `POST` route (`app/api/ai/route.ts`) reads environment variables `LMSTUDIO_URL`, `LMSTUDIO_INFER_PATH`, and `LMSTUDIO_MODEL` (see `README.md`) to proxy to the local AI.
 - The route wraps LM Studio authentication and request shaping (we are using a minimal proxy pattern: `fetch(targetUrl, { method: 'POST', body: ...})`).
 - We handle errors: if LM Studio returns an HTTP error, we wrap the details in a 500 or similar response.
@@ -173,6 +175,7 @@ The app uses the Web Speech APIs in the browser to provide voice control and fee
 Voice input flow and implementation:
 
 - `components/voice-input.tsx` uses the browser's `SpeechRecognition` or `webkitSpeechRecognition`.
+  - Note: `VoiceInput` is implemented as a reusable, client-side component and is mounted inside `AIQuestionPanel`. UI push-to-talk controls are surfaced primarily in the main canvas toolbar (`app/canvas/page.tsx`) — the `VoiceInput` component itself is visually hidden inside the panel but still handles the recognition lifecycle.
 - It sets continuous listening (interim results enabled) and updates the UI with intermediate transcripts for immediate feedback.
 - We parse user transcripts for commands using `lib/voice-commands.ts` — it detects phrases like "save this", "next question", or "mark as concept", and provides payloads when needed (e.g., text before "save this").
 - On recognized commands, the voice input component notifies the app via `onCommand(command, transcript)`; the `AIQuestionPanel` responds by calling `addNote()` or `askNextQuestion()` as appropriate.
@@ -209,7 +212,7 @@ Text-to-speech flow:
 - `lib/speech.ts` implements a small queue that uses `SpeechSynthesisUtterance` for TTS.
 - We select an English voice (macOS/Chrome/Windows preferences fall back to a default) and queue the utterance — `speak(text)` returns a Promise and resolves when finished.
 - `AIQuestionPanel` uses this to automatically read AI questions when `state.voiceOutputEnabled` is enabled.
-  - New: We added a push-to-talk flow that lets users record by holding the microphone button in the canvas toolbar or holding the spacebar. AI TTS will not play while the user is recording (this prevents feedback). The mute AI toggle has been removed from the sidebar UI in favor of automatic TTS muting.
+  - New: We added a push-to-talk flow that lets users record by holding the microphone button in the canvas toolbar or holding the spacebar. AI TTS will not play while the user is recording (this prevents feedback). There is also a manual mute control in the AI panel to silence AI TTS per session, in addition to automatic muting during push-to-talk.
 
 Privacy considerations:
 
@@ -224,7 +227,7 @@ The idea canvas features agile UX patterns to capture and refine ideas.
 Highlights:
 
 - Notes are rendered by `components/sticky-note.tsx` and can hold text, images, sketches, and details. They can be promoted to concepts.
-- When you add an image to a note, `sticky-note.tsx` uses `compressImage()` from `lib/utils.ts` to resize and JPEG compress images client-side. We store base64 data URLs in state so the app requires no server-side upload.
+- When you add an image to a note, `sticky-note.tsx` imports `compressImage()` from `lib/image-compress.ts`, which uses `browser-image-compression` to perform client-side compression. The repo also includes a canvas-based compression helper in `lib/utils.ts` as a fallback. The compressed `dataUrl` is stored in state so the app requires no server-side upload.
 - The sketch tool uses `components/drawing-canvas.tsx`, which wraps `react-sketch-canvas` and exports paths and PNG data URLs. Saved drawings attach to notes as `drawing` data.
 - Dragging and dropping is implemented via standard client-side drag-and-drop libraries (refer to the `components` folder; this app uses `@dnd-kit` in other files.)
 
@@ -276,10 +279,10 @@ Because the PDF is generated client-side, the app never sends concept data to a 
 
 ## Image Handling & Compression
 
-Image processing happens entirely in the browser and is implemented with a small helper:
+Image processing happens entirely in the browser and is implemented with two helpers:
 
-- `lib/utils.ts` exports `compressImage(file, maxWidth = 1024, quality = 0.8)`.
-- This creates a canvas, draws the image resized for a max width, and uses `canvas.toBlob()` to return compressed data as a `dataUrl`.
+- `lib/image-compress.ts` — the primary helper that wraps `browser-image-compression` to reduce file size efficiently when uploading images in the UI (used by `sticky-note.tsx`).
+- `lib/utils.ts` — a canvas-based helper that resizes images and converts them to a `dataUrl` as a fallback or for smaller tasks.
 - The app stores the resulting `dataUrl` in `note.image.dataUrl`.
 
 This keeps the app quick and avoids server-side image handling, but it does place image DSGs in localStorage. Users should avoid very large images or use the compressed output that tends to be a few hundred KB per image.
@@ -290,7 +293,7 @@ This keeps the app quick and avoids server-side image handling, but it does plac
 
 I recommend these steps to run the project locally:
 
-1. Ensure Node.js 18+ is installed.
+1. Ensure Node.js 18+ is installed. This project targets Next.js 16+, so ensure you're using a compatible Next.js version (see `package.json`).
 2. Install dependencies:
 
 ```bash
@@ -352,7 +355,7 @@ Notes:
   - `lib/session-context.tsx` — central context provider with session state persistence, undo/redo, and helpers
   - `lib/types.ts` — data model types (StickyNote, AIQuestion, Concept, etc.)
 - AI Client + Server:
-  - `lib/ai-client.ts` — `askAI()`, context builder `buildConversationContext()`, & system prompt `SOCRATIC_SYSTEM_PROMPT`
+  - `lib/ai-client.ts` — `askAI()`, context builder `buildConversationContext()`, `SOCRATIC_SYSTEM_PROMPT`, and helpers such as `improveTranscript()` and `classifyVoiceCommand()` which are used by the voice command flow.
   - `app/api/ai/route.ts` — server route proxying requests to LM Studio (environment vars: `LMSTUDIO_URL`, `LMSTUDIO_INFER_PATH`, `LMSTUDIO_MODEL`)
 - UI / Components:
   - `components/ai-question-panel.tsx` — UI, question flow, stuck detection, and voice integration (TTS)
@@ -360,25 +363,27 @@ Notes:
   - `components/sticky-note.tsx` — note editing, images, drawing, and details modal
   - `components/drawing-canvas.tsx` — `react-sketch-canvas` wrapper, export/save flow
   - `components/summary-pdf.tsx` — `@react-pdf/renderer` driven PDF template
-- Utils & Helpers:
-  - `lib/utils.ts` — helpers including `compressImage()`
+    Utils & Helpers:
+  - `lib/image-compress.ts` — primary image compression helper wrapping `browser-image-compression`
+  - `lib/utils.ts` — other utility helpers, including a canvas-based compression fallback and `findNonOverlappingPosition()`
   - `lib/speech.ts` — `speak()`, `stopSpeaking()`, `getDefaultVoice()` and queue handling.
 
 ### Quick File Reference
 
-| File                               | Purpose                                                                                |
-| ---------------------------------- | -------------------------------------------------------------------------------------- |
-| `lib/session-context.tsx`          | Central session provider used across the app; persists state; undo/redo command stacks |
-| `lib/ai-client.ts`                 | Client helper to POST to `/api/ai` and build conversation contexts                     |
-| `app/api/ai/route.ts`              | Server route for proxying AI requests to LM Studio or other LLM backends               |
-| `components/ai-question-panel.tsx` | UI for AI questions and integration with voice/TTS                                     |
-| `components/voice-input.tsx`       | Wrapper around SpeechRecognition and command parser                                    |
-| `lib/voice-commands.ts`            | Command patterns and parsing logic for voice commands                                  |
-| `components/sticky-note.tsx`       | Main canvas note component (text, image, drawing)                                      |
-| `components/drawing-canvas.tsx`    | Sketch canvas using `react-sketch-canvas`                                              |
-| `components/summary-pdf.tsx`       | Client-side PDF generation template                                                    |
-| `lib/utils.ts`                     | Utility helpers including image compression                                            |
-| `lib/speech.ts`                    | TTS utilities and voice queue                                                          |
+| File                               | Purpose                                                                                        |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `lib/session-context.tsx`          | Central session provider used across the app; persists state; undo/redo command stacks         |
+| `lib/ai-client.ts`                 | Client helper to POST to `/api/ai` and build conversation contexts                             |
+| `app/api/ai/route.ts`              | Server route for proxying AI requests to LM Studio or other LLM backends                       |
+| `components/ai-question-panel.tsx` | UI for AI questions and integration with voice/TTS                                             |
+| `components/voice-input.tsx`       | Wrapper around SpeechRecognition and command parser                                            |
+| `lib/voice-commands.ts`            | Command patterns and parsing logic for voice commands                                          |
+| `components/sticky-note.tsx`       | Main canvas note component (text, image, drawing)                                              |
+| `components/drawing-canvas.tsx`    | Sketch canvas using `react-sketch-canvas`                                                      |
+| `components/summary-pdf.tsx`       | Client-side PDF generation template                                                            |
+| `lib/image-compress.ts`            | Primary image compression helper using `browser-image-compression`                             |
+| `lib/utils.ts`                     | Utility helpers including canvas-based compression fallback and `findNonOverlappingPosition()` |
+| `lib/speech.ts`                    | TTS utilities and voice queue                                                                  |
 
 ---
 
