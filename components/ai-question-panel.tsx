@@ -177,14 +177,18 @@ export function AIQuestionPanel() {
       hasAskedFirstQuestion.current = true;
       askFirstQuestion();
     }
-  }, [state.hmwStatement]);
+  }, [state.hmwStatement, state.questions.length]);
 
   const askFirstQuestion = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const context = buildConversationContext(state.hmwStatement, [], []);
+      const context = buildConversationContext(
+        stateRef.current.hmwStatement,
+        [],
+        []
+      );
 
       const response = await askAI([
         { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
@@ -219,14 +223,14 @@ export function AIQuestionPanel() {
     setError(null);
 
     try {
-      const recentNotes = state.notes.slice(-5);
-      const concepts = state.concepts.map((c) => ({
+      const recentNotes = stateRef.current.notes.slice(-5);
+      const concepts = stateRef.current.concepts.map((c) => ({
         title: c.title,
         description: c.description,
       }));
 
       const context = buildConversationContext(
-        state.hmwStatement,
+        stateRef.current.hmwStatement,
         recentNotes,
         concepts
       );
@@ -238,7 +242,7 @@ export function AIQuestionPanel() {
       ];
 
       // Add recent Q&A history
-      const recentQuestions = state.questions.slice(-3);
+      const recentQuestions = stateRef.current.questions.slice(-3);
       recentQuestions.forEach((q) => {
         const role: MessageRole = q.fromAI ? "assistant" : "user";
         messages.push({
@@ -274,7 +278,7 @@ export function AIQuestionPanel() {
   };
 
   const delveDeeper = async () => {
-    if (state.notes.length === 0) {
+    if (stateRef.current.notes.length === 0) {
       showToast("No notes to delve into yet!");
       return;
     }
@@ -283,14 +287,15 @@ export function AIQuestionPanel() {
     setError(null);
 
     try {
-      const lastNote = state.notes[state.notes.length - 1];
-      const concepts = state.concepts.map((c) => ({
+      const lastNote =
+        stateRef.current.notes[stateRef.current.notes.length - 1];
+      const concepts = stateRef.current.concepts.map((c) => ({
         title: c.title,
         description: c.description,
       }));
 
       const context = buildConversationContext(
-        state.hmwStatement,
+        stateRef.current.hmwStatement,
         [lastNote],
         concepts
       );
@@ -302,7 +307,7 @@ export function AIQuestionPanel() {
       ];
 
       // Add recent Q&A history
-      const recentQuestions = state.questions.slice(-3);
+      const recentQuestions = stateRef.current.questions.slice(-3);
       recentQuestions.forEach((q) => {
         const role: MessageRole = q.fromAI ? "assistant" : "user";
         messages.push({
