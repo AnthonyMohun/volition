@@ -848,7 +848,7 @@ export default function CanvasPage() {
                   <DraggableNote
                     note={note}
                     onUpdate={(updates) => updateNote(note.id, updates)}
-                    onDelete={() => deleteNote(note.id)}
+                    onDelete={() => deleteNote(note)}
                   />
                 </div>
               ))}

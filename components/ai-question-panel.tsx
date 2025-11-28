@@ -475,7 +475,7 @@ export function AIQuestionPanel() {
             const mostRecentNote = currentNotes.reduce((latest, note) =>
               note.createdAt > latest.createdAt ? note : latest
             );
-            deleteNote(mostRecentNote.id);
+            deleteNote(mostRecentNote);
             showToast("🗑️ Deleted last note!");
             trySpeak("Deleted last note");
           } else {

@@ -29,7 +29,7 @@ interface SessionContextType {
   updateHMW: (hmw: string) => void;
   addNote: (note: StickyNote) => void;
   updateNote: (id: string, updates: Partial<StickyNote>) => void;
-  deleteNote: (id: string) => void;
+  deleteNote: (note: StickyNote) => void;
   addQuestion: (question: AIQuestion) => void;
   markQuestionAnswered: (id: string) => void;
   toggleQuestionAnswered: (id: string) => void;
@@ -165,9 +165,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const deleteNote = (id: string) => {
-    const note = state.notes.find((n) => n.id === id);
-    if (!note) return;
+  const deleteNote = (note: StickyNote) => {
     pushCommand(new DeleteNoteCommand(note));
   };
 

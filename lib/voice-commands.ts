@@ -15,22 +15,22 @@ export interface VoiceCommand {
 // Command patterns with variations
 const COMMAND_PATTERNS: Record<VoiceCommand["type"], RegExp[]> = {
   "save-note": [
-    /\b(save this|save that|add note|add this|create note|make a note|note this|capture this|write this down)\b/i,
+    /(save this|save that|add note|add this|create note|make a note|note this|capture this|write this down)/i,
   ],
   "next-question": [
-    /\b(next question|new question|ask me|another question|give me a question|ask another)\b/i,
+    /(next question|new question|ask me|another question|give me a question|ask another)/i,
   ],
   "delve-deeper": [
-    /\b(delve deeper|deepen this|explore this|develop this|go deeper|dig deeper|elaborate on this)\b/i,
+    /(delve deeper|delve deep|deepen this|explore this|develop this|go deeper|dig deeper|elaborate on this)/i,
   ],
   "stop-listening": [
-    /\b(stop listening|stop voice|pause listening|mute|turn off voice|voice off)\b/i,
+    /(stop listening|stop voice|pause listening|mute|turn off voice|voice off)/i,
   ],
   "mark-concept": [
-    /\b(mark as concept|make this a concept|this is a concept|promote to concept|concept this)\b/i,
+    /(mark as concept|make this a concept|this is a concept|promote to concept|concept this)/i,
   ],
   "delete-note": [
-    /\b(delete that|remove that|erase that|delete this|remove this|erase this|undo that|take that back)\b/i,
+    /(delete that|remove that|erase that|delete this|remove this|erase this|undo that|take that back)/i,
   ],
   none: [],
 };
