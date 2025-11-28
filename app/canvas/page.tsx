@@ -53,6 +53,7 @@ export default function CanvasPage() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const spaceKeyDownRef = useRef(false);
+  const panTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [showVoiceHelpTooltip, setShowVoiceHelpTooltip] = useState(false);
   const [showVoiceHelpPopover, setShowVoiceHelpPopover] = useState(false);
   const micHelpButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -233,13 +234,16 @@ export default function CanvasPage() {
     return () => container.removeEventListener("wheel", handleWheel);
   }, [handleWheel]);
 
-  // Pan with space + drag or middle mouse button
+  // Pan with mouse drag (left, middle, or shift+left)
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+      if (e.button === 1 || e.button === 0) {
         e.preventDefault();
-        setIsPanning(true);
-        setPanStart({ x: e.clientX - panX, y: e.clientY - panY });
+        // Delay panning to allow for double click
+        panTimeoutRef.current = setTimeout(() => {
+          setIsPanning(true);
+          setPanStart({ x: e.clientX - panX, y: e.clientY - panY });
+        }, 100);
       }
     },
     [panX, panY]
@@ -256,8 +260,14 @@ export default function CanvasPage() {
   );
 
   const handleMouseUp = useCallback(() => {
-    setIsPanning(false);
-  }, []);
+    if (panTimeoutRef.current) {
+      clearTimeout(panTimeoutRef.current);
+      panTimeoutRef.current = null;
+    }
+    if (isPanning) {
+      setIsPanning(false);
+    }
+  }, [isPanning]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -399,6 +409,35 @@ export default function CanvasPage() {
       text: "New note...",
       x: gridSnap ? snapToGrid(x, GRID_SIZE, true) : x,
       y: gridSnap ? snapToGrid(y, GRID_SIZE, true) : y,
+      color: selectedColor,
+      isConcept: false,
+      createdAt: Date.now(),
+    });
+  };
+
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    if (panTimeoutRef.current) {
+      clearTimeout(panTimeoutRef.current);
+      panTimeoutRef.current = null;
+    }
+    const container = containerRef.current;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const cursorViewX = e.clientX - containerRect.left;
+    const cursorViewY = e.clientY - containerRect.top;
+
+    const canvasX = (cursorViewX - panX) / zoom;
+    const canvasY = (cursorViewY - panY) / zoom;
+
+    const x = gridSnap ? snapToGrid(canvasX, GRID_SIZE, true) : canvasX;
+    const y = gridSnap ? snapToGrid(canvasY, GRID_SIZE, true) : canvasY;
+
+    addNote({
+      id: `note-${Date.now()}`,
+      text: "New note...",
+      x,
+      y,
       color: selectedColor,
       isConcept: false,
       createdAt: Date.now(),
@@ -601,6 +640,7 @@ export default function CanvasPage() {
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onDoubleClick={handleCanvasClick}
           style={{ cursor: isPanning ? "grabbing" : "default" }}
         >
           <div
@@ -718,13 +758,6 @@ export default function CanvasPage() {
           {/* Floating toolbar */}
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20">
             <div className="fun-card px-6 py-4 flex items-center gap-5 shadow-2xl">
-              <button
-                onClick={handleAddNote}
-                className="bg-gradient-to-br from-blue-500 to-teal-500 text-white p-4 rounded-2xl hover:from-blue-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-teal transform hover:scale-110 active:scale-95"
-                title="Add sticky note"
-              >
-                <Plus className="w-7 h-7" />
-              </button>
               <div className="flex gap-3">
                 {STICKY_COLORS.map((color) => {
                   // Map light colors to their fun mode display colors

@@ -394,7 +394,7 @@ export function AIQuestionPanel() {
         </div>
 
         {/* Voice Controls - Compact */}
-        <div className="flex items-center gap-2">
+        <div style={{ display: "none" }}>
           <VoiceInput
             onTranscript={handleVoiceTranscript}
             onCommand={handleVoiceCommand}
@@ -403,7 +403,6 @@ export function AIQuestionPanel() {
             onSetEnabled={(enabled: boolean) => setVoiceMode(enabled)}
             isMuted={isAISpeaking}
           />
-          {/* Voice Commands Help moved to top toolbar near microphone */}
         </div>
       </div>
 

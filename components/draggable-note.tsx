@@ -26,7 +26,12 @@ export function DraggableNote({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="touch-none">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="touch-none"
+      onMouseDown={(e) => e.stopPropagation()}
+    >
       <StickyNote
         note={note}
         onUpdate={onUpdate}
