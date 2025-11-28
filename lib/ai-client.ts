@@ -1,3 +1,30 @@
+/**
+ * Uses the local LM to correct and clarify a speech transcript.
+ * Returns the improved transcript.
+ */
+export async function improveTranscript(transcript: string): Promise<string> {
+  try {
+    const response = await askAI(
+      [
+        {
+          role: "system",
+          content:
+            "You are a transcription corrector for a voice-driven design app. Given a possibly inaccurate or ambiguous transcript, rewrite it to best reflect what the user likely meant, correcting misheard words and clarifying context. Only return the improved transcript, no explanation.",
+        },
+        {
+          role: "user",
+          content: `Original transcript: "${transcript}"`,
+        },
+      ],
+      0.2,
+      100
+    );
+    return response.trim();
+  } catch (error) {
+    console.warn("Transcript improvement failed, returning original:", error);
+    return transcript;
+  }
+}
 // Client-side AI communication utilities
 
 export interface MessageContentText {

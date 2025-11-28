@@ -39,10 +39,14 @@ const COMMAND_PATTERNS: Record<VoiceCommand["type"], RegExp[]> = {
  * Parses a transcript to detect voice commands
  * Returns the command type and any relevant payload (text before the command)
  */
+
 export async function parseVoiceCommand(
   transcript: string
 ): Promise<VoiceCommand> {
-  const normalizedTranscript = transcript.trim().toLowerCase();
+  // First, improve the transcript using the local LM
+  const { improveTranscript, classifyVoiceCommand } = await import("@/lib/ai-client");
+  const improved = await improveTranscript(transcript);
+  const normalizedTranscript = improved.trim().toLowerCase();
 
   // First try regex matching
   for (const [type, patterns] of Object.entries(COMMAND_PATTERNS) as [
@@ -57,7 +61,7 @@ export async function parseVoiceCommand(
         // For save-note, extract text before the command as payload
         if (type === "save-note") {
           const index = normalizedTranscript.indexOf(match[0].toLowerCase());
-          const textBefore = transcript.slice(0, index).trim();
+          const textBefore = improved.slice(0, index).trim();
           return {
             type,
             payload: textBefore || undefined,
@@ -70,8 +74,7 @@ export async function parseVoiceCommand(
 
   // If no regex match, try AI classification
   try {
-    const { classifyVoiceCommand } = await import("@/lib/ai-client");
-    const aiType = await classifyVoiceCommand(transcript);
+    const aiType = await classifyVoiceCommand(improved);
     if (aiType !== "none") {
       return { type: aiType };
     }
