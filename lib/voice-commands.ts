@@ -7,6 +7,7 @@ export interface VoiceCommand {
     | "delve-deeper"
     | "stop-listening"
     | "mark-concept"
+    | "delete-note"
     | "none";
   payload?: string;
 }
@@ -27,6 +28,9 @@ const COMMAND_PATTERNS: Record<VoiceCommand["type"], RegExp[]> = {
   ],
   "mark-concept": [
     /\b(mark as concept|make this a concept|this is a concept|promote to concept|concept this)\b/i,
+  ],
+  "delete-note": [
+    /\b(delete that|remove that|erase that|delete this|remove this|erase this|undo that|take that back)\b/i,
   ],
   none: [],
 };
@@ -103,6 +107,8 @@ export function getCommandLabel(type: VoiceCommand["type"]): string {
       return "Stop listening";
     case "mark-concept":
       return "Mark as concept";
+    case "delete-note":
+      return "Delete last note";
     default:
       return "";
   }

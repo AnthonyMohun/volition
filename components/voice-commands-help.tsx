@@ -38,12 +38,6 @@ export function VoiceCommandsHelp({
           <li className="flex items-start gap-2">
             <span className="text-teal-500">•</span>
             <span>
-              <strong>Save this</strong> — Create note
-            </span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-teal-500">•</span>
-            <span>
               <strong>Next question</strong> — Ask AI
             </span>
           </li>
@@ -57,6 +51,12 @@ export function VoiceCommandsHelp({
             <span className="text-teal-500">•</span>
             <span>
               <strong>Mark as concept</strong> — Promote
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-teal-500">•</span>
+            <span>
+              <strong>Delete that</strong> — Remove last note
             </span>
           </li>
         </ul>

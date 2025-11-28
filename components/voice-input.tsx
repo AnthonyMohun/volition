@@ -267,7 +267,7 @@ export function VoiceInput({
       {/* Mic Toggle Button */}
       <button
         title={
-          "Hold Space or the microphone to record. Say 'save this' or 'next question'. AI output is paused while recording."
+          "Hold Space or the microphone to record. Say 'next question', 'delete that', or other commands. AI output is paused while recording."
         }
         onClick={onToggle}
         onPointerDown={() => onSetEnabled?.(true)}

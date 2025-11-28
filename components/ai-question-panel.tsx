@@ -56,6 +56,7 @@ export function AIQuestionPanel() {
     setLastSpokenText,
     setVoiceTranscript,
     updateNote,
+    deleteNote,
   } = useSession();
   const { showToast } = useToast();
   // Use a ref to ensure trySpeak always reads the latest state (avoids stale closures)
@@ -341,9 +342,39 @@ export function AIQuestionPanel() {
       setVoiceTranscript(transcript);
       if (isFinal) {
         setLastSpokenText(transcript);
+        // Automatically add note for any spoken text
+        if (transcript && transcript.trim()) {
+          const viewportCenterX = state.viewport?.centerX;
+          const viewportCenterY = state.viewport?.centerY;
+          const offsetX = (Math.random() - 0.5) * 200;
+          const offsetY = (Math.random() - 0.5) * 120;
+          const x =
+            viewportCenterX !== undefined
+              ? viewportCenterX + offsetX
+              : 80 + Math.floor(Math.random() * 200);
+          const y =
+            viewportCenterY !== undefined
+              ? viewportCenterY + offsetY
+              : 80 + Math.floor(Math.random() * 120);
+
+          const noteId = `note-${Date.now()}`;
+          addNote({
+            id: noteId,
+            text: transcript.trim(),
+            x,
+            y,
+            color:
+              STICKY_COLORS[Math.floor(Math.random() * STICKY_COLORS.length)],
+            isConcept: false,
+            createdAt: Date.now(),
+          });
+          lastCreatedNoteIdRef.current = noteId;
+          showToast("📝 Note saved!");
+          trySpeak("Note saved");
+        }
       }
     },
-    [setLastSpokenText, setVoiceTranscript]
+    [setLastSpokenText, setVoiceTranscript, state.viewport, addNote, showToast]
   );
 
   // Handle voice commands
@@ -435,6 +466,23 @@ export function AIQuestionPanel() {
           }
           break;
         }
+
+        case "delete-note": {
+          // Delete the most recent note
+          const currentNotes = stateRef.current.notes;
+          if (currentNotes.length > 0) {
+            // Find the note with the latest createdAt timestamp
+            const mostRecentNote = currentNotes.reduce((latest, note) =>
+              note.createdAt > latest.createdAt ? note : latest
+            );
+            deleteNote(mostRecentNote.id);
+            showToast("🗑️ Deleted last note!");
+            trySpeak("Deleted last note");
+          } else {
+            showToast("No notes to delete");
+          }
+          break;
+        }
       }
     },
     [state, addNote, setVoiceMode, setLastSpokenText, showToast, updateNote]
@@ -449,7 +497,7 @@ export function AIQuestionPanel() {
       setVoiceTranscript("");
     } else {
       showToast(
-        "🎤 Voice mode on - try saying 'save this', 'next question', or 'delve deeper'"
+        "🎤 Voice mode on - your speech will be automatically saved as notes. Say 'next question', 'delve deeper', or 'delete that' for commands."
       );
     }
   }, [state.voiceMode, setVoiceMode, showToast, setVoiceTranscript]);
