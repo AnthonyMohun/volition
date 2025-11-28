@@ -64,6 +64,7 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
         "Reduces overwhelm, improves retention, helps students feel in control",
       mainFeatures:
         "Pomodoro timer, calendar integration, progress dashboard, smart notifications",
+      // image removed to prevent issues with local URLs and AI evaluation
       createdAt: Date.now() - 9000,
     },
     {

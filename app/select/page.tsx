@@ -447,21 +447,45 @@ export default function SelectPage() {
                       {/* Image if present */}
                       {(topCard.image || topCard.drawing?.dataUrl) && (
                         <div className="flex gap-4 mb-4">
-                          {topCard.image && (
+                          {topCard.image && !topCard.drawing?.dataUrl && (
                             <img
                               src={topCard.image.dataUrl}
                               alt={topCard.image.caption || "Concept image"}
-                              className="w-1/2 h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
+                              className="w-full h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
                               draggable={false}
                             />
                           )}
-                          {topCard.drawing?.dataUrl && (
+                          {topCard.drawing?.dataUrl && !topCard.image && (
                             <img
                               src={topCard.drawing.dataUrl}
-                              alt={topCard.image?.caption ? `${topCard.image.caption} (sketch)` : "Concept sketch"}
-                              className="w-1/2 h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
+                              alt={
+                                topCard.image?.caption
+                                  ? `${topCard.image.caption} (sketch)`
+                                  : "Concept sketch"
+                              }
+                              className="w-full h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
                               draggable={false}
                             />
+                          )}
+                          {topCard.image && topCard.drawing?.dataUrl && (
+                            <>
+                              <img
+                                src={topCard.image.dataUrl}
+                                alt={topCard.image.caption || "Concept image"}
+                                className="w-1/2 h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
+                                draggable={false}
+                              />
+                              <img
+                                src={topCard.drawing.dataUrl}
+                                alt={
+                                  topCard.image?.caption
+                                    ? `${topCard.image.caption} (sketch)`
+                                    : "Concept sketch"
+                                }
+                                className="w-1/2 h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
+                                draggable={false}
+                              />
+                            </>
                           )}
                         </div>
                       )}

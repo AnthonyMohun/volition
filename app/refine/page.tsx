@@ -52,7 +52,7 @@ export default function RefinePage() {
   const [platform, setPlatform] = useState<string[]>([]);
   const [keyBenefits, setKeyBenefits] = useState("");
   const [mainFeatures, setMainFeatures] = useState("");
-  const [showExtras, setShowExtras] = useState(false);
+  const [showExtras, setShowExtras] = useState(false); // Closed by default
   const [wizardComplete, setWizardComplete] = useState(false);
   const [guidedIndex, setGuidedIndex] = useState(0);
   const [recordingField, setRecordingField] = useState<RecordingField>(null);
@@ -197,9 +197,7 @@ export default function RefinePage() {
         description: descMatch ? descMatch[1].trim() : "",
         extras: extrasMatch ? extrasMatch[1].trim() : "",
       });
-      if (extrasMatch && extrasMatch[1].trim()) {
-        setShowExtras(true);
-      }
+      // Always keep extra notes section closed by default
     } else {
       setEditForm({
         title: note.text,
@@ -413,19 +411,41 @@ export default function RefinePage() {
                     {/* Show attached image and/or sketch if available */}
                     {(note.image || note.drawing?.dataUrl) && (
                       <div className="mb-6 p-4 bg-gradient-to-br from-blue-50 to-teal-50 rounded-2xl border-3 border-blue-200 shadow-md flex gap-4">
-                        {note.image && (
+                        {note.image && !note.drawing?.dataUrl && (
                           <img
                             src={note.image.dataUrl}
                             alt={note.image.caption || "Concept image"}
-                            className="w-1/2 max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                            className="w-full max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
                           />
                         )}
-                        {note.drawing?.dataUrl && (
+                        {note.drawing?.dataUrl && !note.image && (
                           <img
                             src={note.drawing.dataUrl}
-                            alt={note.image?.caption ? `${note.image.caption} (sketch)` : "Concept sketch"}
-                            className="w-1/2 max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                            alt={
+                              note.image?.caption
+                                ? `${note.image.caption} (sketch)`
+                                : "Concept sketch"
+                            }
+                            className="w-full max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
                           />
+                        )}
+                        {note.image && note.drawing?.dataUrl && (
+                          <>
+                            <img
+                              src={note.image.dataUrl}
+                              alt={note.image.caption || "Concept image"}
+                              className="w-1/2 max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                            />
+                            <img
+                              src={note.drawing.dataUrl}
+                              alt={
+                                note.image?.caption
+                                  ? `${note.image.caption} (sketch)`
+                                  : "Concept sketch"
+                              }
+                              className="w-1/2 max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                            />
+                          </>
                         )}
                       </div>
                     )}

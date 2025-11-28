@@ -258,7 +258,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
             { role: "user", content: userContent },
           ],
           0.5,
-          400
+          20000
         );
 
         // Request AI summary (short description)
@@ -269,18 +269,20 @@ Respond in this exact JSON format (no markdown, just raw JSON):
             ? `Description: "${note.details}"`
             : "No description provided."
         }`;
-        const summaryResponse = await askAI(
+        const summaryResponseRaw = await askAI(
           [
             {
               role: "system",
               content:
-                "You are a design thinking coach. Write a concise, clear summary of the concept for a design review. STRICT LIMIT: 1-2 lines, max 120 characters. Do not repeat the title. No filler. No markdown.",
+                "You are a design thinking coach. Write a concise, clear summary of the concept for a design review. STRICT LIMIT: 1-2 lines, max 80 characters. Do not repeat the title. No filler. No markdown.",
             },
             { role: "user", content: summaryPrompt },
           ],
           0.3,
           40
         );
+        let summaryResponse = summaryResponseRaw.trim();
+        // Always use the AI's summary response, regardless of length
 
         // Parse the JSON response
         let parsed;

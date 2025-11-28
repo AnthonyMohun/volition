@@ -87,7 +87,7 @@ Your goal: Help users discover their own ideas through sharp, probing questions.
 export async function askAI(
   messages: Message[],
   temperature = 0.7,
-  maxTokens = 500
+  maxTokens = 8000
 ): Promise<string> {
   try {
     const response = await fetch("/api/ai", {

@@ -136,17 +136,24 @@ export function StickyNote({
     }
 
     try {
-      const { compressImage } = await import("@/lib/utils");
-      const dataUrl = await compressImage(file);
-
-      onUpdate({
-        image: {
-          dataUrl,
-          name: file.name,
-          type: file.type,
-          size: file.size,
-        },
-      });
+      const { compressImage } = await import("@/lib/image-compress");
+      const compressedFile = await compressImage(file);
+      const reader = new FileReader();
+      reader.readAsDataURL(compressedFile);
+      reader.onload = () => {
+        onUpdate({
+          image: {
+            dataUrl: reader.result as string,
+            name: compressedFile.name,
+            type: compressedFile.type,
+            size: compressedFile.size,
+          },
+        });
+      };
+      reader.onerror = (error) => {
+        console.error("Failed to read compressed image:", error);
+        alert("Failed to process image");
+      };
     } catch (error) {
       console.error("Failed to process image:", error);
       alert("Failed to process image");
