@@ -24,7 +24,12 @@ import { STICKY_COLORS } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { VoiceInput } from "@/components/voice-input";
 import { VoiceCommand } from "@/lib/voice-commands";
-import { speak, stopSpeaking, isSpeechSynthesisSupported } from "@/lib/speech";
+import {
+  speak,
+  stopSpeaking,
+  isSpeechSynthesisSupported,
+  isCurrentlySpeaking,
+} from "@/lib/speech";
 
 // Stuck detection: nudge messages when user hasn't added notes in 5 minutes
 const STUCK_NUDGE_MESSAGES = [
@@ -61,7 +66,6 @@ export function AIQuestionPanel() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stuckNudge, setStuckNudge] = useState<string | null>(null);
-  const [isAISpeaking, setIsAISpeaking] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const hasAskedFirstQuestion = useRef(false);
   const lastNoteCountRef = useRef(state.notes.length);
@@ -100,11 +104,11 @@ export function AIQuestionPanel() {
         showToast("🔇 AI voice is paused while you're recording");
         return;
       }
-      setIsAISpeaking(true);
       try {
         await speak(text);
-      } finally {
-        setIsAISpeaking(false);
+      } catch (error) {
+        // Speech failed, but we don't need to set state anymore
+        console.warn("Speech synthesis failed:", error);
       }
     },
     [showToast, isMuted]
@@ -385,29 +389,44 @@ export function AIQuestionPanel() {
 
   return (
     <div className="bg-gradient-to-b from-white to-blue-50/30 border-r-4 border-blue-200 w-80 flex flex-col order-first shadow-xl z-10">
-      <div className="p-4 border-b-3 border-blue-100 space-y-3 bg-gradient-to-br from-blue-50 to-teal-50">
-        {/* Bot Identifier - Condensed */}
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="bg-gradient-to-br from-blue-100 to-teal-100 p-2 rounded-2xl shadow-md">
-              <Bot className="w-5 h-5 text-teal-600" />
+      <div className="p-4 border-b-3 border-blue-100 bg-gradient-to-br from-blue-50 to-teal-50">
+        {/* Clean, minimal header */}
+        <div className="flex items-center justify-between">
+          {/* Bot Identity */}
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="bg-gradient-to-br from-blue-100 to-teal-100 p-2 rounded-2xl shadow-md">
+                <Bot className="w-5 h-5 text-teal-600" />
+              </div>
+              <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white animate-pulse"></span>
             </div>
-            <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white animate-pulse"></span>
+            <div>
+              <h2 className="font-black text-gray-800 text-base">
+                Socratic Guide
+              </h2>
+              <p className="text-xs text-gray-500 font-medium">
+                {isLoading
+                  ? "🤔 Thinking..."
+                  : isCurrentlySpeaking()
+                  ? "🗣️ Speaking..."
+                  : state.voiceMode
+                  ? "🎤 Listening..."
+                  : isMuted
+                  ? "🔇 Muted"
+                  : "✨ Ready to help"}
+              </p>
+            </div>
           </div>
-          <div className="flex-1">
-            <h2 className="font-black text-gray-800 text-base flex items-center gap-1.5">
-              Socratic AI <span className="text-xs">🤖</span>
-            </h2>
-          </div>
-          {/* Mute Button */}
+
+          {/* Mute Button Only */}
           <button
             onClick={() => setIsMuted(!isMuted)}
             title={isMuted ? "Unmute AI voice" : "Mute AI voice"}
             aria-label={isMuted ? "Unmute AI voice" : "Mute AI voice"}
             className={`p-2 rounded-xl hover:scale-110 transition-all shadow-sm ${
               isMuted
-                ? "text-red-500 bg-red-100"
-                : "text-gray-400 hover:bg-gray-100"
+                ? "text-red-500 bg-red-100 border border-red-200"
+                : "text-gray-500 hover:bg-gray-100 border border-gray-200"
             }`}
           >
             {isMuted ? (
@@ -416,16 +435,9 @@ export function AIQuestionPanel() {
               <Volume2 className="w-4 h-4" />
             )}
           </button>
-          {/* Stats inline */}
-          <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
-            <span title="Total questions">💬 {state.questions.length}</span>
-            <span title="Unanswered" className="text-teal-600">
-              ⏳ {state.questions.filter((q) => !q.answered).length}
-            </span>
-          </div>
         </div>
 
-        {/* Voice Controls - Compact */}
+        {/* Voice Controls - Hidden */}
         <div style={{ display: "none" }}>
           <VoiceInput
             onTranscript={handleVoiceTranscript}
@@ -433,7 +445,7 @@ export function AIQuestionPanel() {
             isEnabled={state.voiceMode || false}
             onToggle={handleVoiceToggle}
             onSetEnabled={(enabled: boolean) => setVoiceMode(enabled)}
-            isMuted={isAISpeaking}
+            isMuted={isCurrentlySpeaking()}
           />
         </div>
       </div>
