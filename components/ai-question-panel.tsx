@@ -38,6 +38,7 @@ export function AIQuestionPanel() {
     toggleQuestionPinned,
     setVoiceMode,
     setLastSpokenText,
+    setVoiceTranscript,
     updateNote,
   } = useSession();
   const { showToast } = useToast();
@@ -88,7 +89,6 @@ export function AIQuestionPanel() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stuckNudge, setStuckNudge] = useState<string | null>(null);
-  const [voiceTranscript, setVoiceTranscript] = useState("");
   const [isAISpeaking, setIsAISpeaking] = useState(false);
   const hasAskedFirstQuestion = useRef(false);
   const lastNoteCountRef = useRef(state.notes.length);
@@ -261,7 +261,7 @@ export function AIQuestionPanel() {
         setLastSpokenText(transcript);
       }
     },
-    [setLastSpokenText]
+    [setLastSpokenText, setVoiceTranscript]
   );
 
   // Handle voice commands
@@ -358,7 +358,7 @@ export function AIQuestionPanel() {
     } else {
       showToast("🎤 Voice mode on - try saying 'save this' or 'next question'");
     }
-  }, [state.voiceMode, setVoiceMode, showToast]);
+  }, [state.voiceMode, setVoiceMode, showToast, setVoiceTranscript]);
 
   // Voice output toggle removed in favor of automatic muting during push-to-talk
 
@@ -399,22 +399,6 @@ export function AIQuestionPanel() {
           />
           {/* Voice Commands Help moved to top toolbar near microphone */}
         </div>
-
-        {/* Live transcript display */}
-        <AnimatePresence>
-          {voiceTranscript && state.voiceMode && (
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              className="p-2 bg-white border-2 border-blue-200 rounded-xl shadow-sm"
-            >
-              <p className="text-xs text-gray-700">
-                <span className="text-gray-400">💬</span> {voiceTranscript}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-blue-50/30">

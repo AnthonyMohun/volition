@@ -68,6 +68,7 @@ export function VoiceInput({
   onCommand,
   isEnabled,
   onToggle,
+  onSetEnabled,
   isMuted = false,
 }: VoiceInputProps) {
   const [isListening, setIsListening] = useState(false);

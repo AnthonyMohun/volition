@@ -51,6 +51,7 @@ interface SessionContextType {
   setVoiceMode: (enabled: boolean) => void;
   setVoiceOutputEnabled: (enabled: boolean) => void;
   setLastSpokenText: (text: string) => void;
+  setVoiceTranscript: (transcript: string) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -302,6 +303,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setState((prev) => ({ ...prev, lastSpokenText: text }));
   }, []);
 
+  const setVoiceTranscript = useCallback((transcript: string) => {
+    setState((prev) => ({ ...prev, voiceTranscript: transcript }));
+  }, []);
+
   return (
     <SessionContext.Provider
       value={{
@@ -326,6 +331,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         setVoiceMode,
         setVoiceOutputEnabled,
         setLastSpokenText,
+        setVoiceTranscript,
         undo,
         redo,
         canUndo,

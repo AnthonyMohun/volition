@@ -785,6 +785,21 @@ export default function CanvasPage() {
               <div className="border-l-3 border-blue-200 h-10 mx-2" />
               <div className="flex items-center gap-3 ml-2">
                 <div className="relative flex items-center">
+                  <AnimatePresence>
+                    {state.voiceTranscript && state.voiceMode && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                        className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 p-3 bg-white border-2 border-blue-200 rounded-2xl shadow-lg"
+                      >
+                        <p className="text-sm text-gray-700 font-bold">
+                          <span className="text-gray-400">💬</span>{" "}
+                          {state.voiceTranscript}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                   <button
                     onPointerDown={() => setVoiceMode(true)}
                     onPointerUp={() => setVoiceMode(false)}
@@ -833,10 +848,10 @@ export default function CanvasPage() {
                   <AnimatePresence>
                     {showVoiceHelpTooltip && (
                       <motion.div
-                        initial={{ opacity: 0, y: 6, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 6, scale: 0.96 }}
-                        className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
                       >
                         <VoiceCommandsHelp compact />
                       </motion.div>

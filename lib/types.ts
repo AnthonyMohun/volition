@@ -157,6 +157,7 @@ export interface SessionState {
   voiceMode?: boolean;
   voiceOutputEnabled?: boolean;
   lastSpokenText?: string;
+  voiceTranscript?: string;
 }
 
 export const INITIAL_SESSION_STATE: SessionState = {
@@ -175,6 +176,7 @@ export const INITIAL_SESSION_STATE: SessionState = {
   voiceMode: false,
   voiceOutputEnabled: true,
   lastSpokenText: "",
+  voiceTranscript: "",
 };
 
 // Original light colors for reference/mapping
