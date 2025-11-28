@@ -801,11 +801,11 @@ export function AIQuestionPanel() {
       </div>
 
       <div className="p-5 border-t-3 border-blue-100 bg-gradient-to-br from-blue-50 to-teal-50">
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2">
           <button
             onClick={askNextQuestion}
-            disabled={isLoading || state.notes.length === 0}
-            className="flex-1 fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-teal"
+            disabled={isLoading || stateRef.current.notes.length === 0}
+            className="fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-teal"
           >
             <Sparkles className="w-5 h-5" />
             <span className="font-black">
@@ -814,8 +814,17 @@ export function AIQuestionPanel() {
           </button>
           <button
             onClick={delveDeeper}
-            disabled={isLoading || state.notes.length === 0}
-            className="flex-1 fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-teal"
+            disabled={isLoading || stateRef.current.notes.length === 0}
+            className="flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg text-white font-bold border-none rounded-2xl px-6 py-3 transition-all hover:scale-105 hover:shadow-xl"
+            style={{
+              background:
+                "linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f97316 100%)",
+              backgroundSize: "200% 200%",
+              animation: "gradientFlow 3s ease infinite",
+              boxShadow:
+                "0 8px 16px rgba(139, 92, 246, 0.4), 0 4px 8px rgba(236, 72, 153, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.2)",
+              textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+            }}
           >
             <Eye className="w-5 h-5" />
             <span className="font-black">
@@ -824,7 +833,7 @@ export function AIQuestionPanel() {
           </button>
         </div>
         <p className="text-xs text-gray-500 mt-3 text-center font-bold">
-          {state.notes.length === 0
+          {stateRef.current.notes.length === 0
             ? "✏️ Add some notes to get started"
             : "🚀 Get the next guiding question or deepen your ideas"}
         </p>
