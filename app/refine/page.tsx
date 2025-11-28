@@ -410,14 +410,23 @@ export default function RefinePage() {
 
                 return (
                   <div key={note.id} className="relative z-10">
-                    {/* Show attached image if available */}
-                    {note.image && (
-                      <div className="mb-6 p-4 bg-gradient-to-br from-blue-50 to-teal-50 rounded-2xl border-3 border-blue-200 shadow-md">
-                        <img
-                          src={note.image.dataUrl}
-                          alt={note.image.caption || "Concept sketch"}
-                          className="w-full max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
-                        />
+                    {/* Show attached image and/or sketch if available */}
+                    {(note.image || note.drawing?.dataUrl) && (
+                      <div className="mb-6 p-4 bg-gradient-to-br from-blue-50 to-teal-50 rounded-2xl border-3 border-blue-200 shadow-md flex gap-4">
+                        {note.image && (
+                          <img
+                            src={note.image.dataUrl}
+                            alt={note.image.caption || "Concept image"}
+                            className="w-1/2 max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                          />
+                        )}
+                        {note.drawing?.dataUrl && (
+                          <img
+                            src={note.drawing.dataUrl}
+                            alt={note.image?.caption ? `${note.image.caption} (sketch)` : "Concept sketch"}
+                            className="w-1/2 max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                          />
+                        )}
                       </div>
                     )}
 
