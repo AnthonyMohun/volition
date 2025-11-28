@@ -705,7 +705,7 @@ export default function CanvasPage() {
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-teal-50 to-yellow-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-5 flex items-center shadow-lg z-20">
+      <div className="bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-5 flex items-center justify-between shadow-lg z-20">
         <div className="flex items-center gap-4">
           <button
             onClick={handleStartNewProject}
@@ -720,17 +720,6 @@ export default function CanvasPage() {
               Ideation Canvas
             </h1>
             <p className="text-xs text-gray-600 mt-1 font-bold">
-              Organize your ideas and concepts on the canvas ✨
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex justify-center">
-          <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-teal-50 rounded-xl border-2 border-blue-200 shadow-sm max-w-md">
-            <p className="text-sm font-bold text-blue-700 flex items-center gap-1 justify-center">
-              <span>🎯</span>
-              Design Challenge
-            </p>
-            <p className="text-sm text-gray-700 mt-1 text-center">
               {state.hmwStatement}
             </p>
           </div>
