@@ -53,6 +53,7 @@ interface AIConceptEvaluation {
   };
   strengths: string[];
   improvements: string[];
+  summary?: string; // AI-generated short summary
   isLoading?: boolean;
 }
 
@@ -246,6 +247,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
           userContent = contentParts;
         }
 
+        // Request AI evaluation
         const response = await askAI(
           [
             {
@@ -257,6 +259,27 @@ Respond in this exact JSON format (no markdown, just raw JSON):
           ],
           0.5,
           400
+        );
+
+        // Request AI summary (short description)
+        const summaryPrompt = `Summarize the following concept in 1-2 short, clear lines for a design review. Be concise and specific.\nTitle: "${
+          note.text
+        }"\n${
+          note.details
+            ? `Description: "${note.details}"`
+            : "No description provided."
+        }`;
+        const summaryResponse = await askAI(
+          [
+            {
+              role: "system",
+              content:
+                "You are a design thinking coach. Write a concise, clear summary of the concept for a design review. STRICT LIMIT: 1-2 lines, max 120 characters. Do not repeat the title. No filler. No markdown.",
+            },
+            { role: "user", content: summaryPrompt },
+          ],
+          0.3,
+          40
         );
 
         // Parse the JSON response
@@ -365,6 +388,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
                   },
                   strengths: parsed.strengths || [],
                   improvements: parsed.improvements || [],
+                  summary: summaryResponse.trim(),
                   isLoading: false,
                 }
               : e
@@ -847,11 +871,13 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                         <h2 className="text-xl font-black text-gray-800">
                           {currentNote?.text}
                         </h2>
-                        {currentNote?.details && (
-                          <p className="text-sm text-gray-600 font-semibold mt-1 line-clamp-2">
-                            {currentNote.details}
+                        {currentEval?.isLoading ? (
+                          <div className="h-6 w-32 bg-gray-200 animate-pulse rounded mt-2" />
+                        ) : currentEval?.summary ? (
+                          <p className="text-sm text-gray-600 font-semibold mt-1">
+                            {currentEval.summary}
                           </p>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>

@@ -44,7 +44,9 @@ export async function parseVoiceCommand(
   transcript: string
 ): Promise<VoiceCommand> {
   // First, improve the transcript using the local LM
-  const { improveTranscript, classifyVoiceCommand } = await import("@/lib/ai-client");
+  const { improveTranscript, classifyVoiceCommand } = await import(
+    "@/lib/ai-client"
+  );
   const improved = await improveTranscript(transcript);
   const normalizedTranscript = improved.trim().toLowerCase();
 
