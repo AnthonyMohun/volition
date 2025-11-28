@@ -176,7 +176,14 @@ Return ONLY the category name in lowercase, nothing else. If unsure, return "non
 export function buildConversationContext(
   hmwStatement: string,
   recentNotes: Array<{ text: string; image?: { caption?: string } }>,
-  concepts: Array<{ title: string; description: string }>
+  concepts: Array<{
+    title: string;
+    description: string;
+    targetAudience?: string;
+    platform?: string[];
+    keyBenefits?: string;
+    mainFeatures?: string;
+  }>
 ): string {
   let context = `Project Context:\nHow Might We: ${hmwStatement}\n\n`;
 
@@ -196,6 +203,14 @@ export function buildConversationContext(
     context += `Current concepts:\n`;
     concepts.forEach((concept, i) => {
       context += `${i + 1}. ${concept.title}: ${concept.description}\n`;
+      if (concept.targetAudience)
+        context += `   Target Audience: ${concept.targetAudience}\n`;
+      if (concept.platform && concept.platform.length)
+        context += `   Platform: ${concept.platform.join(", ")}\n`;
+      if (concept.keyBenefits)
+        context += `   Key Benefits: ${concept.keyBenefits}\n`;
+      if (concept.mainFeatures)
+        context += `   Main Features: ${concept.mainFeatures}\n`;
     });
   }
 

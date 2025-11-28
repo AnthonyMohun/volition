@@ -57,7 +57,13 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
       color: "#bfdbfe", // blue
       isConcept: true,
       details:
-        "Problem: Students struggle to break down large amounts of study material into manageable sessions, leading to cramming and burnout during exam periods.\n\nSolution: An app that uses the Pomodoro technique (25-minute focused sessions with 5-minute breaks) and automatically schedules study sessions based on exam dates and subject priorities.\n\nUser Value: Reduces overwhelm by making study time feel manageable, improves retention through spaced repetition, and helps students feel more in control of their preparation. No more all-nighters!\n\nImplementation: Build as a mobile app with calendar integration. Include task breakdown wizard, progress tracking dashboard, and smart notifications. Start with a simple MVP focusing on timer and schedule features.",
+        "Description: An app that uses the Pomodoro technique (25-minute focused sessions with 5-minute breaks) and automatically schedules study sessions based on exam dates and subject priorities.\n\nExtras: Includes MVP focus on timer and schedule features.",
+      targetAudience: "College students",
+      platform: ["Mobile", "Web"],
+      keyBenefits:
+        "Reduces overwhelm, improves retention, helps students feel in control",
+      mainFeatures:
+        "Pomodoro timer, calendar integration, progress dashboard, smart notifications",
       createdAt: Date.now() - 9000,
     },
     {
@@ -73,7 +79,13 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
       color: "#bbf7d0", // green
       isConcept: true,
       details:
-        "Problem: Students studying alone often lose motivation and feel isolated, especially when peer support groups struggle to coordinate meeting times.\n\nSolution: A platform that matches students studying for similar subjects and creates virtual study rooms. Features include shared study schedules, video call integration, and mutual check-ins to keep each other accountable.\n\nUser Value: Reduces isolation and procrastination through peer support, increases motivation knowing someone else is counting on you, and makes studying more enjoyable through social connection.\n\nImplementation: Web-based platform with simple matching algorithm based on course/subject. Integrate with Zoom or build basic video functionality. Include scheduling calendar and notification system for study session reminders.",
+        "Description: A platform that matches students studying for similar subjects and creates virtual study rooms. Features include shared study schedules, video call integration, and mutual check-ins to keep each other accountable.\n\nExtras: Integrates with Zoom or basic video functionality. Includes scheduling calendar and notification system for study session reminders.",
+      targetAudience: "College students",
+      platform: ["Web", "Desktop"],
+      keyBenefits:
+        "Reduces isolation, increases motivation, makes studying enjoyable",
+      mainFeatures:
+        "Study room matching, video calls, shared schedules, notifications",
       createdAt: Date.now() - 7000,
     },
     {
@@ -96,7 +108,12 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
       color: "#dcfce7", // teal
       isConcept: true,
       details:
-        "Problem: Students forget to take breaks during intense study sessions, leading to mental fatigue, stress buildup, and decreased retention over time.\n\nSolution: An app that integrates with study timers and automatically prompts students to take 2-5 minute mindfulness breaks. Offers guided meditations, breathing exercises, progressive muscle relaxation, and stress-relief visualizations tailored for exam stress.\n\nUser Value: Prevents burnout by ensuring regular mental breaks, reduces anxiety through proven relaxation techniques, and improves focus and retention when returning to study. Students feel calmer and more balanced.\n\nImplementation: Mobile app with timer integration APIs, library of 50+ guided audio sessions recorded by wellness experts, customizable break intervals, and offline mode for library use. Partner with university counseling centers for content validation.",
+        "Description: An app that integrates with study timers and automatically prompts students to take 2-5 minute mindfulness breaks. Offers guided meditations, breathing exercises, progressive muscle relaxation, and stress-relief visualizations tailored for exam stress.\n\nExtras: Partner with university counseling centers for content validation.",
+      targetAudience: "College students",
+      platform: ["Mobile", "Tablet"],
+      keyBenefits: "Prevents burnout, reduces anxiety, improves focus",
+      mainFeatures:
+        "Guided meditations, breathing exercises, customizable break intervals, offline mode",
       createdAt: Date.now() - 4000,
     },
     {
