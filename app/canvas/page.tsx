@@ -29,6 +29,7 @@ import {
 import { VoiceCommandsHelp } from "@/components/voice-commands-help";
 import { AnimatePresence, motion } from "framer-motion";
 import { STICKY_COLORS } from "@/lib/types";
+import { findNonOverlappingPosition } from "@/lib/utils";
 
 export default function CanvasPage() {
   const router = useRouter();
@@ -526,8 +527,8 @@ export default function CanvasPage() {
     const centerX = (containerRect.width / 2 - panX) / zoom;
     const centerY = (containerRect.height / 2 - panY) / zoom;
 
-    const x = centerX + (Math.random() - 0.5) * 300;
-    const y = centerY + (Math.random() - 0.5) * 200;
+    // Use collision detection to find a non-overlapping position
+    const { x, y } = findNonOverlappingPosition(state.notes, centerX, centerY);
 
     addNote({
       id: `note-${Date.now()}`,
@@ -558,6 +559,7 @@ export default function CanvasPage() {
     const x = gridSnap ? snapToGrid(canvasX, GRID_SIZE, true) : canvasX;
     const y = gridSnap ? snapToGrid(canvasY, GRID_SIZE, true) : canvasY;
 
+    // For manual placement (double-click), place exactly where clicked
     addNote({
       id: `note-${Date.now()}`,
       text: "New note...",
@@ -762,7 +764,7 @@ export default function CanvasPage() {
             // Blur any focused element when clicking on canvas (not on notes)
             // This allows textarea onBlur to trigger and exit edit mode
             const target = e.target as HTMLElement;
-            if (!target.closest('[data-note]')) {
+            if (!target.closest("[data-note]")) {
               (document.activeElement as HTMLElement)?.blur();
             }
           }}

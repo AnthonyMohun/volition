@@ -31,6 +31,7 @@ import {
   isSpeechSynthesisSupported,
   isCurrentlySpeaking,
 } from "@/lib/speech";
+import { findNonOverlappingPosition } from "@/lib/utils";
 
 // Stuck detection: nudge messages when user hasn't added notes in 5 minutes
 const STUCK_NUDGE_MESSAGES = [
@@ -351,16 +352,20 @@ export function AIQuestionPanel() {
         if (transcript && transcript.trim()) {
           const viewportCenterX = state.viewport?.centerX;
           const viewportCenterY = state.viewport?.centerY;
-          const offsetX = (Math.random() - 0.5) * 200;
-          const offsetY = (Math.random() - 0.5) * 120;
-          const x =
+          const preferredX =
             viewportCenterX !== undefined
-              ? viewportCenterX + offsetX
+              ? viewportCenterX
               : 80 + Math.floor(Math.random() * 200);
-          const y =
+          const preferredY =
             viewportCenterY !== undefined
-              ? viewportCenterY + offsetY
+              ? viewportCenterY
               : 80 + Math.floor(Math.random() * 120);
+
+          const { x, y } = findNonOverlappingPosition(
+            stateRef.current.notes,
+            preferredX,
+            preferredY
+          );
 
           const noteId = `note-${Date.now()}`;
           addNote({
@@ -379,7 +384,14 @@ export function AIQuestionPanel() {
         }
       }
     },
-    [setLastSpokenText, setVoiceTranscript, state.viewport, addNote, showToast]
+    [
+      setLastSpokenText,
+      setVoiceTranscript,
+      state.viewport,
+      state.notes,
+      addNote,
+      showToast,
+    ]
   );
 
   // Handle voice commands
@@ -395,16 +407,20 @@ export function AIQuestionPanel() {
           if (noteText && noteText.trim()) {
             const viewportCenterX = state.viewport?.centerX;
             const viewportCenterY = state.viewport?.centerY;
-            const offsetX = (Math.random() - 0.5) * 200;
-            const offsetY = (Math.random() - 0.5) * 120;
-            const x =
+            const preferredX =
               viewportCenterX !== undefined
-                ? viewportCenterX + offsetX
+                ? viewportCenterX
                 : 80 + Math.floor(Math.random() * 200);
-            const y =
+            const preferredY =
               viewportCenterY !== undefined
-                ? viewportCenterY + offsetY
+                ? viewportCenterY
                 : 80 + Math.floor(Math.random() * 120);
+
+            const { x, y } = findNonOverlappingPosition(
+              stateRef.current.notes,
+              preferredX,
+              preferredY
+            );
 
             const noteId = `note-${Date.now()}`;
             addNote({
@@ -684,21 +700,24 @@ export function AIQuestionPanel() {
                     aria-label="Create note from question"
                     onClick={() => {
                       // Place note near the user's current viewport center (if available)
-                      // Using a subtle random offset to avoid strict stacking on the exact center
+                      // Using collision detection to avoid overlapping
                       const viewportCenterX = state.viewport?.centerX;
                       const viewportCenterY = state.viewport?.centerY;
 
-                      const offsetX = (Math.random() - 0.5) * 200;
-                      const offsetY = (Math.random() - 0.5) * 120;
-
-                      const x =
+                      const preferredX =
                         viewportCenterX !== undefined
-                          ? viewportCenterX + offsetX
+                          ? viewportCenterX
                           : 80 + Math.floor(Math.random() * 200);
-                      const y =
+                      const preferredY =
                         viewportCenterY !== undefined
-                          ? viewportCenterY + offsetY
+                          ? viewportCenterY
                           : 80 + Math.floor(Math.random() * 120);
+
+                      const { x, y } = findNonOverlappingPosition(
+                        state.notes,
+                        preferredX,
+                        preferredY
+                      );
 
                       addNote({
                         id: `note-${Date.now()}`,
