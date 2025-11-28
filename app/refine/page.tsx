@@ -53,6 +53,7 @@ export default function RefinePage() {
   const [keyBenefits, setKeyBenefits] = useState("");
   const [mainFeatures, setMainFeatures] = useState("");
   const [showExtras, setShowExtras] = useState(false); // Closed by default
+  const [isLoadingDescription, setIsLoadingDescription] = useState(false);
   const [wizardComplete, setWizardComplete] = useState(false);
   const [guidedIndex, setGuidedIndex] = useState(0);
   const [recordingField, setRecordingField] = useState<RecordingField>(null);
@@ -178,6 +179,7 @@ export default function RefinePage() {
   const startEditingConcept = (note: (typeof conceptNotes)[0]) => {
     setEditingId(note.id);
     setShowExtras(false);
+    setIsLoadingDescription(true);
 
     // Prefer structured fields if present
     setTargetAudience(note.targetAudience || "");
@@ -209,6 +211,7 @@ export default function RefinePage() {
 
   const saveConcept = () => {
     if (!editingId) return;
+    setIsLoadingDescription(false);
 
     // Compose structured extras
     const structuredExtras = [
@@ -501,6 +504,7 @@ export default function RefinePage() {
                           </p>
                         )}
                       </div>
+                      {/* Gradient skeleton for concept description loading */}
 
                       {/* Description - combines problem + solution */}
                       <div>

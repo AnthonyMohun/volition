@@ -54,6 +54,7 @@ export default function CanvasPage() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const spaceKeyDownRef = useRef(false);
+  const spaceKeyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const panTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastPinchDistanceRef = useRef<number | null>(null);
   const lastPinchCenterRef = useRef<{ x: number; y: number } | null>(null);
@@ -450,6 +451,8 @@ export default function CanvasPage() {
   }, [handleZoomIn, handleZoomOut, handleFitToContent, handleResetView]);
 
   // Global Spacebar push-to-talk (single owner in page.tsx)
+  // Note: We add a visibilitychange/touchcancel listener and a 10s watchdog
+  // to ensure we clear voice mode if a keyup event is not dispatched for some reason
   useEffect(() => {
     const handlePTTKeyDown = (e: KeyboardEvent) => {
       if (e.code !== "Space") return;
@@ -470,6 +473,22 @@ export default function CanvasPage() {
         spaceKeyDownRef.current = true;
         setVoiceMode(true);
         setShowVoiceHelpTooltip(true);
+        if (spaceKeyTimeoutRef.current) {
+          clearTimeout(spaceKeyTimeoutRef.current);
+          spaceKeyTimeoutRef.current = null;
+        }
+        // Safety: If for some reason we never receive a keyup, auto-clear after 10s
+        spaceKeyTimeoutRef.current = setTimeout(() => {
+          if (spaceKeyDownRef.current) {
+            spaceKeyDownRef.current = false;
+            setVoiceMode(false);
+            setShowVoiceHelpTooltip(false);
+          }
+          if (spaceKeyTimeoutRef.current) {
+            clearTimeout(spaceKeyTimeoutRef.current);
+            spaceKeyTimeoutRef.current = null;
+          }
+        }, 10000);
       }
     };
 
@@ -479,6 +498,10 @@ export default function CanvasPage() {
         spaceKeyDownRef.current = false;
         setVoiceMode(false);
         setShowVoiceHelpTooltip(false);
+        if (spaceKeyTimeoutRef.current) {
+          clearTimeout(spaceKeyTimeoutRef.current);
+          spaceKeyTimeoutRef.current = null;
+        }
       }
     };
 
@@ -490,13 +513,37 @@ export default function CanvasPage() {
       }
     };
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== "visible" && spaceKeyDownRef.current) {
+        spaceKeyDownRef.current = false;
+        setVoiceMode(false);
+        setShowVoiceHelpTooltip(false);
+      }
+    };
+
+    const handleTouchCancel = () => {
+      if (spaceKeyDownRef.current) {
+        spaceKeyDownRef.current = false;
+        setVoiceMode(false);
+        setShowVoiceHelpTooltip(false);
+      }
+    };
+
     window.addEventListener("keydown", handlePTTKeyDown);
     window.addEventListener("keyup", handlePTTKeyUp);
     window.addEventListener("blur", handleWindowBlur);
+    window.addEventListener("touchcancel", handleTouchCancel);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
       window.removeEventListener("keydown", handlePTTKeyDown);
       window.removeEventListener("keyup", handlePTTKeyUp);
       window.removeEventListener("blur", handleWindowBlur);
+      window.removeEventListener("touchcancel", handleTouchCancel);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (spaceKeyTimeoutRef.current) {
+        clearTimeout(spaceKeyTimeoutRef.current);
+        spaceKeyTimeoutRef.current = null;
+      }
     };
   }, [setVoiceMode]);
 
@@ -975,9 +1022,11 @@ export default function CanvasPage() {
                   <button
                     onPointerDown={() => setVoiceMode(true)}
                     onPointerUp={() => setVoiceMode(false)}
+                    onPointerCancel={() => isRecording && setVoiceMode(false)}
                     onPointerLeave={() => isRecording && setVoiceMode(false)}
                     onTouchStart={() => setVoiceMode(true)}
                     onTouchEnd={() => setVoiceMode(false)}
+                    onTouchCancel={() => isRecording && setVoiceMode(false)}
                     className={`p-2.5 rounded-xl transition-all shadow-sm ${
                       isRecording
                         ? "bg-red-100 text-red-600 animate-pulse"

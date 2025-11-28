@@ -874,7 +874,11 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                           {currentNote?.text}
                         </h2>
                         {currentEval?.isLoading ? (
-                          <div className="h-6 w-32 bg-gray-200 animate-pulse rounded mt-2" />
+                          <div className="px-4 py-3 bg-white rounded-2xl flex flex-col gap-2 animate-pulse mt-2">
+                            <div className="h-4 w-full bg-gradient-to-r from-blue-100 via-blue-200 to-blue-100 rounded self-start"></div>
+                            <div className="h-4 w-4/5 bg-gradient-to-r from-blue-100 via-blue-200 to-blue-100 rounded self-start"></div>
+                            <div className="h-4 w-2/3 bg-gradient-to-r from-blue-100 via-blue-200 to-blue-100 rounded self-start"></div>
+                          </div>
                         ) : currentEval?.summary ? (
                           <p className="text-sm text-gray-600 font-semibold mt-1">
                             {currentEval.summary}

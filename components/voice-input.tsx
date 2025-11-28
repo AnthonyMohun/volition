@@ -272,7 +272,9 @@ export function VoiceInput({
         onClick={onToggle}
         onPointerDown={() => onSetEnabled?.(true)}
         onPointerUp={() => onSetEnabled?.(false)}
+        onPointerCancel={() => onSetEnabled?.(false)}
         onPointerLeave={() => onSetEnabled?.(false)}
+        onTouchCancel={() => onSetEnabled?.(false)}
         className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all shadow-md ${
           isEnabled
             ? "bg-gradient-to-r from-red-500 to-teal-500 text-white hover:from-red-600 hover:to-teal-600"
