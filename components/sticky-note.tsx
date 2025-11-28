@@ -343,6 +343,7 @@ export function StickyNote({
               className="w-full h-32 object-cover rounded-lg cursor-pointer border border-gray-200 hover:border-gray-300 transition-colors"
               onClick={() => setShowImagePreview(true)}
               onPointerDown={(e) => e.stopPropagation()}
+              onDoubleClick={(e) => e.stopPropagation()}
             />
             <button
               onClick={handleRemoveImage}
@@ -368,6 +369,7 @@ export function StickyNote({
               className="w-full h-32 object-contain rounded-lg cursor-pointer border border-gray-200 hover:border-gray-300 transition-colors bg-white/50"
               onClick={handleOpenDrawing}
               onPointerDown={(e) => e.stopPropagation()}
+              onDoubleClick={(e) => e.stopPropagation()}
             />
             <button
               onClick={handleRemoveDrawing}
@@ -402,6 +404,7 @@ export function StickyNote({
                   handleTextSave();
                 }
               }}
+              onDoubleClick={(e) => e.stopPropagation()}
             />
           </div>
         ) : (
@@ -409,6 +412,7 @@ export function StickyNote({
             className="text-sm text-gray-800 whitespace-pre-wrap break-words cursor-text leading-relaxed font-bold"
             onClick={() => setIsEditing(true)}
             onPointerDown={(e) => e.stopPropagation()}
+            onDoubleClick={(e) => e.stopPropagation()}
           >
             {note.text}
           </p>
@@ -540,9 +544,7 @@ export function StickyNote({
             <div
               className={cn(
                 "fun-card w-full transition-all duration-300 flex flex-col",
-                isFullScreen
-                  ? "fixed inset-4 max-w-none z-[60]"
-                  : "max-w-2xl"
+                isFullScreen ? "fixed inset-4 max-w-none z-[60]" : "max-w-2xl"
               )}
               onClick={(e) => e.stopPropagation()}
               style={{

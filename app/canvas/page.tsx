@@ -758,6 +758,14 @@ export default function CanvasPage() {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           onDoubleClick={handleCanvasClick}
+          onClick={(e) => {
+            // Blur any focused element when clicking on canvas (not on notes)
+            // This allows textarea onBlur to trigger and exit edit mode
+            const target = e.target as HTMLElement;
+            if (!target.closest('[data-note]')) {
+              (document.activeElement as HTMLElement)?.blur();
+            }
+          }}
           style={{ cursor: isPanning ? "grabbing" : "default" }}
         >
           <div

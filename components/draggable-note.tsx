@@ -31,6 +31,7 @@ export function DraggableNote({
       style={style}
       className="touch-none"
       onMouseDown={(e) => e.stopPropagation()}
+      data-note
     >
       <StickyNote
         note={note}
