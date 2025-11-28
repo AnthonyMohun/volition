@@ -6,6 +6,7 @@ export interface VoiceCommand {
     | "next-question"
     | "stop-listening"
     | "mark-concept"
+    | "clear-transcript"
     | "none";
   payload?: string;
 }
@@ -23,6 +24,9 @@ const COMMAND_PATTERNS: Record<VoiceCommand["type"], RegExp[]> = {
   ],
   "mark-concept": [
     /\b(mark as concept|make this a concept|this is a concept|promote to concept|concept this)\b/i,
+  ],
+  "clear-transcript": [
+    /\b(clear this|clear that|delete this|remove this|erase this|cancel this)\b/i,
   ],
   none: [],
 };
@@ -97,6 +101,8 @@ export function getCommandLabel(type: VoiceCommand["type"]): string {
       return "Stop listening";
     case "mark-concept":
       return "Mark as concept";
+    case "clear-transcript":
+      return "Clear transcript";
     default:
       return "";
   }

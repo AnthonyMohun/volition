@@ -291,6 +291,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         // ignore
       }
+      // Clear any previous transcript when starting voice mode
+      setState((prev) => ({ ...prev, voiceTranscript: "" }));
+    } else {
+      // Clear transcript when disabling voice mode
+      setState((prev) => ({ ...prev, voiceTranscript: "" }));
     }
     setState((prev) => ({ ...prev, voiceMode: enabled }));
   }, []);

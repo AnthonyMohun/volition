@@ -786,19 +786,28 @@ export default function CanvasPage() {
               <div className="flex items-center gap-3 ml-2">
                 <div className="relative flex items-center">
                   <AnimatePresence>
-                    {state.voiceTranscript && state.voiceMode && (
+                    {(state.voiceTranscript && state.voiceMode) ||
+                    showVoiceHelpTooltip ? (
                       <motion.div
                         initial={{ opacity: 0, y: 5, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                        className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 p-3 bg-white border-2 border-blue-200 rounded-2xl shadow-lg"
+                        className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 ${
+                          state.voiceTranscript
+                            ? "p-3 bg-white border-2 border-blue-200 rounded-2xl shadow-lg"
+                            : ""
+                        }`}
                       >
-                        <p className="text-sm text-gray-700 font-bold">
-                          <span className="text-gray-400">💬</span>{" "}
-                          {state.voiceTranscript}
-                        </p>
+                        {state.voiceTranscript ? (
+                          <p className="text-sm text-gray-700 font-bold">
+                            <span className="text-gray-400">💬</span>{" "}
+                            {state.voiceTranscript}
+                          </p>
+                        ) : (
+                          <VoiceCommandsHelp compact />
+                        )}
                       </motion.div>
-                    )}
+                    ) : null}
                   </AnimatePresence>
                   <button
                     onPointerDown={() => setVoiceMode(true)}
@@ -829,11 +838,7 @@ export default function CanvasPage() {
                   <button
                     ref={micHelpButtonRef}
                     onClick={() => {
-                      setShowVoiceHelpPopover((prev) => {
-                        const next = !prev;
-                        if (next) setShowVoiceHelpTooltip(false);
-                        return next;
-                      });
+                      setShowVoiceHelpPopover((prev) => !prev);
                     }}
                     className={`absolute top-0 right-0 -mt-1 -mr-1 p-1 rounded-full transition-all ${
                       showVoiceHelpPopover
@@ -844,19 +849,6 @@ export default function CanvasPage() {
                   >
                     <HelpCircle className="w-3 h-3" />
                   </button>
-
-                  <AnimatePresence>
-                    {showVoiceHelpTooltip && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
-                      >
-                        <VoiceCommandsHelp compact />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
 
                   <AnimatePresence>
                     {showVoiceHelpPopover && (

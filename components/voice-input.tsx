@@ -144,6 +144,17 @@ export function VoiceInput({
           " " +
           interim
         ).trim();
+
+        // Check for instant commands in interim results (like "clear this")
+        const interimCommand = parseVoiceCommand(fullInterim);
+        if (interimCommand.type === "clear-transcript") {
+          onCommand(interimCommand, fullInterim);
+          // Reset accumulated transcript after command
+          accumulatedTranscriptRef.current = "";
+          setInterimTranscript("");
+          return; // Don't send as regular transcript
+        }
+
         onTranscript(fullInterim, false);
       }
     };

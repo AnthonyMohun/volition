@@ -343,6 +343,12 @@ export function AIQuestionPanel() {
           }
           break;
         }
+
+        case "clear-transcript": {
+          // Transcript is already cleared at the start of this function
+          showToast("🗑️ Transcript cleared!");
+          break;
+        }
       }
     },
     [state, addNote, setVoiceMode, setLastSpokenText, showToast, updateNote]

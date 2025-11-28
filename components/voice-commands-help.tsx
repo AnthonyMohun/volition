@@ -56,7 +56,7 @@ export function VoiceCommandsHelp({
           <li className="flex items-start gap-2">
             <span className="text-teal-500">•</span>
             <span>
-              <strong>Stop listening</strong> — Turn off
+              <strong>Clear this</strong> — Clear transcript
             </span>
           </li>
         </ul>
