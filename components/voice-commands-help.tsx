@@ -50,13 +50,13 @@ export function VoiceCommandsHelp({
           <li className="flex items-start gap-2">
             <span className="text-teal-500">•</span>
             <span>
-              <strong>Mark as concept</strong> — Promote
+              <strong>Delve deeper</strong> — Explore idea
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-teal-500">•</span>
             <span>
-              <strong>Clear this</strong> — Clear transcript
+              <strong>Mark as concept</strong> — Promote
             </span>
           </li>
         </ul>

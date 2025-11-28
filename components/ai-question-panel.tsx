@@ -19,6 +19,7 @@ import {
   Coffee,
   Volume2,
   VolumeX,
+  Eye,
 } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -95,7 +96,6 @@ export function AIQuestionPanel() {
       const pollInterval = 50;
       let waited = 0;
       while (stateRef.current.voiceMode && waited < maxWaitMs) {
-        // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
         waited += pollInterval;
       }
@@ -272,6 +272,69 @@ export function AIQuestionPanel() {
     }
   };
 
+  const delveDeeper = async () => {
+    if (state.notes.length === 0) {
+      showToast("No notes to delve into yet!");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const lastNote = state.notes[state.notes.length - 1];
+      const concepts = state.concepts.map((c) => ({
+        title: c.title,
+        description: c.description,
+      }));
+
+      const context = buildConversationContext(
+        state.hmwStatement,
+        [lastNote],
+        concepts
+      );
+
+      // Build conversation history
+      const messages: Array<{ role: MessageRole; content: string }> = [
+        { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
+        { role: "user", content: context },
+      ];
+
+      // Add recent Q&A history
+      const recentQuestions = state.questions.slice(-3);
+      recentQuestions.forEach((q) => {
+        const role: MessageRole = q.fromAI ? "assistant" : "user";
+        messages.push({
+          role,
+          content: q.text,
+        });
+      });
+
+      messages.push({
+        role: "user" as const,
+        content: `The user just added this note: "${lastNote.text}". Help them develop this idea deeper using Socratic questioning. Ask a thought-provoking question that encourages them to explore this concept further, perhaps by challenging assumptions, asking for specifics, or suggesting implications.`,
+      });
+
+      const response = await askAI(messages);
+
+      addQuestion({
+        id: `q-${Date.now()}`,
+        text: response,
+        fromAI: true,
+        answered: false,
+        timestamp: Date.now(),
+      });
+
+      // Auto-speak AI response if voice output is enabled and user is not currently recording
+      trySpeak(response);
+    } catch (err) {
+      setError("Failed to get delve deeper question from AI.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Handle voice transcripts
   const handleVoiceTranscript = useCallback(
     (transcript: string, isFinal: boolean) => {
@@ -335,6 +398,16 @@ export function AIQuestionPanel() {
           break;
         }
 
+        case "delve-deeper": {
+          // If we're currently in voice mode, ensure we exit push-to-talk *before*
+          // delving deeper so the AI voice output is not blocked.
+          // Small delay ensures recognition is stopped and state updates before TTS.
+          setVoiceMode(false);
+          showToast("🔍 Delving deeper...");
+          setTimeout(() => delveDeeper(), 120);
+          break;
+        }
+
         case "stop-listening": {
           setVoiceMode(false);
           stopSpeaking();
@@ -362,12 +435,6 @@ export function AIQuestionPanel() {
           }
           break;
         }
-
-        case "clear-transcript": {
-          // Transcript is already cleared at the start of this function
-          showToast("🗑️ Transcript cleared!");
-          break;
-        }
       }
     },
     [state, addNote, setVoiceMode, setLastSpokenText, showToast, updateNote]
@@ -381,7 +448,9 @@ export function AIQuestionPanel() {
       stopSpeaking();
       setVoiceTranscript("");
     } else {
-      showToast("🎤 Voice mode on - try saying 'save this' or 'next question'");
+      showToast(
+        "🎤 Voice mode on - try saying 'save this', 'next question', or 'delve deeper'"
+      );
     }
   }, [state.voiceMode, setVoiceMode, showToast, setVoiceTranscript]);
 
@@ -679,20 +748,32 @@ export function AIQuestionPanel() {
       </div>
 
       <div className="p-5 border-t-3 border-blue-100 bg-gradient-to-br from-blue-50 to-teal-50">
-        <button
-          onClick={askNextQuestion}
-          disabled={isLoading || state.notes.length === 0}
-          className="w-full fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-teal"
-        >
-          <Sparkles className="w-5 h-5" />
-          <span className="font-black">
-            {isLoading ? "Thinking... 🤔" : "Ask Next Question"}
-          </span>
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={askNextQuestion}
+            disabled={isLoading || state.notes.length === 0}
+            className="flex-1 fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-teal"
+          >
+            <Sparkles className="w-5 h-5" />
+            <span className="font-black">
+              {isLoading ? "Thinking... 🤔" : "Ask Next Question"}
+            </span>
+          </button>
+          <button
+            onClick={delveDeeper}
+            disabled={isLoading || state.notes.length === 0}
+            className="flex-1 fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-teal"
+          >
+            <Eye className="w-5 h-5" />
+            <span className="font-black">
+              {isLoading ? "Thinking... 🤔" : "Delve Deeper"}
+            </span>
+          </button>
+        </div>
         <p className="text-xs text-gray-500 mt-3 text-center font-bold">
           {state.notes.length === 0
             ? "✏️ Add some notes to get started"
-            : "🚀 Get the next guiding question"}
+            : "🚀 Get the next guiding question or deepen your ideas"}
         </p>
       </div>
     </div>

@@ -4,9 +4,9 @@ export interface VoiceCommand {
   type:
     | "save-note"
     | "next-question"
+    | "delve-deeper"
     | "stop-listening"
     | "mark-concept"
-    | "clear-transcript"
     | "none";
   payload?: string;
 }
@@ -19,14 +19,14 @@ const COMMAND_PATTERNS: Record<VoiceCommand["type"], RegExp[]> = {
   "next-question": [
     /\b(next question|new question|ask me|another question|give me a question|ask another)\b/i,
   ],
+  "delve-deeper": [
+    /\b(delve deeper|deepen this|explore this|develop this|go deeper|dig deeper|elaborate on this)\b/i,
+  ],
   "stop-listening": [
     /\b(stop listening|stop voice|pause listening|mute|turn off voice|voice off)\b/i,
   ],
   "mark-concept": [
     /\b(mark as concept|make this a concept|this is a concept|promote to concept|concept this)\b/i,
-  ],
-  "clear-transcript": [
-    /\b(clear this|clear that|delete this|remove this|erase this|cancel this)\b/i,
   ],
   none: [],
 };
@@ -97,12 +97,12 @@ export function getCommandLabel(type: VoiceCommand["type"]): string {
       return "Save as note";
     case "next-question":
       return "Ask next question";
+    case "delve-deeper":
+      return "Delve deeper";
     case "stop-listening":
       return "Stop listening";
     case "mark-concept":
       return "Mark as concept";
-    case "clear-transcript":
-      return "Clear transcript";
     default:
       return "";
   }
