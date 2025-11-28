@@ -32,6 +32,15 @@ export interface AIResponse {
   }>;
 }
 
+export type VoiceCommandType =
+  | "save-note"
+  | "next-question"
+  | "delve-deeper"
+  | "stop-listening"
+  | "mark-concept"
+  | "delete-note"
+  | "none";
+
 export const SOCRATIC_SYSTEM_PROMPT = `You are an expert Interaction Design mentor guiding students through creative thinking methods (SCAMPER, Worst Possible Idea, Forced Connections) to generate design concepts.
 
 CRITICAL RULES:
@@ -81,6 +90,59 @@ export async function askAI(
   } catch (error) {
     console.error("AI request failed:", error);
     throw error;
+  }
+}
+
+export async function classifyVoiceCommand(
+  transcript: string
+): Promise<VoiceCommandType> {
+  try {
+    const response = await askAI(
+      [
+        {
+          role: "system",
+          content: `You are a voice command classifier for a design ideation app. Classify the user's spoken input into exactly one of these categories:
+
+- save-note: Saving or capturing an idea/note
+- next-question: Requesting the next question from AI
+- delve-deeper: Asking to explore or develop an idea further
+- stop-listening: Stopping voice input or listening
+- mark-concept: Promoting a note to a concept
+- delete-note: Deleting or removing a note
+- none: Not a command, just regular speech
+
+Return ONLY the category name in lowercase, nothing else. If unsure, return "none".`,
+        },
+        {
+          role: "user",
+          content: `Classify this spoken input: "${transcript}"`,
+        },
+      ],
+      0.1,
+      50
+    ); // Low temperature for consistent classification
+
+    const type = response.trim().toLowerCase() as VoiceCommandType;
+
+    // Validate the response
+    const validTypes: VoiceCommandType[] = [
+      "save-note",
+      "next-question",
+      "delve-deeper",
+      "stop-listening",
+      "mark-concept",
+      "delete-note",
+      "none",
+    ];
+
+    if (validTypes.includes(type)) {
+      return type;
+    }
+
+    return "none";
+  } catch (error) {
+    console.warn("AI command classification failed:", error);
+    return "none";
   }
 }
 

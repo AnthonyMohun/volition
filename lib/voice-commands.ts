@@ -39,10 +39,12 @@ const COMMAND_PATTERNS: Record<VoiceCommand["type"], RegExp[]> = {
  * Parses a transcript to detect voice commands
  * Returns the command type and any relevant payload (text before the command)
  */
-export function parseVoiceCommand(transcript: string): VoiceCommand {
+export async function parseVoiceCommand(
+  transcript: string
+): Promise<VoiceCommand> {
   const normalizedTranscript = transcript.trim().toLowerCase();
 
-  // Check each command type
+  // First try regex matching
   for (const [type, patterns] of Object.entries(COMMAND_PATTERNS) as [
     VoiceCommand["type"],
     RegExp[]
@@ -66,14 +68,26 @@ export function parseVoiceCommand(transcript: string): VoiceCommand {
     }
   }
 
+  // If no regex match, try AI classification
+  try {
+    const { classifyVoiceCommand } = await import("@/lib/ai-client");
+    const aiType = await classifyVoiceCommand(transcript);
+    if (aiType !== "none") {
+      return { type: aiType };
+    }
+  } catch (error) {
+    console.warn("AI classification failed, falling back to none:", error);
+  }
+
   return { type: "none" };
 }
 
 /**
  * Check if a transcript contains any command
  */
-export function hasCommand(transcript: string): boolean {
-  return parseVoiceCommand(transcript).type !== "none";
+export async function hasCommand(transcript: string): Promise<boolean> {
+  const command = await parseVoiceCommand(transcript);
+  return command.type !== "none";
 }
 
 /**

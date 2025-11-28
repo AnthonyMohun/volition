@@ -103,7 +103,7 @@ export function VoiceInput({
       setError(null);
     };
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = async (event: SpeechRecognitionEvent) => {
       let interim = "";
       let final = "";
 
@@ -126,7 +126,7 @@ export function VoiceInput({
         const fullTranscript = accumulatedTranscriptRef.current.trim();
 
         // Check for commands in the accumulated transcript
-        const command = parseVoiceCommand(fullTranscript);
+        const command = await parseVoiceCommand(fullTranscript);
 
         if (command.type !== "none") {
           onCommand(command, fullTranscript);
