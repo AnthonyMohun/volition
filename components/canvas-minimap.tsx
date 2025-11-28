@@ -76,7 +76,7 @@ export function CanvasMinimap({
   }, []);
 
   return (
-    <div className="fixed top-32 right-6 fun-card p-3 z-30">
+    <div className="fixed top-40 right-6 fun-card p-3 z-30">
       <div className="text-xs font-bold text-gray-500 mb-2">Canvas Map</div>
       <div
         ref={minimapRef}

@@ -750,6 +750,9 @@ export default function CanvasPage() {
                     <Plus className="w-5 h-5" />
                     Create your first sticky note
                   </button>
+                  <p className="text-sm text-gray-600 mt-4 font-medium">
+                    Or double-click anywhere on the canvas to create a note
+                  </p>
                 </div>
               </div>
             )}
