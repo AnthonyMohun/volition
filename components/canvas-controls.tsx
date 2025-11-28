@@ -44,7 +44,7 @@ export function CanvasControls({
 
   // Keyboard push-to-talk is handled globally in app/canvas/page.tsx
   return (
-    <div className="fixed bottom-24 right-6 z-20">
+    <div className="fixed bottom-4 right-4 z-20">
       {isCollapsed ? (
         <div className="w-14 fun-card p-2 rounded-xl shadow-md flex items-start">
           <button
