@@ -296,11 +296,9 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
                         What is Crazy Eights?
                       </h3>
                       <p className="text-sm text-gray-600 leading-relaxed">
-                        A rapid sketching exercise where you create multiple
-                        design ideas quickly. Fold a sheet of paper into
-                        sections and spend one minute on each sketch. The time
-                        pressure helps you focus on big ideas rather than
-                        details!
+                        Rapidly sketch multiple design ideas under a time
+                        constraint. Quick iterations help you explore diverse
+                        solutions and move past your first ideas.
                       </p>
                     </div>
                   </div>
