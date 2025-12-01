@@ -287,14 +287,6 @@ export default function SelectPage() {
             <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
           </button>
           <button
-            onClick={() => router.push("/canvas")}
-            className="px-4 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 rounded-xl transition-all flex items-center gap-1.5 border-2 border-blue-200"
-            title="Add more concepts"
-          >
-            <Plus className="w-4 h-4" />
-            Add More
-          </button>
-          <button
             onClick={handleStartNewProject}
             className="p-3 hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
             title="Start a new project"
@@ -320,7 +312,6 @@ export default function SelectPage() {
           Start Over
         </button>
       </div>
-
       {/* Main Content - Centered */}
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="flex flex-col items-center gap-6 w-full max-w-md">

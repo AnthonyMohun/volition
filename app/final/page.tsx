@@ -798,7 +798,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
 
         {/* Header */}
         <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-4 backdrop-blur-xl shadow-lg">
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.push("/refine")}
@@ -813,11 +813,6 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 </h1>
                 <p className="text-sm text-gray-600 font-bold">
                   See how your concepts measure up
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Note: AI evaluation is critical and penalizes incomplete or
-                  title-only concepts to help you improve clarity and
-                  feasibility.
                 </p>
               </div>
             </div>
@@ -1403,7 +1398,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
 
       {/* Header */}
       <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-teal-50/50 border-b-3 border-teal-200 px-6 py-4 backdrop-blur-xl shadow-lg">
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push("/refine")}

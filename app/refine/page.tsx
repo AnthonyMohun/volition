@@ -324,13 +324,6 @@ export default function RefinePage() {
               <ArrowLeft className="w-5 h-5 text-gray-400 hover:text-blue-500" />
             </button>
             <button
-              onClick={() => router.push("/canvas")}
-              className="px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50 rounded-xl transition-all flex items-center gap-1"
-              title="Back to Canvas"
-            >
-              ← Canvas
-            </button>
-            <button
               onClick={handleStartNewProject}
               className="p-2.5 hover:bg-orange-50 rounded-xl transition-all"
               title="New project"
