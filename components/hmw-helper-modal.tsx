@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { X, Accessibility, Heart, Zap, Leaf, Users } from "lucide-react";
+import {
+  X,
+  Accessibility,
+  Heart,
+  Zap,
+  Leaf,
+  Users,
+  Shuffle,
+} from "lucide-react";
 
 interface HMWHelperModalProps {
   isOpen: boolean;
@@ -143,6 +151,23 @@ const TEMPLATES = [
         blanks.benefit || "[connected]"
       } around ${blanks.shared || "[shared interest]"}?`,
   },
+  {
+    id: "random",
+    icon: Shuffle,
+    label: "Random Example",
+    description: "Get a random pre-written HMW statement for inspiration",
+    blanks: [],
+    template: () => "",
+    isRandom: true,
+  },
+];
+
+const EXAMPLE_HMWS = [
+  "How might we help students manage their time more effectively?",
+  "How might we help people with hearing impairments access our mobile app when they can't receive audio notifications?",
+  "How might we help busy professionals accomplish managing emails so they can spend less than 10 minutes per day?",
+  "How might we help remote team members feel more like a team around same projects or interests?",
+  "How might we help online shoppers reduce single-use packaging by using reusable packaging?",
 ];
 
 export function HMWHelperModal({
@@ -156,9 +181,13 @@ export function HMWHelperModal({
   if (!isOpen) return null;
 
   const template = TEMPLATES.find((t) => t.id === selectedTemplate);
+  const isRandom = template && "isRandom" in template && template.isRandom;
   const isComplete =
-    template && template.blanks.every((blank) => blanks[blank.key]?.trim());
-  const generatedStatement = template ? template.template(blanks) : "";
+    template &&
+    !isRandom &&
+    template.blanks.every((blank) => blanks[blank.key]?.trim());
+  const generatedStatement =
+    template && !isRandom ? template.template(blanks) : "";
 
   const handleReset = () => {
     setSelectedTemplate(null);
@@ -201,12 +230,21 @@ export function HMWHelperModal({
               <div className="grid grid-cols-1 gap-3">
                 {TEMPLATES.map((tmpl) => {
                   const IconComponent = tmpl.icon;
+                  const isRandomOption = "isRandom" in tmpl && tmpl.isRandom;
                   return (
                     <button
                       key={tmpl.id}
                       onClick={() => {
-                        setSelectedTemplate(tmpl.id);
-                        setBlanks({});
+                        if (isRandomOption) {
+                          // Select random HMW and close modal
+                          const randomIndex = Math.floor(
+                            Math.random() * EXAMPLE_HMWS.length
+                          );
+                          onSelect(EXAMPLE_HMWS[randomIndex]);
+                        } else {
+                          setSelectedTemplate(tmpl.id);
+                          setBlanks({});
+                        }
                       }}
                       className="group p-4 bg-gray-50 rounded-xl border-2 border-transparent hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left"
                     >

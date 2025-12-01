@@ -8,14 +8,6 @@ import { CrazyEightsModal } from "@/components/crazy-eights-modal";
 import { EXAMPLE_SESSION_DATA } from "@/lib/example-data";
 import { PlayCircle, Zap } from "lucide-react";
 
-const EXAMPLE_HMWS = [
-  "How might we help students manage their time more effectively?",
-  "How might we help people with hearing impairments access our mobile app when they can't receive audio notifications?",
-  "How might we help busy professionals accomplish managing emails so they can spend less than 10 minutes per day?",
-  "How might we help remote team members feel more like a team around same projects or interests?",
-  "How might we help online shoppers reduce single-use packaging by using reusable packaging?",
-];
-
 export default function Home() {
   const router = useRouter();
   const { updateHMW, setPhase, loadExampleSession } = useSession();
@@ -35,11 +27,6 @@ export default function Home() {
   const handleSelectTemplate = (template: string) => {
     setHmwInput(template);
     setShowHelper(false);
-  };
-
-  const handleRandomExample = () => {
-    const randomIndex = Math.floor(Math.random() * EXAMPLE_HMWS.length);
-    setHmwInput(EXAMPLE_HMWS[randomIndex]);
   };
 
   const handleTryExample = () => {
@@ -132,12 +119,12 @@ export default function Home() {
                 />
                 <button
                   type="button"
-                  onClick={handleRandomExample}
-                  className="absolute bottom-4 right-4 text-2xl hover:scale-125 transition-transform p-2 hover:bg-blue-50 rounded-xl"
-                  title="Insert a random example 'How Might We' statement"
-                  aria-label="Insert a random example How Might We statement"
+                  onClick={() => setShowHelper(true)}
+                  className="absolute bottom-4 right-4 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-all"
+                  title="Open HMW Builder"
+                  aria-label="Open HMW Builder"
                 >
-                  🎲
+                  🛠️ HMW Builder
                 </button>
               </div>
             </div>
@@ -145,13 +132,12 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => setShowHelper(true)}
-                aria-label="Open HMW Builder - guided template to craft a How Might We statement"
-                title="Open guided builder to craft a 'How Might We' statement"
+                aria-label="Learn how it works"
+                title="Learn how 'How Might We' statements work"
                 className="fun-button-secondary flex items-center justify-center gap-2 bounce-hover"
               >
-                <span className="text-xl">🛠️</span>
-                <span className="font-black">Open HMW Builder</span>
+                <span className="text-xl">💡</span>
+                <span className="font-black">How it works</span>
               </button>
 
               <button
