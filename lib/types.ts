@@ -87,6 +87,73 @@ export interface ConceptSelfEvaluation {
   completedAt?: number;
 }
 
+// Growth-based feedback tiers (replaces numeric scores for student-facing display)
+export type GrowthTier = "seed" | "sprout" | "tree" | "forest";
+
+export interface GrowthTierInfo {
+  tier: GrowthTier;
+  emoji: string;
+  label: string;
+  description: string;
+  color: string; // Tailwind-friendly gradient start color
+  encouragement: string;
+}
+
+export const GROWTH_TIERS: Record<GrowthTier, GrowthTierInfo> = {
+  seed: {
+    tier: "seed",
+    emoji: "🌱",
+    label: "Seed",
+    description: "Needs more detail",
+    color: "#a3e635", // lime-400
+    encouragement:
+      "Your idea needs more detail to fully evaluate. Try adding specifics about how it works or who it helps!",
+  },
+  sprout: {
+    tier: "sprout",
+    emoji: "🌿",
+    label: "Sprout",
+    description: "On the right track",
+    color: "#4ade80", // green-400
+    encouragement:
+      "You're on the right track! A bit more thought will strengthen your concept.",
+  },
+  tree: {
+    tier: "tree",
+    emoji: "🌳",
+    label: "Tree",
+    description: "Well-developed",
+    color: "#2dd4bf", // teal-400
+    encouragement:
+      "Solid work! Your concept shows clear thinking and could move forward confidently.",
+  },
+  forest: {
+    tier: "forest",
+    emoji: "🌲",
+    label: "Forest",
+    description: "Ready to present",
+    color: "#14b8a6", // teal-500
+    encouragement:
+      "Excellent! Your concept is well-developed and ready to present!",
+  },
+};
+
+// Map a 0-100 score to a growth tier (keeps internal score, shows friendly tier)
+export function scoreToGrowthTier(score: number): GrowthTierInfo {
+  if (score >= 81) return GROWTH_TIERS.forest;
+  if (score >= 61) return GROWTH_TIERS.tree;
+  if (score >= 41) return GROWTH_TIERS.sprout;
+  return GROWTH_TIERS.seed;
+}
+
+// Map a 1-5 criteria score to growth tier (for individual criteria display)
+export function criteriaScoreToGrowthTier(score: number): GrowthTierInfo {
+  if (score >= 5) return GROWTH_TIERS.forest;
+  if (score >= 4) return GROWTH_TIERS.tree;
+  if (score >= 3) return GROWTH_TIERS.sprout;
+  return GROWTH_TIERS.seed;
+}
+
 export const SELF_EVAL_CRITERIA: SelfEvaluationCriteria[] = [
   {
     id: "problem-fit",

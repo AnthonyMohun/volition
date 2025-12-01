@@ -8,6 +8,9 @@ import {
   SELF_EVAL_CRITERIA,
   type ConceptSelfEvaluation,
   type StickyNote,
+  scoreToGrowthTier,
+  criteriaScoreToGrowthTier,
+  type GrowthTierInfo,
 } from "@/lib/types";
 import {
   ListRestart,
@@ -179,21 +182,25 @@ export default function FinalPage() {
       try {
         const hasVisualContent = note.image || note.drawing?.dataUrl;
 
-        // Strong evaluation prompt - instruct the model to be critical and penalize minimal inputs
-        const prompt = `You are a design thinking expert evaluating a student's concept for their course project.
+        // Growth-oriented evaluation prompt - focus on potential and encouragement
+        const prompt = `You are a supportive design thinking mentor helping a student develop their concept for a course project.
 
 Design Challenge: "${state.hmwStatement}"
 
 Concept to Evaluate:
 Title: "${note.text}"
-${note.details ? `Description: "${note.details}"` : "No description provided."}
+${
+  note.details
+    ? `Description: "${note.details}"`
+    : "No description provided yet."
+}
 ${
   hasVisualContent
-    ? "\nVisual Content: The student has attached an image or sketch to help communicate their concept. Please analyze it as part of your evaluation."
+    ? "\nVisual Content: The student has attached an image or sketch to help communicate their concept. Please consider it as part of your evaluation."
     : ""
 }
 
-Evaluate this concept on three criteria (score 1-5 each):
+Evaluate this concept on three criteria (score 1-5 each) using a growth mindset:
 1. Problem Fit: How well does this concept address the design challenge?
 2. Originality: How fresh and creative is this approach?
 3. Feasibility: How realistic is it to implement within a course project?
@@ -203,15 +210,20 @@ ${
     : ""
 }
 
-Important: Be critical and realistic in your evaluation. If the concept lacks sufficient detail (e.g., only a title with no description or a description shorter than 40 characters), penalize it — especially on Problem Fit and Feasibility. For title-only or minimal inputs, aim for low scores: Problem Fit 1–2, Feasibility 1–2, Originality 2–3. If no description is provided, set the overall score in the lower range (15–35). Always include practical, specific suggestions for improvement in the "improvements" array if the concept is incomplete.
+Guidelines:
+- Frame feedback constructively, focusing on potential and growth opportunities
+- For concepts with less detail, encourage the student to develop the idea further
+- Highlight what's working well, even in early-stage concepts
+- Provide actionable, encouraging suggestions for improvement
+- Use language like "This concept could grow stronger by..." or "Consider adding..."
 
 Respond in this exact JSON format (no markdown, just raw JSON):
 {
-  "problemFit": { "score": X, "feedback": "One sentence feedback" },
-  "originality": { "score": X, "feedback": "One sentence feedback" },
-  "feasibility": { "score": X, "feedback": "One sentence feedback" },
+  "problemFit": { "score": X, "feedback": "One sentence of encouraging, constructive feedback" },
+  "originality": { "score": X, "feedback": "One sentence of encouraging, constructive feedback" },
+  "feasibility": { "score": X, "feedback": "One sentence of encouraging, constructive feedback" },
   "strengths": ["strength 1", "strength 2"],
-  "improvements": ["improvement 1"]
+  "improvements": ["encouraging suggestion 1"]
 }`;
 
         // Build multimodal content if visual content exists
@@ -252,7 +264,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
             {
               role: "system",
               content:
-                "You are a critical, pragmatic design thinking coach with vision capabilities. Be constructive but realistic in your scoring. When images or sketches are provided, analyze them to understand the concept's visual communication, feasibility signals, and overall clarity. Always respond with valid JSON only, no markdown formatting.",
+                "You are a supportive, encouraging design thinking mentor with vision capabilities. Focus on growth potential and constructive feedback. When images or sketches are provided, analyze them to understand the concept's visual communication and overall clarity. Frame all feedback positively, highlighting strengths and growth opportunities. Always respond with valid JSON only, no markdown formatting.",
             },
             { role: "user", content: userContent },
           ],
@@ -293,29 +305,38 @@ Respond in this exact JSON format (no markdown, just raw JSON):
             .trim();
           parsed = JSON.parse(cleanedResponse);
         } catch {
-          // Fallback if parsing fails - be conservative and prompt students to add details
+          // Fallback if parsing fails - use encouraging growth-oriented language
           parsed = {
             problemFit: {
               score: 2,
               feedback:
-                "Insufficient detail to confidently assess problem fit.",
+                "This concept has potential! Adding more detail will help it bloom.",
             },
             originality: {
               score: 2,
               feedback:
-                "Originality is unclear without more description or examples.",
+                "There's a creative seed here—let's see it grow with more description.",
             },
             feasibility: {
               score: 2,
-              feedback: "Feasibility is uncertain — please add more specifics.",
+              feedback:
+                "With more specifics, we can better understand how to build this.",
             },
-            strengths: ["Concept submitted"],
+            strengths: ["You've planted the seed of an idea"],
             improvements: [
-              "Add more detail (what, why, how) to clarify concept and scope",
+              "Help your concept grow by adding more detail about what, why, and how",
             ],
           };
         }
 
+        // Normalize and clamp parsed scores to 1-5
+        const clampScore = (s: number) =>
+          Math.max(1, Math.min(5, Math.round(s)));
+        parsed.problemFit.score = clampScore(parsed.problemFit.score);
+        parsed.originality.score = clampScore(parsed.originality.score);
+        parsed.feasibility.score = clampScore(parsed.feasibility.score);
+
+        // Calculate overall score (kept internally for ranking, but not shown to students)
         const overallScore = Math.round(
           ((parsed.problemFit.score +
             parsed.originality.score +
@@ -324,64 +345,12 @@ Respond in this exact JSON format (no markdown, just raw JSON):
             100
         );
 
-        // Normalize and clamp parsed scores to 1-5 and apply stricter completeness checks
-        const clampScore = (s: number) =>
-          Math.max(1, Math.min(5, Math.round(s)));
-        parsed.problemFit.score = clampScore(parsed.problemFit.score);
-        parsed.originality.score = clampScore(parsed.originality.score);
-        parsed.feasibility.score = clampScore(parsed.feasibility.score);
-
-        // Apply stricter completeness checks and clamp parsed scores if incomplete
-        const MIN_DETAILS_LENGTH = 40; // Require a longer description to be considered complete
-        const isIncomplete =
-          !note.details || note.details.trim().length < MIN_DETAILS_LENGTH;
-        const hasNoDetails = !note.details || note.details.trim().length === 0;
-
-        if (isIncomplete) {
-          // Clamp per-criteria scores so AI can't give unusually high marks to minimal inputs
-          parsed.problemFit.score = Math.min(parsed.problemFit.score, 2);
-          parsed.feasibility.score = Math.min(parsed.feasibility.score, 2);
-          parsed.originality.score = Math.min(parsed.originality.score, 3);
-        }
-
-        // For concepts with no details, be maximally critical
-        if (hasNoDetails) {
-          parsed.problemFit.score = 0;
-          parsed.feasibility.score = 0;
-          parsed.originality.score = 0;
-        }
-
-        // Recompute overall after potential clamping
-        const recomputedOverall = Math.round(
-          ((parsed.problemFit.score +
-            parsed.originality.score +
-            parsed.feasibility.score) /
-            15) *
-            100
-        );
-
-        // Apply stronger penalty for incomplete concepts
-        const completenessMultiplier = isIncomplete ? 0.5 : 1.0;
-        let adjustedOverallScore = Math.round(
-          recomputedOverall * completenessMultiplier
-        );
-
-        // Ensure noisy edge cases don't produce unexpectedly high scores for incomplete entries
-        if (isIncomplete) {
-          adjustedOverallScore = Math.min(adjustedOverallScore, 40);
-        }
-
-        // For concepts with no details at all, force a very low score to prevent any AI leniency
-        if (hasNoDetails) {
-          adjustedOverallScore = 0;
-        }
-
         setAiEvaluations((prev) =>
           prev.map((e, idx) =>
             idx === i
               ? {
                   ...e,
-                  overallScore: adjustedOverallScore,
+                  overallScore: overallScore,
                   criteria: {
                     problemFit: parsed.problemFit,
                     originality: parsed.originality,
@@ -397,22 +366,9 @@ Respond in this exact JSON format (no markdown, just raw JSON):
         );
       } catch (error) {
         console.error(`Failed to evaluate concept ${i}:`, error);
-        // Fallback - be more critical for incomplete concepts
-        const MIN_DETAILS_LENGTH_FALLBACK = 40;
-        const isIncomplete =
-          !note.details ||
-          note.details.trim().length < MIN_DETAILS_LENGTH_FALLBACK;
-        const hasNoDetails = !note.details || note.details.trim().length === 0;
-        const baseScore = isIncomplete ? (hasNoDetails ? 0 : 1) : 3; // Lower base score if incomplete
-        const baseOverallScore = isIncomplete ? 20 : 60; // Lower overall if incomplete
-        const completenessMultiplier = isIncomplete ? 0.5 : 1.0;
-        let overallScore = Math.round(
-          baseOverallScore * completenessMultiplier
-        );
-        // For concepts with no details, force very low score
-        if (hasNoDetails) {
-          overallScore = 0;
-        }
+        // Fallback - use encouraging growth-oriented language
+        const baseScore = 2;
+        const overallScore = 40; // Maps to "Sprout" tier
         setAiEvaluations((prev) =>
           prev.map((e, idx) =>
             idx === i
@@ -422,31 +378,24 @@ Respond in this exact JSON format (no markdown, just raw JSON):
                   criteria: {
                     problemFit: {
                       score: baseScore,
-                      feedback: isIncomplete
-                        ? "Concept lacks detail, making it hard to evaluate problem fit."
-                        : "Unable to fully evaluate - try again.",
+                      feedback:
+                        "Let's explore how this concept connects to the challenge.",
                     },
                     originality: {
                       score: baseScore,
-                      feedback: isIncomplete
-                        ? "Without details, originality is difficult to assess."
-                        : "Unable to fully evaluate - try again.",
+                      feedback:
+                        "There's creative potential here waiting to be developed.",
                     },
                     feasibility: {
                       score: baseScore,
-                      feedback: isIncomplete
-                        ? "Incomplete concepts are harder to implement realistically."
-                        : "Unable to fully evaluate - try again.",
+                      feedback:
+                        "Adding more detail will help clarify how to build this.",
                     },
                   },
-                  strengths: isIncomplete
-                    ? ["Concept submitted"]
-                    : ["Concept submitted for evaluation"],
-                  improvements: isIncomplete
-                    ? [
-                        "Add more details to make the concept clearer and more evaluable",
-                      ]
-                    : ["Add more details for better feedback"],
+                  strengths: ["You've started capturing your idea"],
+                  improvements: [
+                    "Help your concept grow by adding more detail",
+                  ],
                   isLoading: false,
                 }
               : e
@@ -540,8 +489,9 @@ ${state.hmwStatement}
 
     rankedConcepts.forEach((item, idx) => {
       const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : "🥉";
+      const tier = scoreToGrowthTier(item.score);
       markdown += `### ${medal} #${idx + 1}: ${item.note.text}
-**Self-Assessment Score: ${item.score}/100**
+**Growth Stage: ${tier.emoji} ${tier.label}**
 
 ${item.note.details ? `> ${item.note.details}\n` : ""}
 
@@ -549,27 +499,33 @@ ${item.note.details ? `> ${item.note.details}\n` : ""}
 `;
       SELF_EVAL_CRITERIA.forEach((c) => {
         const rating = item.ratings.find((r) => r.criteriaId === c.id);
-        const stars = rating
-          ? "⭐".repeat(rating.score) + "☆".repeat(5 - rating.score)
+        const ratingTier = rating
+          ? criteriaScoreToGrowthTier(rating.score)
+          : null;
+        const display = ratingTier
+          ? `${ratingTier.emoji} ${ratingTier.label}`
           : "Not rated";
-        markdown += `- ${c.emoji} **${c.label}**: ${stars}\n`;
+        markdown += `- ${c.emoji} **${c.label}**: ${display}\n`;
       });
 
       if (item.aiEval && !item.aiEval.isLoading) {
+        const aiTier = scoreToGrowthTier(item.aiEval.overallScore);
         markdown += `
-#### AI Evaluation (Score: ${item.aiEval.overallScore}/100):
-- 🎯 Problem Fit: ${item.aiEval.criteria.problemFit.score}/5 — ${
-          item.aiEval.criteria.problemFit.feedback
-        }
-- ✨ Originality: ${item.aiEval.criteria.originality.score}/5 — ${
-          item.aiEval.criteria.originality.feedback
-        }
-- 🛠️ Feasibility: ${item.aiEval.criteria.feasibility.score}/5 — ${
-          item.aiEval.criteria.feasibility.feedback
-        }
+#### AI Feedback (${aiTier.emoji} ${aiTier.label}):
+- 🎯 Problem Fit: ${
+          criteriaScoreToGrowthTier(item.aiEval.criteria.problemFit.score).emoji
+        } — ${item.aiEval.criteria.problemFit.feedback}
+- ✨ Originality: ${
+          criteriaScoreToGrowthTier(item.aiEval.criteria.originality.score)
+            .emoji
+        } — ${item.aiEval.criteria.originality.feedback}
+- 🛠️ Feasibility: ${
+          criteriaScoreToGrowthTier(item.aiEval.criteria.feasibility.score)
+            .emoji
+        } — ${item.aiEval.criteria.feasibility.feedback}
 
 **Strengths:** ${item.aiEval.strengths.join(", ")}
-**Areas to Improve:** ${item.aiEval.improvements.join(", ")}
+**Growth Opportunities:** ${item.aiEval.improvements.join(", ")}
 `;
       }
 
@@ -883,37 +839,44 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                   </div>
                 </div>
 
-                {/* Inline AI Score square */}
+                {/* Inline AI Growth Tier display */}
                 <div className="flex-shrink-0 ml-4 text-center w-28">
-                  <div
-                    className={`w-24 h-24 rounded-lg flex items-center justify-center text-3xl font-black text-white shadow-lg mx-auto ${
-                      currentEval?.overallScore >= 80
-                        ? "bg-gradient-to-br from-green-400 to-emerald-500"
-                        : currentEval?.overallScore >= 60
-                        ? "bg-gradient-to-br from-blue-400 to-teal-500"
-                        : "bg-gradient-to-br from-orange-400 to-pink-500"
-                    }`}
-                  >
-                    {currentEval?.isLoading ? (
-                      <Loader2 className="w-8 h-8 text-white animate-spin" />
-                    ) : (
-                      currentEval?.overallScore
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-700 font-bold mt-2 flex items-center gap-2 justify-center">
-                    <span>AI Score</span>
-                    <Tooltip
-                      content={
-                        "The AI score combines three factors: how well the idea solves the challenge (Problem Fit), how original it is (Originality), and how realistic it is to build (Feasibility). Each factor is scored 1–5 and combined into a single percentage. Incomplete or title-only concepts are penalized to encourage clearer descriptions."
-                      }
-                      placement="top"
-                    >
-                      <Info
-                        className="w-4 h-4 text-gray-400 cursor-pointer"
-                        aria-hidden
-                      />
-                    </Tooltip>
-                  </div>
+                  {(() => {
+                    const tier = currentEval
+                      ? scoreToGrowthTier(currentEval.overallScore)
+                      : null;
+                    return (
+                      <>
+                        <div className="w-24 h-24 rounded-lg flex flex-col items-center justify-center text-white shadow-lg mx-auto bg-gradient-to-br from-teal-400 to-emerald-500">
+                          {currentEval?.isLoading ? (
+                            <Loader2 className="w-8 h-8 text-white animate-spin" />
+                          ) : (
+                            <>
+                              <span className="text-3xl">{tier?.emoji}</span>
+                              <span className="text-xs font-bold mt-1">
+                                {tier?.label}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-700 font-bold mt-2 flex items-center gap-2 justify-center">
+                          <span>Growth Stage</span>
+                          <Tooltip
+                            content={
+                              tier?.encouragement ||
+                              "The AI evaluates your concept's growth potential based on problem fit, originality, and feasibility."
+                            }
+                            placement="top"
+                          >
+                            <Info
+                              className="w-4 h-4 text-gray-400 cursor-pointer"
+                              aria-hidden
+                            />
+                          </Tooltip>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -1014,14 +977,17 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-500 font-semibold">
-                        {Math.round(
-                          ((currentEval.criteria.problemFit.score +
-                            currentEval.criteria.originality.score +
-                            currentEval.criteria.feasibility.score) /
-                            3) *
-                            20
-                        )}
-                        % avg
+                        {(() => {
+                          const avgScore = Math.round(
+                            ((currentEval.criteria.problemFit.score +
+                              currentEval.criteria.originality.score +
+                              currentEval.criteria.feasibility.score) /
+                              3) *
+                              20
+                          );
+                          const tier = scoreToGrowthTier(avgScore);
+                          return `${tier.emoji} ${tier.label}`;
+                        })()}
                       </span>
                       <ChevronDown
                         className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
@@ -1039,57 +1005,114 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                           emoji: "🎯",
                           label: "Problem Fit",
                           data: currentEval.criteria.problemFit,
-                          color: "from-pink-500 to-rose-500",
+                          color: "from-teal-400 to-emerald-500",
                         },
                         {
                           key: "originality",
                           emoji: "✨",
                           label: "Originality",
                           data: currentEval.criteria.originality,
-                          color: "from-blue-500 to-teal-500",
+                          color: "from-teal-400 to-emerald-500",
                         },
                         {
                           key: "feasibility",
                           emoji: "🛠️",
                           label: "Feasibility",
                           data: currentEval.criteria.feasibility,
-                          color: "from-blue-500 to-cyan-500",
+                          color: "from-teal-400 to-emerald-500",
                         },
-                      ].map(({ key, emoji, label, data, color }) => (
-                        <div key={key} className="bg-gray-50 rounded-xl p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg">{emoji}</span>
-                              <span className="font-bold text-gray-800">
-                                {label}
-                              </span>
+                      ].map(({ key, emoji, label, data, color }) => {
+                        const tier = criteriaScoreToGrowthTier(data.score);
+                        return (
+                          <div key={key} className="bg-gray-50 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{emoji}</span>
+                                <span className="font-bold text-gray-800">
+                                  {label}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-gray-200">
+                                <span className="text-lg">{tier.emoji}</span>
+                                <span className="text-sm font-bold text-gray-700">
+                                  {tier.label}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex gap-1">
-                              {[1, 2, 3, 4, 5].map((s) => (
-                                <Star
-                                  key={s}
-                                  className={`w-4 h-4 ${
-                                    s <= data.score
-                                      ? "fill-current text-yellow-500"
-                                      : "text-gray-300"
-                                  }`}
+                            <div className="mb-2">
+                              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full bg-gradient-to-r ${color} transition-all duration-500`}
+                                  style={{
+                                    width: `${(data.score / 5) * 100}%`,
+                                  }}
                                 />
-                              ))}
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600 font-medium">
+                              {data.feedback}
+                            </p>
+                          </div>
+                        );
+                      })}
+
+                      {/* Growth Stages Legend */}
+                      <div className="mt-4 p-4 bg-gradient-to-r from-gray-50 to-teal-50/30 rounded-xl border border-gray-200">
+                        <h5 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
+                          What These Stages Mean
+                        </h5>
+                        <div className="space-y-3">
+                          <div className="flex items-start gap-3">
+                            <span className="text-lg flex-shrink-0">🌱</span>
+                            <div>
+                              <p className="text-sm font-bold text-gray-800">
+                                Seed
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                Your idea needs more detail to evaluate. Try
+                                adding specifics about how it works or who it
+                                helps.
+                              </p>
                             </div>
                           </div>
-                          <div className="mb-2">
-                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full bg-gradient-to-r ${color} transition-all duration-500`}
-                                style={{ width: `${(data.score / 5) * 100}%` }}
-                              />
+                          <div className="flex items-start gap-3">
+                            <span className="text-lg flex-shrink-0">🌿</span>
+                            <div>
+                              <p className="text-sm font-bold text-gray-800">
+                                Sprout
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                You're on the right track! A bit more thought on
+                                this area will strengthen your concept.
+                              </p>
                             </div>
                           </div>
-                          <p className="text-sm text-gray-600 font-medium">
-                            {data.feedback}
-                          </p>
+                          <div className="flex items-start gap-3">
+                            <span className="text-lg flex-shrink-0">🌳</span>
+                            <div>
+                              <p className="text-sm font-bold text-gray-800">
+                                Tree
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                Solid work here. Your concept shows clear
+                                thinking and could move forward confidently.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <span className="text-lg flex-shrink-0">🌲</span>
+                            <div>
+                              <p className="text-sm font-bold text-gray-800">
+                                Forest
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                Excellent! This aspect of your concept is
+                                well-developed and ready to present.
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                      ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1247,27 +1270,26 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                     </div>
                   </div>
 
-                  {/* Score Circle */}
+                  {/* Growth Tier Display */}
                   <div className="flex-shrink-0 text-center">
-                    <div
-                      className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-black text-white shadow-lg ${
-                        item.score >= 80
-                          ? "bg-gradient-to-br from-green-400 to-emerald-500"
-                          : item.score >= 60
-                          ? "bg-gradient-to-br from-blue-400 to-teal-500"
-                          : "bg-gradient-to-br from-orange-400 to-pink-500"
-                      }`}
-                    >
-                      {item.score}
-                    </div>
-                    <p className="text-xs text-gray-500 font-bold mt-1">
-                      Your Score
-                    </p>
+                    {(() => {
+                      const tier = scoreToGrowthTier(item.score);
+                      return (
+                        <>
+                          <div className="w-16 h-16 rounded-full flex flex-col items-center justify-center text-white shadow-lg bg-gradient-to-br from-teal-400 to-emerald-500">
+                            <span className="text-2xl">{tier.emoji}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 font-bold mt-1">
+                            {tier.label}
+                          </p>
+                        </>
+                      );
+                    })()}
                     {item.aiEval && !item.aiEval.isLoading && (
                       <div className="mt-2 flex items-center justify-center gap-1">
-                        <Bot className="w-3 h-3 text-blue-500" />
-                        <span className="text-xs font-bold text-blue-600">
-                          {item.aiEval.overallScore}
+                        <Bot className="w-3 h-3 text-teal-500" />
+                        <span className="text-xs font-bold text-teal-600">
+                          {scoreToGrowthTier(item.aiEval.overallScore).emoji}
                         </span>
                       </div>
                     )}

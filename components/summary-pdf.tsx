@@ -13,6 +13,8 @@ import {
   SELF_EVAL_CRITERIA,
   type StickyNote,
   type SelfEvaluationRating,
+  scoreToGrowthTier,
+  criteriaScoreToGrowthTier,
 } from "@/lib/types";
 
 // Register a font (optional - using Helvetica as default)
@@ -20,6 +22,14 @@ Font.register({
   family: "Helvetica",
   fonts: [{ src: "Helvetica" }, { src: "Helvetica-Bold", fontWeight: "bold" }],
 });
+
+// Text symbols for growth tiers (PDF-compatible)
+const TIER_SYMBOLS: Record<string, { symbol: string; color: string }> = {
+  seed: { symbol: "●", color: "#a3e635" },
+  sprout: { symbol: "●●", color: "#4ade80" },
+  tree: { symbol: "●●●", color: "#2dd4bf" },
+  forest: { symbol: "●●●●", color: "#14b8a6" },
+};
 
 // Define styles
 const styles = StyleSheet.create({
@@ -298,18 +308,81 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     borderTop: "1px solid #e5e7eb",
   },
+  legendSection: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: "#f0fdfa",
+    borderRadius: 8,
+    border: "1px solid #99f6e4",
+  },
+  legendLabel: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#0d9488",
+    marginBottom: 10,
+    textTransform: "uppercase",
+  },
+  legendGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "48%",
+    marginBottom: 6,
+  },
+  legendSymbol: {
+    fontSize: 10,
+    fontWeight: "bold",
+    width: 36,
+    marginRight: 6,
+  },
+  legendText: {
+    flex: 1,
+  },
+  legendTitle: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#1f2937",
+  },
+  legendDesc: {
+    fontSize: 8,
+    color: "#6b7280",
+  },
+  tierIcon: {
+    width: 24,
+    height: 24,
+  },
+  tierIconLarge: {
+    width: 32,
+    height: 32,
+  },
 });
 
-// Helper to generate score display
-const getScoreDisplay = (score: number): string => {
-  return `${score}/5`;
+// Helper to generate growth tier display for criteria (text only for inline use)
+const getCriteriaGrowthDisplay = (score: number): string => {
+  const tier = criteriaScoreToGrowthTier(score);
+  return tier.label;
 };
 
-// Helper to get score circle style
-const getScoreStyle = (score: number) => {
-  if (score >= 80) return styles.scoreCircleHigh;
-  if (score >= 60) return styles.scoreCircleMedium;
-  return styles.scoreCircleLow;
+// Helper to generate growth tier display for overall score (text only for inline use)
+const getOverallGrowthDisplay = (score: number): string => {
+  const tier = scoreToGrowthTier(score);
+  return tier.label;
+};
+
+// Helper to get tier symbol info
+const getTierSymbol = (score: number): { symbol: string; color: string } => {
+  const tier = scoreToGrowthTier(score);
+  return TIER_SYMBOLS[tier.tier];
+};
+
+// Helper to get score circle style - now uses consistent encouraging colors
+const getScoreStyle = () => {
+  // All tiers use encouraging teal/green colors
+  return styles.scoreCircleHigh;
 };
 
 interface AIConceptEvaluation {
@@ -389,10 +462,19 @@ export const SummaryPDF = ({
 
             {/* Score */}
             <View style={styles.scoreContainer}>
-              <View style={[styles.scoreCircle, getScoreStyle(item.score)]}>
-                <Text style={styles.scoreText}>{item.score}</Text>
+              <View style={[styles.scoreCircle, getScoreStyle()]}>
+                <Text
+                  style={[
+                    styles.scoreText,
+                    { color: getTierSymbol(item.score).color },
+                  ]}
+                >
+                  {getTierSymbol(item.score).symbol}
+                </Text>
               </View>
-              <Text style={styles.scoreLabel}>Your Score</Text>
+              <Text style={styles.scoreLabel}>
+                {scoreToGrowthTier(item.score).label}
+              </Text>
             </View>
           </View>
 
@@ -426,7 +508,7 @@ export const SummaryPDF = ({
                   <View key={criteria.id} style={styles.ratingItem}>
                     <Text style={styles.ratingEmoji}>{criteria.label}:</Text>
                     <Text style={styles.ratingStars}>
-                      {rating ? getScoreDisplay(rating.score) : "-"}
+                      {rating ? getCriteriaGrowthDisplay(rating.score) : "-"}
                     </Text>
                   </View>
                 );
@@ -438,14 +520,17 @@ export const SummaryPDF = ({
           {item.aiEval && !item.aiEval.isLoading && (
             <View style={styles.aiSection}>
               <Text style={styles.aiLabel}>
-                AI Evaluation (Score: {item.aiEval.overallScore}/100)
+                AI Feedback ({getOverallGrowthDisplay(item.aiEval.overallScore)}
+                )
               </Text>
 
               {/* Criteria scores */}
               <View>
                 <Text style={styles.aiCriteria}>
                   Problem Fit:{" "}
-                  {getScoreDisplay(item.aiEval.criteria.problemFit.score)}
+                  {getCriteriaGrowthDisplay(
+                    item.aiEval.criteria.problemFit.score
+                  )}
                 </Text>
                 <Text style={styles.aiFeedback}>
                   {item.aiEval.criteria.problemFit.feedback}
@@ -453,7 +538,9 @@ export const SummaryPDF = ({
 
                 <Text style={styles.aiCriteria}>
                   Originality:{" "}
-                  {getScoreDisplay(item.aiEval.criteria.originality.score)}
+                  {getCriteriaGrowthDisplay(
+                    item.aiEval.criteria.originality.score
+                  )}
                 </Text>
                 <Text style={styles.aiFeedback}>
                   {item.aiEval.criteria.originality.feedback}
@@ -461,7 +548,9 @@ export const SummaryPDF = ({
 
                 <Text style={styles.aiCriteria}>
                   Feasibility:{" "}
-                  {getScoreDisplay(item.aiEval.criteria.feasibility.score)}
+                  {getCriteriaGrowthDisplay(
+                    item.aiEval.criteria.feasibility.score
+                  )}
                 </Text>
                 <Text style={styles.aiFeedback}>
                   {item.aiEval.criteria.feasibility.feedback}
@@ -516,6 +605,69 @@ export const SummaryPDF = ({
         <Text style={styles.nextStepItem}>
           3. Prepare to present and defend your chosen concept
         </Text>
+      </View>
+
+      {/* Growth Stages Legend */}
+      <View style={styles.legendSection} wrap={false}>
+        <Text style={styles.legendLabel}>Growth Stages Guide</Text>
+        <View style={styles.legendGrid}>
+          <View style={styles.legendItem}>
+            <Text
+              style={[styles.legendSymbol, { color: TIER_SYMBOLS.seed.color }]}
+            >
+              {TIER_SYMBOLS.seed.symbol}
+            </Text>
+            <View style={styles.legendText}>
+              <Text style={styles.legendTitle}>Seed</Text>
+              <Text style={styles.legendDesc}>
+                Needs more detail to evaluate
+              </Text>
+            </View>
+          </View>
+          <View style={styles.legendItem}>
+            <Text
+              style={[
+                styles.legendSymbol,
+                { color: TIER_SYMBOLS.sprout.color },
+              ]}
+            >
+              {TIER_SYMBOLS.sprout.symbol}
+            </Text>
+            <View style={styles.legendText}>
+              <Text style={styles.legendTitle}>Sprout</Text>
+              <Text style={styles.legendDesc}>
+                On the right track, keep developing
+              </Text>
+            </View>
+          </View>
+          <View style={styles.legendItem}>
+            <Text
+              style={[styles.legendSymbol, { color: TIER_SYMBOLS.tree.color }]}
+            >
+              {TIER_SYMBOLS.tree.symbol}
+            </Text>
+            <View style={styles.legendText}>
+              <Text style={styles.legendTitle}>Tree</Text>
+              <Text style={styles.legendDesc}>
+                Well-developed, solid foundation
+              </Text>
+            </View>
+          </View>
+          <View style={styles.legendItem}>
+            <Text
+              style={[
+                styles.legendSymbol,
+                { color: TIER_SYMBOLS.forest.color },
+              ]}
+            >
+              {TIER_SYMBOLS.forest.symbol}
+            </Text>
+            <View style={styles.legendText}>
+              <Text style={styles.legendTitle}>Forest</Text>
+              <Text style={styles.legendDesc}>Excellent, ready to present</Text>
+            </View>
+          </View>
+        </View>
       </View>
 
       {/* Footer */}
