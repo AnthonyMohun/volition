@@ -4,14 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { HMWHelperModal } from "@/components/hmw-helper-modal";
+import { CrazyEightsModal } from "@/components/crazy-eights-modal";
 import { EXAMPLE_SESSION_DATA } from "@/lib/example-data";
-import {
-  Lightbulb,
-  Sparkles,
-  HelpCircle,
-  PlayCircle,
-  Info,
-} from "lucide-react";
+import { PlayCircle, Zap } from "lucide-react";
 
 const EXAMPLE_HMWS = [
   "How might we help students manage their time more effectively?",
@@ -26,7 +21,7 @@ export default function Home() {
   const { updateHMW, setPhase, loadExampleSession } = useSession();
   const [hmwInput, setHmwInput] = useState("");
   const [showHelper, setShowHelper] = useState(false);
-  const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [showCrazyEights, setShowCrazyEights] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,80 +166,27 @@ export default function Home() {
           </form>
         </div>
 
-        {/* How it works - Simplified */}
+        {/* Crazy Eights Sprint */}
         <div className="text-center mt-8">
           <button
-            onClick={() => setShowHowItWorks(true)}
+            onClick={() => setShowCrazyEights(true)}
             className="inline-flex items-center gap-2 text-sm font-black text-gray-600 hover:text-blue-600 transition-all bg-white/60 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm hover:shadow-md transform hover:scale-105"
           >
-            <Info className="w-4 h-4" />
-            How it works ✨
+            <Zap className="w-4 h-4" />
+            Crazy Eights Sprint ⚡
           </button>
         </div>
       </div>
-
-      {/* How It Works Modal */}
-      {showHowItWorks && (
-        <div className="fixed inset-0 bg-blue-900/30 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-300">
-          <div className="fun-card p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto animate-in zoom-in duration-300">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-black fun-gradient-text flex items-center gap-3">
-                <span className="text-4xl">🌟</span>
-                How It Works
-              </h2>
-              <button
-                onClick={() => setShowHowItWorks(false)}
-                className="text-gray-400 hover:text-gray-600 transition-all bg-gray-100 hover:bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center font-black text-xl hover:rotate-90 transform duration-300"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center group">
-                <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-yellow">
-                  <Lightbulb className="w-12 h-12 text-yellow-600 mx-auto drop-shadow-sm" />
-                </div>
-                <h3 className="font-black text-gray-800 mb-2 text-lg">
-                  💡 Ideate
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                  Answer guided questions with sticky notes and attach images
-                  for richer ideas
-                </p>
-              </div>
-              <div className="text-center group">
-                <div className="bg-gradient-to-br from-teal-100 to-teal-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-teal">
-                  <Sparkles className="w-12 h-12 text-teal-600 mx-auto drop-shadow-sm" />
-                </div>
-                <h3 className="font-black text-gray-800 mb-2 text-lg">
-                  ✨ Refine
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                  Mark promising ideas as concepts and self-evaluate your top
-                  ones
-                </p>
-              </div>
-              <div className="text-center group">
-                <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl p-8 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-blue">
-                  <HelpCircle className="w-12 h-12 text-blue-600 mx-auto drop-shadow-sm" />
-                </div>
-                <h3 className="font-black text-gray-800 mb-2 text-lg">
-                  🎯 Feedback
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                  Get AI insights on your final designs
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       <HMWHelperModal
         isOpen={showHelper}
         onClose={() => setShowHelper(false)}
         onSelect={handleSelectTemplate}
+      />
+
+      <CrazyEightsModal
+        isOpen={showCrazyEights}
+        onClose={() => setShowCrazyEights(false)}
       />
     </div>
   );
