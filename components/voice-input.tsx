@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Mic, MicOff, AlertCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { parseVoiceCommand, VoiceCommand } from "@/lib/voice-commands";
 
 // TypeScript declarations for Web Speech API
@@ -59,16 +57,19 @@ interface VoiceInputProps {
   onCommand: (command: VoiceCommand, fullTranscript: string) => void;
   isEnabled: boolean;
   onToggle: () => void;
-  onSetEnabled?: (enabled: boolean) => void; // optional push-to-talk setter (true while pressed)
   isMuted?: boolean; // Mutes mic when AI is speaking to prevent feedback
 }
 
+/**
+ * VoiceInput handles speech recognition logic only.
+ * The visible UI controls (mic button, spacebar) are in the canvas floating toolbar.
+ * This component is rendered hidden in the AI panel but processes voice input.
+ */
 export function VoiceInput({
   onTranscript,
   onCommand,
   isEnabled,
   onToggle,
-  onSetEnabled,
   isMuted = false,
 }: VoiceInputProps) {
   const [isListening, setIsListening] = useState(false);
@@ -252,114 +253,11 @@ export function VoiceInput({
   }, []);
 
   if (!isSupported) {
-    return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border-2 border-amber-200 rounded-xl text-amber-700 text-xs">
-        <AlertCircle className="w-4 h-4 flex-shrink-0" />
-        <span className="font-semibold">
-          Voice input requires Chrome or Edge
-        </span>
-      </div>
-    );
+    // Render nothing - the canvas toolbar will show voice is unavailable
+    return null;
   }
 
-  return (
-    <div className="space-y-2">
-      {/* Mic Toggle Button */}
-      <button
-        title={
-          "Hold Space or the microphone to record. Say 'next question', 'delete that', or other commands. AI output is paused while recording."
-        }
-        onClick={onToggle}
-        onPointerDown={() => onSetEnabled?.(true)}
-        onPointerUp={() => onSetEnabled?.(false)}
-        onPointerCancel={() => onSetEnabled?.(false)}
-        onPointerLeave={() => onSetEnabled?.(false)}
-        onTouchCancel={() => onSetEnabled?.(false)}
-        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all shadow-md ${
-          isEnabled
-            ? "bg-gradient-to-r from-red-500 to-teal-500 text-white hover:from-red-600 hover:to-teal-600"
-            : "bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600"
-        }`}
-      >
-        {isEnabled ? (
-          <>
-            <motion.div
-              animate={{ scale: isListening ? [1, 1.2, 1] : 1 }}
-              transition={{ repeat: isListening ? Infinity : 0, duration: 1 }}
-            >
-              <Mic className="w-4 h-4" />
-            </motion.div>
-            <span>Stop Voice</span>
-          </>
-        ) : (
-          <>
-            <MicOff className="w-4 h-4" />
-            <span>Start Voice</span>
-          </>
-        )}
-      </button>
-
-      {/* Listening Indicator */}
-      <AnimatePresence>
-        {isEnabled && (isListening || isMuted) && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
-            <div
-              className={`flex items-center gap-2 px-3 py-2 border-2 rounded-xl ${
-                isMuted
-                  ? "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200"
-                  : "bg-gradient-to-r from-blue-50 to-teal-50 border-blue-200"
-              }`}
-            >
-              {/* Pulsing indicator */}
-              <div className="flex gap-1">
-                {[0, 1].map((i) => (
-                  <motion.div
-                    key={i}
-                    className={`w-1.5 h-4 rounded-full ${
-                      isMuted ? "bg-amber-400" : "bg-teal-500"
-                    }`}
-                    animate={{
-                      scaleY: isMuted ? 1 : [1, 1.5, 1],
-                    }}
-                    transition={{
-                      repeat: isMuted ? 0 : Infinity,
-                      duration: 0.5,
-                      delay: i * 0.1,
-                    }}
-                  />
-                ))}
-              </div>
-              <span
-                className={`text-xs font-bold ${
-                  isMuted ? "text-amber-700" : "text-teal-700"
-                }`}
-              >
-                {isMuted ? "Paused (AI speaking)..." : "Listening..."}
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Error Display */}
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex items-center gap-2 px-3 py-2 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 text-xs"
-          >
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span className="font-semibold">{error}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+  // This component has no visible UI - controls are in canvas floating toolbar
+  // It just handles the speech recognition lifecycle
+  return null;
 }

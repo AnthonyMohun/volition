@@ -509,21 +509,7 @@ export function AIQuestionPanel() {
     [state, addNote, setVoiceMode, setLastSpokenText, showToast, updateNote]
   );
 
-  // Toggle voice mode handler
-  const handleVoiceToggle = useCallback(() => {
-    const newMode = !state.voiceMode;
-    setVoiceMode(newMode);
-    if (!newMode) {
-      stopSpeaking();
-      setVoiceTranscript("");
-    } else {
-      showToast(
-        "🎤 Voice mode on - your speech will be automatically saved as notes. Say 'next question', 'delve deeper', or 'delete that' for commands."
-      );
-    }
-  }, [state.voiceMode, setVoiceMode, showToast, setVoiceTranscript]);
-
-  // Voice output toggle removed in favor of automatic muting during push-to-talk
+  // Voice toggle is now handled by the canvas floating toolbar (spacebar or mic button)
 
   return (
     <div className="bg-gradient-to-b from-white to-blue-50/30 border-r-4 border-blue-200 w-80 flex flex-col order-first shadow-xl z-10">
@@ -575,14 +561,13 @@ export function AIQuestionPanel() {
           </button>
         </div>
 
-        {/* Voice Controls - Hidden */}
+        {/* Voice recognition engine - UI is in canvas floating toolbar, recognition logic handled here */}
         <div style={{ display: "none" }}>
           <VoiceInput
             onTranscript={handleVoiceTranscript}
             onCommand={handleVoiceCommand}
             isEnabled={state.voiceMode || false}
-            onToggle={handleVoiceToggle}
-            onSetEnabled={(enabled: boolean) => setVoiceMode(enabled)}
+            onToggle={() => setVoiceMode(!state.voiceMode)}
             isMuted={isCurrentlySpeaking()}
           />
         </div>
