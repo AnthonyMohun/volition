@@ -363,7 +363,7 @@ export default function JourneyPage() {
           User Journey Map
         </h1>
         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-          Explore the complete user experience through Socratic Design Studio
+          Explore the complete user experience through Volition
         </p>
       </div>
 

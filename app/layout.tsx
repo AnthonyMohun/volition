@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Socratic Design Studio",
+  title: "Volition",
   description:
     "AI-powered interaction design ideation tool using Socratic learning",
 };

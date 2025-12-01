@@ -212,15 +212,15 @@ const styles = StyleSheet.create({
   },
   aiCriteria: {
     fontSize: 10,
+    fontWeight: "bold",
     color: "#4b5563",
-    flex: 1,
+    marginBottom: 2,
   },
   aiFeedback: {
     fontSize: 9,
     color: "#6b7280",
-    marginTop: 2,
-    marginLeft: 16,
-    marginBottom: 6,
+    marginBottom: 10,
+    marginLeft: 0,
   },
   strengthsImprovements: {
     flexDirection: "row",
@@ -300,9 +300,9 @@ const styles = StyleSheet.create({
   },
 });
 
-// Helper to generate star string
-const getStars = (score: number): string => {
-  return "★".repeat(score) + "☆".repeat(5 - score);
+// Helper to generate score display
+const getScoreDisplay = (score: number): string => {
+  return `${score}/5`;
 };
 
 // Helper to get score circle style
@@ -349,7 +349,7 @@ export const SummaryPDF = ({
     <Page size="A4" style={styles.page}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>🎯 Design Concept Summary</Text>
+        <Text style={styles.title}>Design Concept Summary</Text>
         <Text style={styles.subtitle}>Generated: {generatedDate}</Text>
       </View>
 
@@ -376,7 +376,7 @@ export const SummaryPDF = ({
             {/* Concept Info */}
             <View style={styles.conceptInfo}>
               <Text style={styles.conceptTitle}>
-                {idx === 0 ? "👑 " : ""}
+                {idx === 0 ? "[TOP] " : ""}
                 {item.note.text}
               </Text>
               {item.note.details && (
@@ -424,9 +424,9 @@ export const SummaryPDF = ({
                 );
                 return (
                   <View key={criteria.id} style={styles.ratingItem}>
-                    <Text style={styles.ratingEmoji}>{criteria.emoji}</Text>
+                    <Text style={styles.ratingEmoji}>{criteria.label}:</Text>
                     <Text style={styles.ratingStars}>
-                      {rating ? getStars(rating.score) : "—"}
+                      {rating ? getScoreDisplay(rating.score) : "-"}
                     </Text>
                   </View>
                 );
@@ -444,24 +444,24 @@ export const SummaryPDF = ({
               {/* Criteria scores */}
               <View>
                 <Text style={styles.aiCriteria}>
-                  🎯 Problem Fit:{" "}
-                  {getStars(item.aiEval.criteria.problemFit.score)}
+                  Problem Fit:{" "}
+                  {getScoreDisplay(item.aiEval.criteria.problemFit.score)}
                 </Text>
                 <Text style={styles.aiFeedback}>
                   {item.aiEval.criteria.problemFit.feedback}
                 </Text>
 
                 <Text style={styles.aiCriteria}>
-                  ✨ Originality:{" "}
-                  {getStars(item.aiEval.criteria.originality.score)}
+                  Originality:{" "}
+                  {getScoreDisplay(item.aiEval.criteria.originality.score)}
                 </Text>
                 <Text style={styles.aiFeedback}>
                   {item.aiEval.criteria.originality.feedback}
                 </Text>
 
                 <Text style={styles.aiCriteria}>
-                  🛠️ Feasibility:{" "}
-                  {getStars(item.aiEval.criteria.feasibility.score)}
+                  Feasibility:{" "}
+                  {getScoreDisplay(item.aiEval.criteria.feasibility.score)}
                 </Text>
                 <Text style={styles.aiFeedback}>
                   {item.aiEval.criteria.feasibility.feedback}
@@ -472,7 +472,7 @@ export const SummaryPDF = ({
               <View style={styles.strengthsImprovements}>
                 <View style={styles.strengthsBox}>
                   <Text style={[styles.boxLabel, { color: "#059669" }]}>
-                    ✓ Strengths
+                    Strengths
                   </Text>
                   {item.aiEval.strengths.map((s, i) => (
                     <Text key={i} style={styles.boxItem}>
@@ -482,7 +482,7 @@ export const SummaryPDF = ({
                 </View>
                 <View style={styles.improvementsBox}>
                   <Text style={[styles.boxLabel, { color: "#d97706" }]}>
-                    ↑ Improvements
+                    Improvements
                   </Text>
                   {item.aiEval.improvements.map((s, i) => (
                     <Text key={i} style={styles.boxItem}>
@@ -499,19 +499,19 @@ export const SummaryPDF = ({
       {/* AI Insight */}
       {aiInsight && (
         <View style={styles.insightSection} wrap={false}>
-          <Text style={styles.insightLabel}>🤖 AI Insight</Text>
+          <Text style={styles.insightLabel}>AI Insight</Text>
           <Text style={styles.insightText}>{aiInsight}</Text>
         </View>
       )}
 
       {/* Next Steps */}
       <View style={styles.nextStepsSection} wrap={false}>
-        <Text style={styles.nextStepsLabel}>📝 Next Steps</Text>
+        <Text style={styles.nextStepsLabel}>Next Steps</Text>
         <Text style={styles.nextStepItem}>
           1. Review the AI feedback and your self-ratings
         </Text>
         <Text style={styles.nextStepItem}>
-          2. Consider strengthening your top concept&apos;s weak areas
+          2. Consider strengthening your top concept's weak areas
         </Text>
         <Text style={styles.nextStepItem}>
           3. Prepare to present and defend your chosen concept
@@ -519,7 +519,7 @@ export const SummaryPDF = ({
       </View>
 
       {/* Footer */}
-      <Text style={styles.footer}>Generated by Socratic Design App</Text>
+      <Text style={styles.footer}>Generated by Volition</Text>
     </Page>
   </Document>
 );
