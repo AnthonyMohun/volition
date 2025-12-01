@@ -5,14 +5,11 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { StickyNote } from "@/lib/types";
 import {
-  ArrowLeft,
-  ListRestart,
   Star,
   CheckCircle2,
   AlertCircle,
   Lightbulb,
   ArrowRight,
-  Plus,
   Heart,
   RotateCcw,
   ThumbsDown,
@@ -20,9 +17,9 @@ import {
   Keyboard,
   Sparkles,
   Trophy,
-  Zap,
   X,
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 export default function SelectPage() {
   const router = useRouter();
@@ -298,50 +295,30 @@ export default function SelectPage() {
         </div>
       </div>
 
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-6 py-3 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push("/canvas")}
-            className="p-2.5 hover:bg-gray-100 rounded-xl transition-all group"
-            title="Back to canvas"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
-          </button>
-          <button
-            onClick={handleStartNewProject}
-            className="p-2.5 hover:bg-gray-100 rounded-xl transition-all group"
-            title="Start a new project"
-          >
-            <ListRestart className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
-          </button>
-          <div className="h-6 w-px bg-gray-200" />
-          <div>
-            <h1 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-blue-500" />
-              Concept Selection
-            </h1>
-          </div>
-        </div>
-
-        {/* Progress pills in header */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full">
-            <span className="text-sm font-medium text-gray-500">
-              {conceptNotes.length - remainingCards.length} of{" "}
-              {conceptNotes.length} reviewed
-            </span>
-          </div>
-          <button
-            onClick={handleReset}
-            disabled={swipeHistory.length === 0}
-            className="p-2.5 hover:bg-gray-100 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            title="Start over"
-          >
-            <RotateCcw className="w-5 h-5 text-gray-400" />
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Concept Selection"
+        icon={<Sparkles className="w-5 h-5 text-blue-500" />}
+        backPath="/canvas"
+        onNewProject={handleStartNewProject}
+        rightContent={
+          <>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full">
+              <span className="text-sm font-medium text-gray-500">
+                {conceptNotes.length - remainingCards.length} of{" "}
+                {conceptNotes.length} reviewed
+              </span>
+            </div>
+            <button
+              onClick={handleReset}
+              disabled={swipeHistory.length === 0}
+              className="p-2.5 hover:bg-gray-100 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Start over"
+            >
+              <RotateCcw className="w-5 h-5 text-gray-400" />
+            </button>
+          </>
+        }
+      />
       {/* Main Content - Two Column Layout */}
       <div className="flex-1 flex relative">
         {/* Center - Card swipe area */}

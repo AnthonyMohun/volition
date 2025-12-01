@@ -22,10 +22,11 @@ import {
   ArrowRight,
   RotateCcw,
   RotateCw,
-  ListRestart,
   Mic,
   HelpCircle,
+  Palette,
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { VoiceCommandsHelp } from "@/components/voice-commands-help";
 import { AnimatePresence, motion } from "framer-motion";
 import { STICKY_COLORS } from "@/lib/types";
@@ -753,44 +754,31 @@ export default function CanvasPage() {
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-teal-50 to-yellow-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-5 flex items-center justify-between shadow-lg z-20">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleStartNewProject}
-            className="p-3 hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
-            title="Start a new project"
-          >
-            <ListRestart className="w-6 h-6 text-gray-400 group-hover:text-orange-500 transition-colors" />
-          </button>
-          <div>
-            <h1 className="text-xl font-black text-gray-800 flex items-center gap-2">
-              <span className="text-2xl">🎨</span>
-              Ideation Canvas
-            </h1>
-            <p className="text-xs text-gray-600 mt-1 font-bold">
-              {state.hmwStatement}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl border-3 border-yellow-300 shadow-md">
-            <span className="text-2xl">⭐</span>
-            <span className="text-sm font-black text-yellow-700">
-              {conceptNotes.length} concept
-              {conceptNotes.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-          <button
-            onClick={handleProceedToSelect}
-            disabled={conceptNotes.length < 2}
-            className="fun-button-primary flex items-center gap-2 text-sm font-black disabled:opacity-50 disabled:cursor-not-allowed py-3 px-6 shadow-lg hover:shadow-blue"
-          >
-            Select Concepts
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Ideation Canvas"
+        icon={<Palette className="w-5 h-5 text-blue-500" />}
+        onNewProject={handleStartNewProject}
+        subtitle={state.hmwStatement}
+        rightContent={
+          <>
+            <div className="flex items-center gap-3 px-4 py-2 bg-yellow-50 rounded-full border border-yellow-200">
+              <span className="text-lg">⭐</span>
+              <span className="text-sm font-bold text-yellow-700">
+                {conceptNotes.length} concept
+                {conceptNotes.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+            <button
+              onClick={handleProceedToSelect}
+              disabled={conceptNotes.length < 2}
+              className="fun-button-primary flex items-center gap-2 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed py-2.5 px-5"
+            >
+              Select Concepts
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </>
+        }
+      />
 
       <div className="flex-1 flex overflow-hidden">
         {/* AI Question Panel */}

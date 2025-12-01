@@ -4,14 +4,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import {
-  ArrowLeft,
-  ListRestart,
   ArrowRight,
   Edit3,
   CheckCircle2,
   ChevronDown,
   Mic,
+  Pencil,
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { motion } from "framer-motion";
 
 interface ConceptEditForm {
@@ -312,38 +312,22 @@ export default function RefinePage() {
         </div>
       </div>
 
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-4 backdrop-blur-xl shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push("/select")}
-              className="p-2.5 hover:bg-blue-50 rounded-xl transition-all"
-              title="Back to Select"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-400 hover:text-blue-500" />
-            </button>
-            <button
-              onClick={handleStartNewProject}
-              className="p-2.5 hover:bg-orange-50 rounded-xl transition-all"
-              title="New project"
-            >
-              <ListRestart className="w-5 h-5 text-gray-400 hover:text-orange-500" />
-            </button>
-            <h1 className="text-lg font-black text-gray-800 flex items-center gap-2">
-              ✏️ Refine Concepts
-            </h1>
-          </div>
+      <PageHeader
+        title="Refine Concepts"
+        icon={<Pencil className="w-5 h-5 text-blue-500" />}
+        backPath="/select"
+        onNewProject={handleStartNewProject}
+        rightContent={
           <button
             onClick={handleProceedToFinal}
             disabled={!wizardComplete}
-            className="fun-button-primary flex items-center gap-2 font-black disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2.5 shadow-lg"
+            className="fun-button-primary flex items-center gap-2 font-bold disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2.5"
           >
             Rate Concepts ⭐
             <ArrowRight className="w-4 h-4" />
           </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6 flex justify-center items-center">

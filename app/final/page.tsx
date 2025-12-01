@@ -13,8 +13,6 @@ import {
   type GrowthTierInfo,
 } from "@/lib/types";
 import {
-  ListRestart,
-  ArrowLeft,
   ArrowRight,
   Sparkles,
   ChevronRight,
@@ -30,7 +28,9 @@ import {
   TrendingUp,
   Zap,
   Info,
+  Target,
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { pdf } from "@react-pdf/renderer";
 import { SummaryPDF } from "@/components/summary-pdf";
 import Tooltip from "@/components/tooltip";
@@ -752,40 +752,24 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           </div>
         </div>
 
-        {/* Header */}
-        <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-4 backdrop-blur-xl shadow-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push("/refine")}
-                className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-teal-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
-              >
-                <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
-              </button>
-              <div>
-                <h1 className="text-lg font-black text-gray-800 flex items-center gap-2">
-                  <span className="text-xl">🤖</span>
-                  AI Concept Evaluation
-                </h1>
-                <p className="text-sm text-gray-600 font-bold">
-                  See how your concepts measure up
-                </p>
-              </div>
-            </div>
-
-            {/* Concept tabs */}
+        <PageHeader
+          title="AI Concept Evaluation"
+          icon={<Bot className="w-5 h-5 text-blue-500" />}
+          backPath="/refine"
+          subtitle="See how your concepts measure up"
+          rightContent={
             <div className="flex gap-2">
               {selectedNotes.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentAIEvalIndex(idx)}
                   disabled={aiEvaluations[idx]?.isLoading}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all ${
                     idx === currentAIEvalIndex
                       ? "bg-gradient-to-br from-blue-500 to-teal-500 text-white scale-110 shadow-lg"
                       : aiEvaluations[idx]?.isLoading
                       ? "bg-gray-200 text-gray-400 animate-pulse"
-                      : "bg-white text-gray-600 hover:bg-blue-50"
+                      : "bg-white text-gray-600 hover:bg-blue-50 border border-gray-200"
                   }`}
                 >
                   {aiEvaluations[idx]?.isLoading ? (
@@ -796,8 +780,8 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 </button>
               ))}
             </div>
-          </div>
-        </div>
+          }
+        />
 
         {/* Main Content */}
         <div className="flex-1 flex items-center justify-center p-6">
@@ -1418,64 +1402,44 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
         </div>
       </div>
 
-      {/* Header */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-teal-50/50 border-b-3 border-teal-200 px-6 py-4 backdrop-blur-xl shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push("/refine")}
-              className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-teal-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
-              title="Back to refine"
-            >
-              <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
-            </button>
-            <button
-              onClick={handleStartOver}
-              className="p-3 hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
-              title="Start new project"
-            >
-              <ListRestart className="w-6 h-6 text-gray-400 group-hover:text-orange-500 transition-colors" />
-            </button>
-            <div>
-              <h1 className="text-lg font-black text-gray-800 flex items-center gap-2">
-                <span className="text-xl">🎯</span>
-                Rate Your Concepts
-              </h1>
-              <p className="text-sm text-gray-600 font-bold">
-                Step {currentStep} of {totalSteps}
-              </p>
-            </div>
-          </div>
-
-          {/* Progress */}
-          <div className="flex-1 max-w-xs mx-8">
-            <div className="h-3 rounded-full bg-gray-200 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-teal-500 transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Concept indicator */}
-          <div className="flex gap-2">
-            {selectedNotes.map((_, idx) => (
-              <div
-                key={idx}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${
-                  idx === currentConceptIndex
-                    ? "bg-gradient-to-br from-blue-500 to-teal-500 text-white scale-110 shadow-lg"
-                    : idx < currentConceptIndex
-                    ? "bg-green-400 text-white"
-                    : "bg-gray-200 text-gray-400"
-                }`}
-              >
-                {idx < currentConceptIndex ? "✓" : idx + 1}
+      <PageHeader
+        title="Rate Your Concepts"
+        icon={<Target className="w-5 h-5 text-blue-500" />}
+        backPath="/refine"
+        onNewProject={handleStartOver}
+        subtitle={`Step ${currentStep} of ${totalSteps}`}
+        rightContent={
+          <>
+            {/* Progress */}
+            <div className="flex-1 max-w-xs mx-4">
+              <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-teal-500 transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
+            </div>
+
+            {/* Concept indicator */}
+            <div className="flex gap-2">
+              {selectedNotes.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm transition-all ${
+                    idx === currentConceptIndex
+                      ? "bg-gradient-to-br from-blue-500 to-teal-500 text-white scale-110 shadow-lg"
+                      : idx < currentConceptIndex
+                      ? "bg-green-400 text-white"
+                      : "bg-gray-200 text-gray-400"
+                  }`}
+                >
+                  {idx < currentConceptIndex ? "✓" : idx + 1}
+                </div>
+              ))}
+            </div>
+          </>
+        }
+      />
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-6">
