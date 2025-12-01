@@ -80,6 +80,13 @@ export function VoiceInput({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const accumulatedTranscriptRef = useRef("");
   const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Use a ref to track enabled state to avoid stale closures in recognition callbacks
+  const isEnabledRef = useRef(isEnabled);
+
+  // Keep the ref in sync with the prop
+  useEffect(() => {
+    isEnabledRef.current = isEnabled;
+  }, [isEnabled]);
 
   // Check browser support
   useEffect(() => {
@@ -174,19 +181,23 @@ export function VoiceInput({
       setIsListening(false);
 
       // Auto-restart if still enabled (continuous listening)
-      if (isEnabled && recognitionRef.current) {
+      // Use ref to get current enabled state, not the stale closure value
+      if (isEnabledRef.current && recognitionRef.current) {
         restartTimeoutRef.current = setTimeout(() => {
-          try {
-            recognitionRef.current?.start();
-          } catch (e) {
-            // Ignore start errors
+          // Double-check we're still enabled before restarting
+          if (isEnabledRef.current) {
+            try {
+              recognitionRef.current?.start();
+            } catch (e) {
+              // Ignore start errors
+            }
           }
         }, 100);
       }
     };
 
     return recognition;
-  }, [isEnabled, onTranscript, onCommand]);
+  }, [onTranscript, onCommand]); // Removed isEnabled - using isEnabledRef instead to avoid stale closures
 
   // Start/stop recognition based on isEnabled
   useEffect(() => {
