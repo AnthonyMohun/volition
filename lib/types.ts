@@ -36,6 +36,11 @@ export interface StickyNote {
   contentType?: NoteContentType;
   details?: string;
   createdAt: number;
+  // Refine phase structured fields
+  targetAudience?: string;
+  platform?: string[];
+  keyBenefits?: string;
+  mainFeatures?: string;
 }
 
 export interface AIQuestion {

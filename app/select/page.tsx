@@ -17,6 +17,11 @@ import {
   RotateCcw,
   ThumbsDown,
   ThumbsUp,
+  Keyboard,
+  Sparkles,
+  Trophy,
+  Zap,
+  X,
 } from "lucide-react";
 
 export default function SelectPage() {
@@ -245,31 +250,48 @@ export default function SelectPage() {
   const swipeDirection =
     dragState.offsetX > 30 ? "right" : dragState.offsetX < -30 ? "left" : null;
 
+  // Get selected concept notes for sidebar display
+  const selectedConceptNotes = conceptNotes.filter((n) =>
+    selectedConcepts.includes(n.id)
+  );
+
   if (!state.hmwStatement || conceptNotes.length < minConcepts) {
     return null;
   }
 
   return (
     <div className="min-h-screen fun-gradient-bg flex flex-col relative overflow-hidden">
-      {/* Floating decorative elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
-        <div className="absolute top-20 left-10 text-6xl float-animation">
+      {/* Animated background patterns */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Gradient orbs */}
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-br from-blue-300/30 to-teal-300/20 rounded-full blur-3xl float-animation" />
+        <div
+          className="absolute bottom-1/4 -right-20 w-80 h-80 bg-gradient-to-br from-orange-300/25 to-pink-300/20 rounded-full blur-3xl float-animation"
+          style={{ animationDelay: "1.5s" }}
+        />
+        <div
+          className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-br from-green-300/20 to-yellow-300/15 rounded-full blur-3xl float-animation"
+          style={{ animationDelay: "3s" }}
+        />
+
+        {/* Floating emojis - more subtle */}
+        <div className="absolute top-24 left-[8%] text-4xl opacity-15 float-animation">
           ⭐
         </div>
         <div
-          className="absolute top-40 right-20 text-5xl float-animation"
+          className="absolute top-32 right-[12%] text-3xl opacity-15 float-animation"
           style={{ animationDelay: "1s" }}
         >
           💡
         </div>
         <div
-          className="absolute bottom-32 left-1/4 text-5xl float-animation"
+          className="absolute bottom-40 left-[15%] text-3xl opacity-15 float-animation"
           style={{ animationDelay: "2s" }}
         >
           ✨
         </div>
         <div
-          className="absolute bottom-20 right-1/3 text-6xl float-animation"
+          className="absolute bottom-28 right-[20%] text-4xl opacity-15 float-animation"
           style={{ animationDelay: "0.5s" }}
         >
           🎯
@@ -277,332 +299,470 @@ export default function SelectPage() {
       </div>
 
       {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-white to-blue-50/50 border-b-3 border-blue-200 px-6 py-4 flex items-center justify-between shadow-lg backdrop-blur-xl">
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push("/canvas")}
-            className="p-3 hover:bg-gradient-to-br hover:from-blue-50 hover:to-teal-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
+            className="p-2.5 hover:bg-gray-100 rounded-xl transition-all group"
             title="Back to canvas"
           >
-            <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
+            <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
           </button>
           <button
             onClick={handleStartNewProject}
-            className="p-3 hover:bg-gradient-to-br hover:from-orange-50 hover:to-red-50 rounded-2xl transition-all group shadow-sm hover:shadow-md hover:scale-110"
+            className="p-2.5 hover:bg-gray-100 rounded-xl transition-all group"
             title="Start a new project"
           >
-            <ListRestart className="w-6 h-6 text-gray-400 group-hover:text-orange-500 transition-colors" />
+            <ListRestart className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
           </button>
+          <div className="h-6 w-px bg-gray-200" />
           <div>
-            <h1 className="text-xl font-black text-gray-800 flex items-center gap-2">
-              <span className="text-2xl">✨</span>
+            <h1 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-blue-500" />
               Concept Selection
             </h1>
-            <p className="text-sm text-gray-600 font-bold">
-              Choose your top {maxConcepts} ideas to develop
-            </p>
           </div>
         </div>
-        <button
-          onClick={handleReset}
-          disabled={swipeHistory.length === 0}
-          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-gray-600 transition-all flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <RotateCcw className="w-4 h-4" />
-          Start Over
-        </button>
-      </div>
-      {/* Main Content - Centered */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="flex flex-col items-center gap-6 w-full max-w-md">
-          {/* HMW Statement */}
-          <div className="w-full fun-card p-4 border-2 border-blue-300 bg-gradient-to-br from-white to-blue-50">
-            <div className="flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-700 font-semibold leading-relaxed line-clamp-2">
-                {state.hmwStatement}
-              </p>
-            </div>
+
+        {/* Progress pills in header */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full">
+            <span className="text-sm font-medium text-gray-500">
+              {conceptNotes.length - remainingCards.length} of{" "}
+              {conceptNotes.length} reviewed
+            </span>
           </div>
+          <button
+            onClick={handleReset}
+            disabled={swipeHistory.length === 0}
+            className="p-2.5 hover:bg-gray-100 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Start over"
+          >
+            <RotateCcw className="w-5 h-5 text-gray-400" />
+          </button>
+        </div>
+      </div>
+      {/* Main Content - Two Column Layout */}
+      <div className="flex-1 flex relative">
+        {/* Center - Card swipe area */}
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="flex flex-col items-center gap-6 w-full max-w-md">
+            {/* Card Stack Container */}
+            <div className="relative w-full h-[450px] flex items-center justify-center">
+              {!isComplete ? (
+                <>
+                  {/* Stacked cards behind (rendered first = behind) */}
+                  {remainingCards
+                    .slice(1, 4)
+                    .reverse()
+                    .map((note, reverseIdx) => {
+                      const stackIdx =
+                        remainingCards.slice(1, 4).length - reverseIdx; // 1, 2, or 3
+                      const yOffset = stackIdx * 10;
+                      const scale = 1 - stackIdx * 0.04;
 
-          {/* Card Stack Container */}
-          <div className="relative w-full h-[420px] flex items-center justify-center">
-            {!isComplete ? (
-              <>
-                {/* Stacked cards behind (rendered first = behind) */}
-                {remainingCards
-                  .slice(1, 4)
-                  .reverse()
-                  .map((note, reverseIdx) => {
-                    const stackIdx =
-                      remainingCards.slice(1, 4).length - reverseIdx; // 1, 2, or 3
-                    const yOffset = stackIdx * 8;
-                    const scale = 1 - stackIdx * 0.03;
-
-                    return (
-                      <div
-                        key={note.id}
-                        className="absolute flex justify-center transition-all duration-300 ease-out"
-                        style={{
-                          transform: `translateY(${yOffset}px) scale(${scale})`,
-                          zIndex: 10 - stackIdx,
-                        }}
-                      >
+                      return (
                         <div
-                          className="w-[340px] h-[280px] p-5 rounded-3xl border-4 shadow-xl"
+                          key={note.id}
+                          className="absolute flex justify-center transition-all duration-300 ease-out"
                           style={{
-                            backgroundColor: getFunColor(note.color),
-                            borderColor: getAccentColor(note.color),
+                            transform: `translateY(${yOffset}px) scale(${scale})`,
+                            zIndex: 10 - stackIdx,
+                            opacity: 1 - stackIdx * 0.15,
                           }}
-                        />
-                      </div>
-                    );
-                  })}
-
-                {/* Top card (interactive) */}
-                {topCard && (
-                  <div
-                    className={`absolute flex justify-center touch-none ${
-                      isAnimatingOut
-                        ? "transition-all duration-300 ease-out"
-                        : dragState.isDragging || isNewTopCard
-                        ? ""
-                        : "transition-transform duration-200"
-                    }`}
-                    style={{
-                      transform: isAnimatingOut
-                        ? `translateX(${
-                            isAnimatingOut === "right" ? 500 : -500
-                          }px) rotate(${
-                            isAnimatingOut === "right" ? 20 : -20
-                          }deg)`
-                        : `translateX(${dragState.offsetX}px) translateY(${
-                            dragState.offsetY
-                          }px) rotate(${dragState.offsetX * 0.05}deg)`,
-                      opacity: isAnimatingOut ? 0 : 1,
-                      zIndex: 20,
-                      cursor: "grab",
-                    }}
-                    onPointerDown={handlePointerDown}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                    onPointerCancel={handlePointerUp}
-                  >
-                    <div
-                      className="w-full max-w-[340px] p-5 rounded-3xl border-4 shadow-2xl relative overflow-hidden select-none"
-                      style={{
-                        backgroundColor: getFunColor(topCard.color),
-                        borderColor: getAccentColor(topCard.color),
-                      }}
-                    >
-                      {/* Swipe indicators */}
-                      <div
-                        className={`absolute left-4 top-4 bg-red-500 text-white px-3 py-1.5 rounded-xl font-black text-sm shadow-lg flex items-center gap-1.5 z-20 transition-opacity ${
-                          swipeDirection === "left"
-                            ? "opacity-100"
-                            : "opacity-0"
-                        }`}
-                        style={{
-                          opacity:
-                            swipeDirection === "left" ? swipeProgress : 0,
-                        }}
-                      >
-                        <ThumbsDown className="w-4 h-4" />
-                        NOPE
-                      </div>
-                      <div
-                        className={`absolute right-4 top-4 bg-green-500 text-white px-3 py-1.5 rounded-xl font-black text-sm shadow-lg flex items-center gap-1.5 z-20 transition-opacity ${
-                          swipeDirection === "right"
-                            ? "opacity-100"
-                            : "opacity-0"
-                        }`}
-                        style={{
-                          opacity:
-                            swipeDirection === "right" ? swipeProgress : 0,
-                        }}
-                      >
-                        LIKE
-                        <ThumbsUp className="w-4 h-4" />
-                      </div>
-
-                      {/* Card badge */}
-                      <div className="flex justify-end mb-3">
-                        <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-md">
-                          <Star className="w-4 h-4 text-yellow-500 fill-current inline-block mr-1" />
-                          <span className="font-bold text-gray-700 text-xs">
-                            Concept
-                          </span>
+                        >
+                          <div
+                            className="w-[360px] h-[320px] p-5 rounded-3xl border-4 shadow-xl"
+                            style={{
+                              backgroundColor: getFunColor(note.color),
+                              borderColor: getAccentColor(note.color),
+                            }}
+                          />
                         </div>
-                      </div>
+                      );
+                    })}
 
-                      {/* Image if present */}
-                      {(topCard.image || topCard.drawing?.dataUrl) && (
-                        <div className="flex gap-4 mb-4">
-                          {topCard.image && !topCard.drawing?.dataUrl && (
-                            <img
-                              src={topCard.image.dataUrl}
-                              alt={topCard.image.caption || "Concept image"}
-                              className="w-full h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
-                              draggable={false}
-                            />
-                          )}
-                          {topCard.drawing?.dataUrl && !topCard.image && (
-                            <img
-                              src={topCard.drawing.dataUrl}
-                              alt={
-                                topCard.image?.caption
-                                  ? `${topCard.image.caption} (sketch)`
-                                  : "Concept sketch"
-                              }
-                              className="w-full h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
-                              draggable={false}
-                            />
-                          )}
-                          {topCard.image && topCard.drawing?.dataUrl && (
-                            <>
+                  {/* Top card (interactive) */}
+                  {topCard && (
+                    <div
+                      className={`absolute flex justify-center touch-none ${
+                        isAnimatingOut
+                          ? "transition-all duration-300 ease-out"
+                          : dragState.isDragging || isNewTopCard
+                          ? ""
+                          : "transition-transform duration-200"
+                      }`}
+                      style={{
+                        transform: isAnimatingOut
+                          ? `translateX(${
+                              isAnimatingOut === "right" ? 500 : -500
+                            }px) rotate(${
+                              isAnimatingOut === "right" ? 20 : -20
+                            }deg)`
+                          : `translateX(${dragState.offsetX}px) translateY(${
+                              dragState.offsetY
+                            }px) rotate(${dragState.offsetX * 0.05}deg)`,
+                        opacity: isAnimatingOut ? 0 : 1,
+                        zIndex: 20,
+                        cursor: "grab",
+                      }}
+                      onPointerDown={handlePointerDown}
+                      onPointerMove={handlePointerMove}
+                      onPointerUp={handlePointerUp}
+                      onPointerCancel={handlePointerUp}
+                    >
+                      <div
+                        className="w-full max-w-[360px] p-6 rounded-3xl border-4 shadow-2xl relative overflow-hidden select-none"
+                        style={{
+                          backgroundColor: getFunColor(topCard.color),
+                          borderColor: getAccentColor(topCard.color),
+                        }}
+                      >
+                        {/* Swipe indicators */}
+                        <div
+                          className={`absolute left-4 top-4 bg-gradient-to-r from-red-500 to-red-400 text-white px-4 py-2 rounded-2xl font-black text-sm shadow-lg flex items-center gap-2 z-20 transition-all ${
+                            swipeDirection === "left"
+                              ? "opacity-100 scale-100"
+                              : "opacity-0 scale-90"
+                          }`}
+                          style={{
+                            opacity:
+                              swipeDirection === "left" ? swipeProgress : 0,
+                          }}
+                        >
+                          <ThumbsDown className="w-5 h-5" />
+                          SKIP
+                        </div>
+                        <div
+                          className={`absolute right-4 top-4 bg-gradient-to-r from-green-400 to-green-500 text-white px-4 py-2 rounded-2xl font-black text-sm shadow-lg flex items-center gap-2 z-20 transition-all ${
+                            swipeDirection === "right"
+                              ? "opacity-100 scale-100"
+                              : "opacity-0 scale-90"
+                          }`}
+                          style={{
+                            opacity:
+                              swipeDirection === "right" ? swipeProgress : 0,
+                          }}
+                        >
+                          KEEP
+                          <ThumbsUp className="w-5 h-5" />
+                        </div>
+
+                        {/* Card number badge */}
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-sm">
+                            <span className="font-bold text-gray-600 text-sm">
+                              {conceptNotes.length - remainingCards.length + 1}{" "}
+                              / {conceptNotes.length}
+                            </span>
+                          </div>
+                          <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
+                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                            <span className="font-bold text-gray-700 text-xs">
+                              Concept
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Image if present */}
+                        {(topCard.image || topCard.drawing?.dataUrl) && (
+                          <div className="flex gap-3 mb-4">
+                            {topCard.image && !topCard.drawing?.dataUrl && (
                               <img
                                 src={topCard.image.dataUrl}
                                 alt={topCard.image.caption || "Concept image"}
-                                className="w-1/2 h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
+                                className="w-full h-40 object-cover rounded-2xl border-3 border-white shadow-lg"
                                 draggable={false}
                               />
+                            )}
+                            {topCard.drawing?.dataUrl && !topCard.image && (
                               <img
                                 src={topCard.drawing.dataUrl}
-                                alt={
-                                  topCard.image?.caption
-                                    ? `${topCard.image.caption} (sketch)`
-                                    : "Concept sketch"
-                                }
-                                className="w-1/2 h-36 object-cover rounded-2xl border-3 border-white shadow-lg"
+                                alt="Concept sketch"
+                                className="w-full h-40 object-cover rounded-2xl border-3 border-white shadow-lg bg-white"
                                 draggable={false}
                               />
-                            </>
-                          )}
-                        </div>
-                      )}
+                            )}
+                            {topCard.image && topCard.drawing?.dataUrl && (
+                              <>
+                                <img
+                                  src={topCard.image.dataUrl}
+                                  alt={topCard.image.caption || "Concept image"}
+                                  className="w-1/2 h-40 object-cover rounded-2xl border-3 border-white shadow-lg"
+                                  draggable={false}
+                                />
+                                <img
+                                  src={topCard.drawing.dataUrl}
+                                  alt={
+                                    topCard.image.caption
+                                      ? `${topCard.image.caption} (sketch)`
+                                      : "Concept sketch"
+                                  }
+                                  className="w-1/2 h-40 object-cover rounded-2xl border-3 border-white shadow-lg bg-white"
+                                  draggable={false}
+                                />
+                              </>
+                            )}
+                          </div>
+                        )}
 
-                      {/* Main text */}
-                      <p className="text-lg text-gray-800 font-bold leading-relaxed mb-4">
-                        {topCard.text}
-                      </p>
+                        {/* Main text */}
+                        <p className="text-xl text-gray-800 font-bold leading-relaxed mb-4">
+                          {topCard.text}
+                        </p>
 
-                      {/* Details */}
-                      {topCard.details && topCard.details.trim() ? (
-                        <div className="bg-white/50 rounded-2xl p-3">
-                          <p className="text-sm text-gray-600 font-semibold leading-relaxed line-clamp-3">
-                            {topCard.details}
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="bg-orange-100/50 rounded-2xl p-3 flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-orange-500 flex-shrink-0" />
-                          <p className="text-sm text-orange-600 font-semibold">
-                            No description added
-                          </p>
-                        </div>
-                      )}
+                        {/* Details */}
+                        {topCard.details && topCard.details.trim() ? (
+                          <div className="bg-white/60 rounded-2xl p-4">
+                            <p className="text-sm text-gray-600 font-medium leading-relaxed line-clamp-3">
+                              {topCard.details}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="bg-orange-100/60 rounded-2xl p-3 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                            <p className="text-sm text-orange-600 font-medium">
+                              No description added
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              /* Completion state */
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center fun-card p-8 border-3 border-green-300 bg-gradient-to-br from-green-50 to-white">
-                  <div className="text-6xl mb-4">🎉</div>
-                  <h3 className="text-2xl font-black text-gray-800 mb-2">
-                    All Done!
-                  </h3>
-                  <p className="text-gray-600 font-semibold mb-4">
-                    You've selected {selectedConcepts.length} concept
-                    {selectedConcepts.length !== 1 ? "s" : ""} to refine
-                  </p>
-                  {selectedConcepts.length >= minConcepts ? (
-                    <button
-                      onClick={handleProceedToRefine}
-                      className="fun-button-primary flex items-center gap-2 font-black px-6 py-3 shadow-lg hover:shadow-blue mx-auto"
-                    >
-                      Continue to Refine
-                      <ArrowRight className="w-5 h-5" />
-                    </button>
-                  ) : (
-                    <>
-                      <p className="text-orange-600 font-bold mb-4">
-                        ⚠️ You need at least {minConcepts} concepts. Reset and
-                        try again!
-                      </p>
-                      <button
-                        onClick={handleReset}
-                        className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-gray-700 transition-all flex items-center gap-2 mx-auto"
-                      >
-                        <RotateCcw className="w-5 h-5" />
-                        Start Over
-                      </button>
-                    </>
                   )}
+                </>
+              ) : (
+                /* Completion state */
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center fun-card p-10 border-3 border-green-300 bg-gradient-to-br from-green-50 to-white max-w-sm">
+                    <div className="text-7xl mb-5">🎉</div>
+                    <h3 className="text-2xl font-black text-gray-800 mb-3">
+                      All Done!
+                    </h3>
+                    <p className="text-gray-600 font-medium mb-6">
+                      You've selected{" "}
+                      <span className="font-bold text-green-600">
+                        {selectedConcepts.length}
+                      </span>{" "}
+                      concept
+                      {selectedConcepts.length !== 1 ? "s" : ""} to refine
+                    </p>
+                    {selectedConcepts.length >= minConcepts ? (
+                      <button
+                        onClick={handleProceedToRefine}
+                        className="fun-button-primary flex items-center gap-2 font-bold px-8 py-4 shadow-lg hover:shadow-green mx-auto text-lg"
+                      >
+                        <Trophy className="w-5 h-5" />
+                        Continue to Refine
+                        <ArrowRight className="w-5 h-5" />
+                      </button>
+                    ) : (
+                      <>
+                        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-4">
+                          <p className="text-orange-700 font-semibold flex items-center justify-center gap-2">
+                            <AlertCircle className="w-5 h-5" />
+                            You need at least {minConcepts} concepts
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleReset}
+                          className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-gray-700 transition-all flex items-center gap-2 mx-auto"
+                        >
+                          <RotateCcw className="w-5 h-5" />
+                          Start Over
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
+              )}
+            </div>
+
+            {/* Controls below cards */}
+            {!isComplete && (
+              <div className="flex items-center justify-center gap-8 mt-4">
+                {/* Skip button */}
+                <button
+                  onClick={() => animateOut("left")}
+                  disabled={isAnimatingOut !== null}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="p-5 bg-white hover:bg-red-50 border-3 border-red-200 hover:border-red-400 rounded-full shadow-lg hover:shadow-xl transition-all group-hover:scale-110 group-active:scale-95">
+                    <X className="w-7 h-7 text-red-400 group-hover:text-red-500" />
+                  </div>
+                  <span className="text-sm font-bold text-red-500">Skip</span>
+                </button>
+
+                {/* Undo button - centered */}
+                <button
+                  onClick={handleUndo}
+                  disabled={swipeHistory.length === 0}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="p-4 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 rounded-full shadow-md hover:shadow-lg transition-all disabled:opacity-30 group-hover:scale-105 group-active:scale-95">
+                    <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                  </div>
+                  <span className="text-xs font-medium text-gray-400">
+                    Undo
+                  </span>
+                </button>
+
+                {/* Keep button */}
+                <button
+                  onClick={() => animateOut("right")}
+                  disabled={
+                    isAnimatingOut !== null ||
+                    selectedConcepts.length >= maxConcepts
+                  }
+                  className="flex flex-col items-center gap-2 group disabled:opacity-50"
+                >
+                  <div className="p-5 bg-white hover:bg-green-50 border-3 border-green-200 hover:border-green-400 rounded-full shadow-lg hover:shadow-xl transition-all group-hover:scale-110 group-active:scale-95">
+                    <Heart className="w-7 h-7 text-green-400 group-hover:text-green-500 group-hover:fill-green-500 transition-all" />
+                  </div>
+                  <span className="text-sm font-bold text-green-500">Keep</span>
+                </button>
               </div>
             )}
+
+            {/* Remaining count */}
+            {!isComplete && (
+              <p className="text-sm text-gray-400 font-medium mt-2">
+                {remainingCards.length} card
+                {remainingCards.length !== 1 ? "s" : ""} remaining
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Right sidebar - Selected concepts */}
+        <div className="w-80 border-l border-gray-200/50 bg-white/40 backdrop-blur-sm p-5 flex flex-col">
+          {/* HMW Statement */}
+          <div className="mb-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Lightbulb className="w-4 h-4 text-blue-500" />
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Challenge
+              </span>
+            </div>
+            <p className="text-sm text-gray-700 font-medium leading-relaxed">
+              {state.hmwStatement}
+            </p>
           </div>
 
-          {/* Controls & Status */}
-          {!isComplete && (
-            <div className="flex items-center justify-center gap-6">
-              {/* Skip button */}
-              <button
-                onClick={() => animateOut("left")}
-                disabled={isAnimatingOut !== null}
-                className="flex flex-col items-center gap-1 group"
-              >
-                <div className="p-4 bg-white hover:bg-red-50 border-2 border-red-200 hover:border-red-300 rounded-2xl shadow-md hover:shadow-lg transition-all group-hover:scale-105 group-active:scale-95">
-                  <ArrowLeft className="w-6 h-6 text-red-400 group-hover:text-red-500" />
-                </div>
-                <span className="text-sm font-bold text-red-500">Skip</span>
-              </button>
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-5" />
 
-              {/* Center info - minimal pill */}
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-100">
-                  <Heart className="w-4 h-4 text-blue-500 fill-blue-500" />
-                  <span className="font-bold text-gray-700">
-                    {selectedConcepts.length}/{maxConcepts}
-                  </span>
-                  {selectedConcepts.length >= minConcepts && (
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+          {/* Selected concepts header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
+              <span className="text-sm font-bold text-gray-700">
+                Selected Concepts
+              </span>
+            </div>
+            <div
+              className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                selectedConcepts.length >= minConcepts
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {selectedConcepts.length}/{maxConcepts}
+            </div>
+          </div>
+
+          {/* Selected concept slots */}
+          <div className="flex-1 space-y-3 overflow-y-auto">
+            {[...Array(maxConcepts)].map((_, idx) => {
+              const concept = selectedConceptNotes[idx];
+              return (
+                <div
+                  key={idx}
+                  className={`relative rounded-2xl transition-all duration-300 ${
+                    concept
+                      ? "animate-slide-up"
+                      : "border-2 border-dashed border-gray-200 bg-gray-50/50"
+                  }`}
+                  style={{
+                    backgroundColor: concept
+                      ? getFunColor(concept.color)
+                      : undefined,
+                    borderColor: concept
+                      ? getAccentColor(concept.color)
+                      : undefined,
+                    borderWidth: concept ? "2px" : undefined,
+                    borderStyle: concept ? "solid" : undefined,
+                  }}
+                >
+                  {concept ? (
+                    <div className="p-3">
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-800 line-clamp-2">
+                            {concept.text}
+                          </p>
+                          {concept.details && (
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                              {concept.details}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 flex items-center justify-center">
+                      <span className="text-sm text-gray-400 font-medium">
+                        Slot {idx + 1}
+                      </span>
+                    </div>
                   )}
                 </div>
+              );
+            })}
+          </div>
 
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleUndo}
-                    disabled={swipeHistory.length === 0}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    Undo
-                  </button>
-                  <span className="text-sm text-gray-400">
-                    {remainingCards.length} left
-                  </span>
-                </div>
-              </div>
-
-              {/* Keep button */}
+          {/* Continue button at bottom of sidebar */}
+          {selectedConcepts.length >= minConcepts && (
+            <div className="mt-4 pt-4 border-t border-gray-200/50">
               <button
-                onClick={() => animateOut("right")}
-                disabled={
-                  isAnimatingOut !== null ||
-                  selectedConcepts.length >= maxConcepts
-                }
-                className="flex flex-col items-center gap-1 group"
+                onClick={handleProceedToRefine}
+                className="w-full fun-button-primary flex items-center justify-center gap-2 font-bold text-sm"
               >
-                <div className="p-4 bg-white hover:bg-green-50 border-2 border-green-200 hover:border-green-300 rounded-2xl shadow-md hover:shadow-lg transition-all group-hover:scale-105 group-active:scale-95 disabled:opacity-50">
-                  <ArrowRight className="w-6 h-6 text-green-400 group-hover:text-green-500" />
-                </div>
-                <span className="text-sm font-bold text-green-500">Keep</span>
+                <Trophy className="w-4 h-4" />
+                Continue to Refine
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           )}
+
+          {/* Keyboard hints */}
+          <div className="mt-4 pt-4 border-t border-gray-200/50">
+            <div className="flex items-center gap-2 mb-2">
+              <Keyboard className="w-3.5 h-3.5 text-gray-400" />
+              <span className="text-xs font-medium text-gray-400">
+                Shortcuts
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex items-center gap-1.5 text-gray-500">
+                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
+                  ←
+                </kbd>
+                <span>Skip</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-gray-500">
+                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
+                  →
+                </kbd>
+                <span>Keep</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-gray-500 col-span-2">
+                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
+                  ⌘Z
+                </kbd>
+                <span>Undo last action</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

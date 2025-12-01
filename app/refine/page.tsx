@@ -417,11 +417,7 @@ export default function RefinePage() {
                         {note.drawing?.dataUrl && !note.image && (
                           <img
                             src={note.drawing.dataUrl}
-                            alt={
-                              note.image?.caption
-                                ? `${note.image.caption} (sketch)`
-                                : "Concept sketch"
-                            }
+                            alt="Concept sketch"
                             className="w-full max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
                           />
                         )}
@@ -435,7 +431,7 @@ export default function RefinePage() {
                             <img
                               src={note.drawing.dataUrl}
                               alt={
-                                note.image?.caption
+                                note.image.caption
                                   ? `${note.image.caption} (sketch)`
                                   : "Concept sketch"
                               }
