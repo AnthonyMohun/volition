@@ -21,15 +21,12 @@ const EXAMPLE_HMWS = [
   "How might we help online shoppers reduce single-use packaging by using reusable packaging?",
 ];
 
-import { IcebreakerModal } from "@/components/icebreaker-modal";
-
 export default function Home() {
   const router = useRouter();
   const { updateHMW, setPhase, loadExampleSession } = useSession();
   const [hmwInput, setHmwInput] = useState("");
   const [showHelper, setShowHelper] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
-  const [showIcebreaker, setShowIcebreaker] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,18 +84,6 @@ export default function Home() {
           💫
         </div>
       </div>
-
-      {/* Icebreaker Button */}
-      <button
-        onClick={() => setShowIcebreaker(true)}
-        className="fixed top-6 left-6 z-40 bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 group border border-white/50"
-        title="Need an icebreaker?"
-      >
-        <span className="text-3xl group-hover:rotate-12 transition-transform block">🧊</span>
-        <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-white px-3 py-1 rounded-lg text-sm font-bold text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-sm pointer-events-none">
-          Icebreaker
-        </span>
-      </button>
 
       <div className="max-w-3xl w-full relative z-10">
         {/* Hero Section */}
@@ -260,11 +245,6 @@ export default function Home() {
         isOpen={showHelper}
         onClose={() => setShowHelper(false)}
         onSelect={handleSelectTemplate}
-      />
-
-      <IcebreakerModal
-        isOpen={showIcebreaker}
-        onClose={() => setShowIcebreaker(false)}
       />
     </div>
   );
