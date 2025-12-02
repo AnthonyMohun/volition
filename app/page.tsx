@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { HMWHelperModal } from "@/components/hmw-helper-modal";
 import { CrazyEightsModal } from "@/components/crazy-eights-modal";
 import { OnboardingModal } from "@/components/onboarding-modal";
 import { EXAMPLE_SESSION_DATA } from "@/lib/example-data";
-import { PlayCircle, Zap } from "lucide-react";
+import { HelpCircle, ChevronDown } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
@@ -16,6 +16,19 @@ export default function Home() {
   const [showHelper, setShowHelper] = useState(false);
   const [showCrazyEights, setShowCrazyEights] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,11 +88,8 @@ export default function Home() {
           <h1 className="text-7xl font-black fun-gradient-text tracking-tight mb-4">
             Volition
           </h1>
-          <p className="text-gray-700 text-2xl font-bold mb-2">
-            Discover concepts through guided exploration
-          </p>
-          <p className="text-gray-500 text-base font-medium">
-            Your AI-powered creative companion for design thinking 🎯
+          <p className="text-gray-700 text-2xl font-bold">
+            Transform design challenges into clear, actionable concepts
           </p>
         </div>
 
@@ -99,71 +109,87 @@ export default function Home() {
                   <span className="text-lg">💭</span>
                   Your Design Challenge
                 </label>
-                <button
-                  type="button"
-                  onClick={handleTryExample}
-                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-black text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full transition-all shadow-sm hover:shadow-blue transform hover:scale-105"
-                  title="Load a complete example session"
-                >
-                  <PlayCircle className="w-4 h-4" />
-                  <span>Try Example</span>
-                </button>
+                {/* Quick Actions Dropdown */}
+                <div className="relative" ref={menuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full transition-all"
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                    <span>Quick Start</span>
+                    <ChevronDown
+                      className={`w-3 h-3 transition-transform ${
+                        showMenu ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {showMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowOnboarding(true);
+                          setShowMenu(false);
+                        }}
+                        className="w-full px-4 py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors"
+                      >
+                        <span>💡</span> How it works
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleTryExample();
+                          setShowMenu(false);
+                        }}
+                        className="w-full px-4 py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors"
+                      >
+                        <span>▶️</span> Try Example
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowHelper(true);
+                          setShowMenu(false);
+                        }}
+                        className="w-full px-4 py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors"
+                      >
+                        <span>🛠️</span> HMW Builder
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="relative">
-                <textarea
-                  id="hmw"
-                  value={hmwInput}
-                  onChange={(e) => setHmwInput(e.target.value)}
-                  placeholder="✏️ Frame your challenge as a 'How Might We' statement to begin..."
-                  className="w-full px-6 py-5 pr-16 bg-gradient-to-br from-white to-gray-50/50 border-3 border-blue-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-400 resize-none text-gray-800 placeholder:text-gray-400 transition-all text-lg font-semibold shadow-sm hover:shadow-md"
-                  rows={3}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowHelper(true)}
-                  className="absolute bottom-4 right-4 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-all"
-                  title="Open HMW Builder"
-                  aria-label="Open HMW Builder"
-                >
-                  🛠️ HMW Builder
-                </button>
-              </div>
+              <textarea
+                id="hmw"
+                value={hmwInput}
+                onChange={(e) => setHmwInput(e.target.value)}
+                placeholder="✏️ Frame your challenge as a 'How Might We' statement to begin..."
+                className="w-full px-6 py-5 bg-gradient-to-br from-white to-gray-50/50 border-3 border-blue-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-400 resize-none text-gray-800 placeholder:text-gray-400 transition-all text-lg font-semibold shadow-sm hover:shadow-md"
+                rows={3}
+                required
+              />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex justify-center gap-3">
               <button
                 type="button"
-                onClick={() => setShowOnboarding(true)}
-                aria-label="Learn how it works"
-                title="Learn how 'How Might We' statements work"
-                className="fun-button-secondary flex items-center justify-center gap-2 bounce-hover"
+                onClick={() => setShowCrazyEights(true)}
+                className="fun-button-secondary flex items-center justify-center gap-2"
               >
-                <span className="text-xl">💡</span>
-                <span className="font-black">How it works</span>
+                <span className="text-lg">⚡</span>
+                <span className="font-black">Crazy Eights</span>
               </button>
-
               <button
                 type="submit"
                 disabled={!hmwInput.trim()}
-                className="fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed px-12"
               >
                 <span className="font-black">Begin Exploration</span>
                 <span className="text-xl">🚀</span>
               </button>
             </div>
           </form>
-        </div>
-
-        {/* Crazy Eights Sprint */}
-        <div className="text-center mt-8">
-          <button
-            onClick={() => setShowCrazyEights(true)}
-            className="inline-flex items-center gap-2 text-sm font-black text-gray-600 hover:text-blue-600 transition-all bg-white/60 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm hover:shadow-md transform hover:scale-105"
-          >
-            <Zap className="w-4 h-4" />
-            Crazy Eights Sprint ⚡
-          </button>
         </div>
       </div>
 
