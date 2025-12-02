@@ -34,7 +34,7 @@ interface Sketch {
 
 export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
   const router = useRouter();
-  const { updateHMW, setPhase, addNote } = useSession();
+  const { updateHMW, setPhase, addNote, resetSession } = useSession();
   const canvasRef = useRef<DrawingCanvasHandle>(null);
 
   // Setup phase state
@@ -195,6 +195,9 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
   };
 
   const handleImportToCanvas = async () => {
+    // Clear any previous session before starting a new one
+    resetSession();
+
     // Create sticky notes for each sketch with content
     const sketchesWithContent = sketches.filter((s) => s.drawing);
 

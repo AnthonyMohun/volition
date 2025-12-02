@@ -11,7 +11,8 @@ import { HelpCircle, ChevronDown } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
-  const { updateHMW, setPhase, loadExampleSession } = useSession();
+  const { updateHMW, setPhase, loadExampleSession, resetSession } =
+    useSession();
   const [hmwInput, setHmwInput] = useState("");
   const [showHelper, setShowHelper] = useState(false);
   const [showCrazyEights, setShowCrazyEights] = useState(false);
@@ -33,6 +34,8 @@ export default function Home() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (hmwInput.trim()) {
+      // Clear any previous session before starting a new one
+      resetSession();
       updateHMW(hmwInput.trim());
       setPhase("canvas");
       router.push("/canvas");
