@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { HMWHelperModal } from "@/components/hmw-helper-modal";
 import { CrazyEightsModal } from "@/components/crazy-eights-modal";
+import { OnboardingModal } from "@/components/onboarding-modal";
 import { EXAMPLE_SESSION_DATA } from "@/lib/example-data";
 import { PlayCircle, Zap } from "lucide-react";
 
@@ -14,6 +15,7 @@ export default function Home() {
   const [hmwInput, setHmwInput] = useState("");
   const [showHelper, setShowHelper] = useState(false);
   const [showCrazyEights, setShowCrazyEights] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,6 +134,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 type="button"
+                onClick={() => setShowOnboarding(true)}
                 aria-label="Learn how it works"
                 title="Learn how 'How Might We' statements work"
                 className="fun-button-secondary flex items-center justify-center gap-2 bounce-hover"
@@ -173,6 +176,11 @@ export default function Home() {
       <CrazyEightsModal
         isOpen={showCrazyEights}
         onClose={() => setShowCrazyEights(false)}
+      />
+
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
       />
     </div>
   );
