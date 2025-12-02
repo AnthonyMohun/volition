@@ -6,6 +6,9 @@ import { useToast } from "@/lib/toast-context";
 import {
   askAI,
   SOCRATIC_SYSTEM_PROMPT,
+  OPENING_QUESTIONS,
+  DEEPENING_QUESTIONS,
+  EXPANSION_QUESTIONS,
   buildConversationContext,
   MessageRole,
 } from "@/lib/ai-client";
@@ -195,7 +198,7 @@ export function AIQuestionPanel() {
         { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
         {
           role: "user",
-          content: `${context}\n\nThis is the beginning of our ideation session. Ask me an opening question to help me start exploring this design challenge.`,
+          content: `${context}\n\nAsk me ONE opening question to start generating concepts. Focus on understanding the problem space or target users. Keep it under 15 words. Just the question, nothing else.`,
         },
       ]);
 
@@ -255,7 +258,7 @@ export function AIQuestionPanel() {
       messages.push({
         role: "user" as const,
         content:
-          "Based on my recent notes and progress, ask me a provocative, open-ended question using the SCAMPER method or another lateral thinking technique to help me expand my concepts. Focus on the most recent ideas added.",
+          "Based on my notes, ask ONE question that helps me develop a concrete concept. Focus on: features, users, or how it works. Under 15 words. Just the question.",
       });
 
       const response = await askAI(messages);
@@ -319,7 +322,7 @@ export function AIQuestionPanel() {
 
       messages.push({
         role: "user" as const,
-        content: `The user just added this note: "${lastNote.text}". Help them develop this idea deeper using Socratic questioning. Ask a thought-provoking question that encourages them to explore this concept further, perhaps by challenging assumptions, asking for specifics, or suggesting implications.`,
+        content: `My latest note: "${lastNote.text}"\n\nAsk ONE question that helps me develop THIS idea into a real concept. Ask about: specific features, target users, how it works, or what makes it unique. Under 15 words. Just the question.`,
       });
 
       const response = await askAI(messages);

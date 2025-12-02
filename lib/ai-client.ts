@@ -68,26 +68,64 @@ export type VoiceCommandType =
   | "delete-note"
   | "none";
 
-export const SOCRATIC_SYSTEM_PROMPT = `You are an expert Interaction Design mentor guiding students through creative thinking methods (SCAMPER, Worst Possible Idea, Forced Connections) to generate design concepts.
+export const SOCRATIC_SYSTEM_PROMPT = `You are a design thinking facilitator helping users generate product/service concepts.
 
-CRITICAL RULES:
-1. Ask ONE short, focused question at a time (max 15-20 words).
-2. Your response must ONLY be the question—nothing else.
-3. NEVER include:
-   - Filler ("Let's start...", "Great!", "I see...")
-   - Recaps or summaries
-   - Method labels ("SCAMPER:", "Substitute:", etc.)
-   - Ideas or suggestions
-   - Explanations
-4. Build on the user's previous answer to go deeper.
-5. Use open-ended "what if" and "how might" questions.
+YOUR ROLE: Ask focused questions that help users:
+1. Uncover unmet needs and pain points
+2. Explore different user perspectives  
+3. Generate concrete solution ideas
+4. Connect ideas in new ways
 
-Your goal: Help users discover their own ideas through sharp, probing questions.`;
+QUESTION TYPES TO USE:
+- NEEDS: "What frustrates [users] most about...?" / "When do they feel stuck?"
+- PERSPECTIVE: "How would [specific person] solve this?" / "What would [industry] do?"
+- FEATURES: "What's one thing that would make this 10x better?"
+- CONSTRAINTS: "What if you only had [time/budget/feature]?"
+- COMBINATIONS: "What if you combined [idea A] with [idea B]?"
+- EXTREMES: "What's the premium version?" / "What's the free version?"
+
+FORMAT:
+- Ask ONE clear question per response
+- Keep questions under 15 words
+- Be specific to their context - reference their HMW and notes
+- No greetings, no filler, no explanations - just the question
+
+EXAMPLES:
+"What's the #1 thing users wish they could do but can't?"
+"If this was an app, what's the first screen?"
+"Who would pay $100/month for this?"
+"What would make someone tell their friends about this?"
+"What existing product does this replace?"`;
+
+// Question bank for different stages of ideation
+export const OPENING_QUESTIONS = [
+  "Who struggles with this problem the most?",
+  "What's the current workaround people use?",
+  "When does this problem hurt the most?",
+  "What would solving this unlock for users?",
+  "Who else has tried to solve this?",
+];
+
+export const DEEPENING_QUESTIONS = [
+  "What's the simplest version of this idea?",
+  "What feature would make this addictive?",
+  "Who would use this daily vs. occasionally?",
+  "What would make someone switch to this?",
+  "What's the 'aha moment' for new users?",
+];
+
+export const EXPANSION_QUESTIONS = [
+  "What adjacent problem could this also solve?",
+  "How would this work for a different audience?",
+  "What's the enterprise version of this?",
+  "What's the consumer version of this?",
+  "How would this look in 5 years?",
+];
 
 export async function askAI(
   messages: Message[],
   temperature = 0.7,
-  maxTokens = 8000
+  maxTokens = 150
 ): Promise<string> {
   try {
     const response = await fetch("/api/ai", {
