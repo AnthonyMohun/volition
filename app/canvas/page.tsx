@@ -1040,14 +1040,14 @@ export default function CanvasPage() {
                     onClick={() => {
                       setShowVoiceHelpPopover((prev) => !prev);
                     }}
-                    className={`absolute top-0 right-0 -mt-1 -mr-1 p-1 rounded-full transition-all ${
+                    className={`absolute bottom-0 -right-3 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold transition-all ${
                       showVoiceHelpPopover
-                        ? "text-teal-600"
-                        : "text-gray-400 hover:text-gray-500"
+                        ? "bg-teal-600 text-white shadow-md"
+                        : "bg-gray-200 text-gray-600 hover:bg-teal-100 hover:text-teal-600"
                     }`}
                     title="Voice commands help"
                   >
-                    <HelpCircle className="w-3 h-3" />
+                    ?
                   </button>
 
                   <AnimatePresence>

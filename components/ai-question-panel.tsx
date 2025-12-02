@@ -613,13 +613,11 @@ export function AIQuestionPanel() {
                 exit={{ opacity: 0, y: 6 }}
                 transition={{ duration: 0.14 }}
                 className={`p-5 rounded-2xl flex items-start gap-3 shadow-md hover:shadow-lg transition-all ${
-                  question.fromAI
+                  question.pinned
+                    ? "bg-gradient-to-br from-white to-amber-50 border-3 border-amber-200 ring-2 ring-amber-100"
+                    : question.fromAI
                     ? "bg-gradient-to-br from-white to-blue-50 border-3 border-blue-200"
                     : "bg-gradient-to-br from-white to-gray-50 border-3 border-gray-200"
-                } ${
-                  question.pinned
-                    ? "border-l-[6px] border-l-amber-400 ring-2 ring-amber-200"
-                    : ""
                 } ${question.answered ? "opacity-50" : ""}`}
               >
                 <div className="flex-1">
