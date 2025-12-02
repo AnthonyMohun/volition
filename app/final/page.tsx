@@ -1359,6 +1359,23 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             </button>
           </div>
         </div>
+
+        {/* Feedback QR Code */}
+        <button
+          onClick={() =>
+            window.open("https://forms.gle/YfeDaGo1SvyihXfL9", "_blank")
+          }
+          className="fixed bottom-6 right-6 flex flex-col items-center z-20 hover:scale-105 transition-transform duration-200 cursor-pointer group"
+        >
+          <img
+            src="/feedback.jpg"
+            alt="Feedback QR Code"
+            className="w-32 h-32 rounded-xl shadow-lg border-2 border-white group-hover:shadow-xl"
+          />
+          <span className="mt-2 text-sm font-bold text-gray-600 bg-white/80 px-3 py-1 rounded-full shadow-sm group-hover:bg-white">
+            Give Feedback
+          </span>
+        </button>
       </div>
     );
   }
