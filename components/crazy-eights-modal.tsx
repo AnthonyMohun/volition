@@ -13,9 +13,6 @@ import {
   RotateCcw,
   ArrowRight,
   ArrowLeft,
-  Timer,
-  Lightbulb,
-  Rocket,
   Check,
   AlertCircle,
 } from "lucide-react";
@@ -32,6 +29,7 @@ interface Sketch {
   id: string;
   drawing: DrawingData | null;
   number: number;
+  name: string;
 }
 
 export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
@@ -42,7 +40,7 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
   // Setup phase state
   const [hmwInput, setHmwInput] = useState("");
   const [showHMWHelper, setShowHMWHelper] = useState(false);
-  const [sketchCount, setSketchCount] = useState(8);
+  const [sketchCount, setSketchCount] = useState(6);
   const [timePerSketch, setTimePerSketch] = useState(60); // seconds
 
   // Sketching phase state
@@ -52,6 +50,7 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
   const [timeRemaining, setTimeRemaining] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [hasStartedCurrentSketch, setHasStartedCurrentSketch] = useState(false);
+  const [shouldAutoAdvance, setShouldAutoAdvance] = useState(false);
 
   // Timer effect
   useEffect(() => {
@@ -61,8 +60,8 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
           setIsTimerRunning(false);
-          // Auto-save when timer runs out
-          handleSaveCurrentSketch();
+          // Signal auto-advance when timer runs out
+          setShouldAutoAdvance(true);
           return 0;
         }
         return prev - 1;
@@ -77,13 +76,14 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
     if (!isOpen) {
       setModalPhase("setup");
       setHmwInput("");
-      setSketchCount(8);
+      setSketchCount(6);
       setTimePerSketch(60);
       setCurrentSketchIndex(0);
       setSketches([]);
       setTimeRemaining(60);
       setIsTimerRunning(false);
       setHasStartedCurrentSketch(false);
+      setShouldAutoAdvance(false);
     }
   }, [isOpen]);
 
@@ -94,6 +94,7 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
         id: `sketch-${Date.now()}-${i}`,
         drawing: null,
         number: i + 1,
+        name: `Sketch ${i + 1}`,
       })
     );
     setSketches(newSketches);
@@ -123,7 +124,13 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
       return drawing;
     }, [currentSketchIndex]);
 
-  const handleNextSketch = async () => {
+  const handleUpdateSketchName = (sketchId: string, newName: string) => {
+    setSketches((prev) =>
+      prev.map((s) => (s.id === sketchId ? { ...s, name: newName } : s))
+    );
+  };
+
+  const handleNextSketch = useCallback(async () => {
     const savedDrawing = await handleSaveCurrentSketch();
 
     if (currentSketchIndex < sketchCount - 1) {
@@ -149,7 +156,15 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
         setIsTimerRunning(false);
       }, 50);
     }
-  };
+  }, [currentSketchIndex, sketchCount, timePerSketch, handleSaveCurrentSketch]);
+
+  // Auto-advance effect when timer ends
+  useEffect(() => {
+    if (shouldAutoAdvance) {
+      setShouldAutoAdvance(false);
+      handleNextSketch();
+    }
+  }, [shouldAutoAdvance, handleNextSketch]);
 
   const handlePreviousSketch = async () => {
     if (currentSketchIndex > 0) {
@@ -217,7 +232,7 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
         id: `crazy8-${baseTime}-${index}-${Math.random()
           .toString(36)
           .substr(2, 9)}`,
-        text: `Crazy 8 Sketch #${sketch.number}`,
+        text: sketch.name || `Sketch ${sketch.number}`,
         x: CANVAS_CENTER_X - totalGridWidth / 2 + col * (noteWidth + gap),
         y: CANVAS_CENTER_Y - totalGridHeight / 2 + row * (noteHeight + gap),
         color: STICKY_COLORS[index % STICKY_COLORS.length],
@@ -265,8 +280,7 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
                   Crazy Eights Sprint
                 </h2>
                 <p className="text-sm text-gray-500 font-medium">
-                  {phase === "setup" &&
-                    "Rapid sketching exercise for quick ideation"}
+                  {phase === "setup" && ""}
                   {phase === "sketching" &&
                     `Sketch ${currentSketchIndex + 1} of ${sketchCount}`}
                   {phase === "complete" &&
@@ -286,121 +300,115 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
           <div className="flex-1 overflow-y-auto p-6">
             {/* Setup Phase */}
             {phase === "setup" && (
-              <div className="space-y-6">
-                {/* Intro */}
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-200">
-                  <div className="flex items-start gap-3">
-                    <Lightbulb className="w-6 h-6 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h3 className="font-bold text-gray-800 mb-1">
-                        What is Crazy Eights?
-                      </h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        Rapidly sketch multiple design ideas under a time
-                        constraint. Quick iterations help you explore diverse
-                        solutions and move past your first ideas.
-                      </p>
-                    </div>
-                  </div>
+              <div className="space-y-6 relative">
+                {/* Fun decorative background */}
+                <div className="absolute -top-4 -right-4 text-6xl opacity-10 pointer-events-none">
+                  🎨
+                </div>
+                <div className="absolute -bottom-4 -left-4 text-5xl opacity-10 pointer-events-none">
+                  ✏️
                 </div>
 
-                {/* HMW Input */}
-                <div>
-                  <label className="text-sm font-black text-gray-800 uppercase tracking-wide flex items-center gap-2 mb-3">
-                    <span className="text-lg">💭</span>
-                    Your Design Challenge
+                {/* Encouraging intro */}
+                <div className="text-center pb-2">
+                  <p className="text-lg text-gray-600">
+                    <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-teal-500">
+                      Speed over perfection!
+                    </span>{" "}
+                    Quick sketches unlock creative ideas 🚀
+                  </p>
+                </div>
+
+                {/* HMW Input - Primary Focus */}
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border-2 border-amber-200/50">
+                  <label className="text-sm font-black text-amber-700 mb-2 flex items-center gap-2">
+                    <span className="text-lg">💭</span> Your Design Challenge
                   </label>
                   <textarea
                     value={hmwInput}
                     onChange={(e) => setHmwInput(e.target.value)}
-                    placeholder="Enter your 'How Might We' statement..."
-                    className="w-full px-5 py-4 bg-gradient-to-br from-white to-gray-50/50 border-3 border-blue-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-400 resize-none text-gray-800 placeholder:text-gray-400 transition-all text-lg font-semibold shadow-sm"
+                    placeholder="How might we make studying more fun for students?"
+                    className="w-full px-4 py-3 bg-white/80 border-2 border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-300 focus:border-amber-400 resize-none text-gray-800 placeholder:text-amber-600 transition-all font-medium"
                     rows={2}
                   />
                   <button
                     type="button"
                     onClick={() => setShowHMWHelper(true)}
-                    className="mt-3 text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5"
+                    className="mt-2 text-sm font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 hover:underline"
                   >
-                    <span>🛠️</span> Need help? Use the HMW Builder
+                    <span>✨</span> Need inspiration?
                   </button>
                 </div>
 
-                {/* Sprint Settings */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-sm font-black text-gray-800 uppercase tracking-wide flex items-center gap-2 mb-3">
-                      <span className="text-lg">🎨</span>
-                      Number of Sketches
-                    </label>
-                    <div className="flex items-center gap-3">
-                      {[1, 2, 4, 6, 8].map((count) => (
-                        <button
-                          key={count}
-                          onClick={() => setSketchCount(count)}
-                          className={cn(
-                            "w-12 h-12 rounded-xl font-black text-lg transition-all",
-                            sketchCount === count
-                              ? "bg-gradient-to-br from-blue-500 to-teal-500 text-white shadow-lg scale-110"
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                          )}
-                        >
-                          {count}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                {/* Fun Slider Settings */}
+                <div className="bg-gradient-to-br from-blue-50 to-teal-50 rounded-2xl p-5 border-2 border-blue-200/50">
+                  <p className="text-sm font-black text-blue-700 mb-4 flex items-center gap-2">
+                    <span className="text-lg">⚙️</span> Customize Your Sprint
+                  </p>
 
-                  <div>
-                    <label className="text-sm font-black text-gray-800 uppercase tracking-wide flex items-center gap-2 mb-3">
-                      <Timer className="w-4 h-4" />
-                      Time Per Sketch
-                    </label>
-                    <div className="flex items-center gap-3">
-                      {[30, 60, 90, 120].map((time) => (
-                        <button
-                          key={time}
-                          onClick={() => setTimePerSketch(time)}
-                          className={cn(
-                            "px-4 py-3 rounded-xl font-bold text-sm transition-all",
-                            timePerSketch === time
-                              ? "bg-gradient-to-br from-blue-500 to-teal-500 text-white shadow-lg scale-105"
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                          )}
-                        >
-                          {time >= 60 ? `${time / 60}m` : `${time}s`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sprint Summary */}
-                <div className="bg-gradient-to-br from-blue-50 to-teal-50 rounded-2xl p-5 border border-blue-200">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Rocket className="w-6 h-6 text-blue-500" />
-                      <div>
-                        <p className="font-bold text-gray-800">
-                          Sprint Duration
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {sketchCount} sketch{sketchCount !== 1 ? "es" : ""} ×{" "}
-                          {timePerSketch}s = ~{totalTime} minute
-                          {totalTime !== 1 ? "s" : ""}
-                        </p>
+                  <div className="space-y-5">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-bold text-gray-600">
+                          How many ideas?
+                        </span>
+                        <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-teal-500">
+                          {sketchCount}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="2"
+                        max="8"
+                        step="2"
+                        value={sketchCount}
+                        onChange={(e) => setSketchCount(Number(e.target.value))}
+                        className="w-full h-3 bg-gradient-to-r from-blue-200 to-teal-200 rounded-full appearance-none cursor-pointer accent-blue-500"
+                      />
+                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>Quick (2)</span>
+                        <span>Classic (8)</span>
                       </div>
                     </div>
-                    <button
-                      onClick={handleStartSprint}
-                      disabled={!hmwInput.trim()}
-                      className="fun-button-primary px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <span className="font-black">Start Sprint</span>
-                      <span className="ml-2">🚀</span>
-                    </button>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-bold text-gray-600">
+                          Time per sketch
+                        </span>
+                        <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-teal-500">
+                          {timePerSketch}s
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="30"
+                        max="120"
+                        step="30"
+                        value={timePerSketch}
+                        onChange={(e) =>
+                          setTimePerSketch(Number(e.target.value))
+                        }
+                        className="w-full h-3 bg-gradient-to-r from-blue-200 to-teal-200 rounded-full appearance-none cursor-pointer accent-blue-500"
+                      />
+                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>⚡ Fast</span>
+                        <span>🐢 Relaxed</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {/* Start Button */}
+                <button
+                  onClick={handleStartSprint}
+                  disabled={!hmwInput.trim()}
+                  className="w-full fun-button-primary py-5 disabled:opacity-50 disabled:cursor-not-allowed group"
+                >
+                  <span className="font-black text-xl group-hover:scale-105 inline-block transition-transform">
+                    Let&apos;s Go! 🎉
+                  </span>
+                </button>
               </div>
             )}
 
@@ -541,30 +549,39 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
                   </p>
                 </div>
 
-                {/* Sketch Preview Grid */}
+                {/* Sketch Preview Grid with Editable Names */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {sketches.map((sketch) => (
-                    <div
-                      key={sketch.id}
-                      className={cn(
-                        "aspect-square rounded-xl border-2 overflow-hidden bg-white",
-                        sketch.drawing ? "border-green-300" : "border-gray-200"
-                      )}
-                    >
-                      {sketch.drawing?.dataUrl ? (
-                        <img
-                          src={sketch.drawing.dataUrl}
-                          alt={`Sketch ${sketch.number}`}
-                          className="w-full h-full object-contain p-2"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                          <AlertCircle className="w-8 h-8" />
-                        </div>
-                      )}
-                      <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full">
-                        #{sketch.number}
+                    <div key={sketch.id} className="flex flex-col gap-2">
+                      <div
+                        className={cn(
+                          "aspect-square rounded-xl border-2 overflow-hidden bg-white relative",
+                          sketch.drawing
+                            ? "border-green-300"
+                            : "border-gray-200"
+                        )}
+                      >
+                        {sketch.drawing?.dataUrl ? (
+                          <img
+                            src={sketch.drawing.dataUrl}
+                            alt={sketch.name}
+                            className="w-full h-full object-contain p-2"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <AlertCircle className="w-8 h-8" />
+                          </div>
+                        )}
                       </div>
+                      <input
+                        type="text"
+                        value={sketch.name}
+                        onChange={(e) =>
+                          handleUpdateSketchName(sketch.id, e.target.value)
+                        }
+                        className="text-sm text-center px-2 py-1 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-300 focus:border-blue-400 bg-white"
+                        placeholder={`Sketch ${sketch.number}`}
+                      />
                     </div>
                   ))}
                 </div>
