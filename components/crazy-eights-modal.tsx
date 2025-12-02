@@ -323,21 +323,21 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
                 </div>
 
                 {/* HMW Input - Primary Focus */}
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border-2 border-amber-200/50">
-                  <label className="text-sm font-black text-amber-700 mb-2 flex items-center gap-2">
+                <div className="bg-gradient-to-br from-blue-50 to-teal-50 rounded-2xl p-5 border-2 border-blue-200/50">
+                  <label className="text-sm font-black text-blue-700 mb-2 flex items-center gap-2">
                     <span className="text-lg">💭</span> Your Design Challenge
                   </label>
                   <textarea
                     value={hmwInput}
                     onChange={(e) => setHmwInput(e.target.value)}
                     placeholder="How might we make studying more fun for students?"
-                    className="w-full px-4 py-3 bg-white/80 border-2 border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-300 focus:border-amber-400 resize-none text-gray-800 placeholder:text-amber-600 transition-all font-medium"
+                    className="w-full px-4 py-3 bg-white/80 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-400 resize-none text-gray-800 placeholder:text-blue-600/30 transition-all font-medium"
                     rows={2}
                   />
                   <button
                     type="button"
                     onClick={() => setShowHMWHelper(true)}
-                    className="mt-2 text-sm font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 hover:underline"
+                    className="mt-2 text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 hover:underline"
                   >
                     <span>✨</span> Need inspiration?
                   </button>
@@ -419,8 +419,8 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
             {phase === "sketching" && (
               <div className="space-y-4">
                 {/* HMW Display */}
-                <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-200">
-                  <p className="text-sm font-bold text-amber-700 mb-1">
+                <div className="bg-gradient-to-r from-blue-50 to-teal-50 rounded-xl p-4 border border-blue-200">
+                  <p className="text-sm font-bold text-blue-700 mb-1">
                     Challenge:
                   </p>
                   <p className="text-gray-800 font-medium">{hmwInput}</p>
@@ -434,7 +434,7 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
                       timeRemaining <= 10 && isTimerRunning
                         ? "text-red-500 animate-pulse"
                         : timeRemaining <= 30 && isTimerRunning
-                        ? "text-amber-500"
+                        ? "text-blue-500"
                         : "text-gray-800"
                     )}
                   >
@@ -451,7 +451,7 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
                     ) : isTimerRunning ? (
                       <button
                         onClick={handlePauseTimer}
-                        className="p-3 bg-amber-500 hover:bg-amber-600 text-white rounded-full transition-all shadow-lg hover:scale-110"
+                        className="p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-all shadow-lg hover:scale-110"
                       >
                         <Pause className="w-6 h-6" />
                       </button>
@@ -582,7 +582,7 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
                         onChange={(e) =>
                           handleUpdateSketchName(sketch.id, e.target.value)
                         }
-                        className="text-sm text-center px-2 py-1 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-300 focus:border-blue-400 bg-white"
+                        className="text-sm text-center px-2 py-1 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-300 focus:border-blue-400 bg-white placeholder:text-gray-400/60"
                         placeholder={`Sketch ${sketch.number}`}
                       />
                     </div>
