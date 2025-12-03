@@ -767,7 +767,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-gray-900/50 backdrop-blur-md z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-gray-900/50 backdrop-blur-md z-50 flex items-center justify-center p-3 md:p-4"
           onClick={onClose}
         >
           <motion.div
@@ -775,34 +775,34 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fun-card max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col"
+            className="fun-card max-w-3xl w-full max-h-[90vh] md:max-h-[85vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b-3 border-blue-100 bg-gradient-to-br from-blue-50 to-teal-50">
-              <div className="flex items-center gap-3">
-                <div className="bg-gradient-to-br from-blue-400 to-teal-400 p-2 rounded-xl text-white">
+            <div className="flex items-center justify-between p-4 md:p-6 border-b-3 border-blue-100 bg-gradient-to-br from-blue-50 to-teal-50">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="bg-gradient-to-br from-blue-400 to-teal-400 p-1.5 md:p-2 rounded-xl text-white">
                   {steps[currentStep].icon}
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-gray-800">
+                  <h2 className="text-lg md:text-xl font-black text-gray-800">
                     {steps[currentStep].title}
                   </h2>
-                  <p className="text-sm text-gray-600 font-medium">
+                  <p className="text-xs md:text-sm text-gray-600 font-medium">
                     {steps[currentStep].subtitle}
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl hover:bg-gray-100 transition-all text-gray-500 hover:text-gray-700"
+                className="p-2 rounded-xl hover:bg-gray-100 transition-all text-gray-500 hover:text-gray-700 touch-manipulation"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
@@ -817,16 +817,16 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between p-6 border-t-3 border-blue-100 bg-gradient-to-br from-gray-50 to-blue-50">
+            <div className="flex items-center justify-between p-4 md:p-6 border-t-3 border-blue-100 bg-gradient-to-br from-gray-50 to-blue-50">
               {/* Progress dots */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 md:gap-2">
                 {steps.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentStep(index)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                    className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full transition-all touch-manipulation ${
                       index === currentStep
-                        ? "bg-teal-500 w-6"
+                        ? "bg-teal-500 w-5 md:w-6"
                         : index < currentStep
                         ? "bg-green-400"
                         : "bg-gray-300 hover:bg-gray-400"
@@ -836,19 +836,19 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
               </div>
 
               {/* Navigation buttons */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <button
                   onClick={handlePrev}
                   disabled={currentStep === 0}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Back
+                  <span className="hidden sm:inline">Back</span>
                 </button>
                 {currentStep < steps.length - 1 ? (
                   <button
                     onClick={handleNext}
-                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-xl font-bold text-sm hover:from-blue-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-teal transform hover:scale-105"
+                    className="flex items-center gap-1 md:gap-2 px-4 md:px-6 py-2 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-xl font-bold text-sm hover:from-blue-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-teal transform hover:scale-105 touch-manipulation"
                   >
                     Next
                     <ChevronRight className="w-4 h-4" />
@@ -856,9 +856,9 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                 ) : (
                   <button
                     onClick={onClose}
-                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl font-bold text-sm hover:from-green-600 hover:to-teal-600 transition-all shadow-lg transform hover:scale-105"
+                    className="flex items-center gap-1 md:gap-2 px-4 md:px-6 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl font-bold text-sm hover:from-green-600 hover:to-teal-600 transition-all shadow-lg transform hover:scale-105 touch-manipulation"
                   >
-                    Get Started
+                    <span className="hidden sm:inline">Get</span> Started
                     <Sparkles className="w-4 h-4" />
                   </button>
                 )}

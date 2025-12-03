@@ -320,12 +320,12 @@ export default function SelectPage() {
         }
       />
       {/* Main Content - Two Column Layout */}
-      <div className="flex-1 flex relative">
+      <div className="flex-1 flex flex-col md:flex-row relative">
         {/* Center - Card swipe area */}
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="flex flex-col items-center gap-6 w-full max-w-md">
+        <div className="flex-1 flex items-center justify-center p-4 md:p-6">
+          <div className="flex flex-col items-center gap-4 md:gap-6 w-full max-w-md">
             {/* Card Stack Container */}
-            <div className="relative w-full h-[450px] flex items-center justify-center">
+            <div className="relative w-full h-[380px] md:h-[450px] flex items-center justify-center">
               {!isComplete ? (
                 <>
                   {/* Stacked cards behind (rendered first = behind) */}
@@ -349,7 +349,7 @@ export default function SelectPage() {
                           }}
                         >
                           <div
-                            className="w-[360px] h-[320px] p-5 rounded-3xl border-4 shadow-xl"
+                            className="w-[300px] md:w-[360px] h-[280px] md:h-[320px] p-5 rounded-3xl border-4 shadow-xl"
                             style={{
                               backgroundColor: getFunColor(note.color),
                               borderColor: getAccentColor(note.color),
@@ -362,7 +362,7 @@ export default function SelectPage() {
                   {/* Top card (interactive) */}
                   {topCard && (
                     <div
-                      className={`absolute flex justify-center touch-none ${
+                      className={`absolute flex justify-center touch-none no-select ${
                         isAnimatingOut
                           ? "transition-all duration-300 ease-out"
                           : dragState.isDragging || isNewTopCard
@@ -389,7 +389,7 @@ export default function SelectPage() {
                       onPointerCancel={handlePointerUp}
                     >
                       <div
-                        className="w-full max-w-[360px] p-6 rounded-3xl border-4 shadow-2xl relative overflow-hidden select-none"
+                        className="w-full max-w-[300px] md:max-w-[360px] p-5 md:p-6 rounded-3xl border-4 shadow-2xl relative overflow-hidden select-none"
                         style={{
                           backgroundColor: getFunColor(topCard.color),
                           borderColor: getAccentColor(topCard.color),
@@ -556,15 +556,15 @@ export default function SelectPage() {
 
             {/* Controls below cards */}
             {!isComplete && (
-              <div className="flex items-center justify-center gap-8 mt-4">
+              <div className="flex items-center justify-center gap-6 md:gap-8 mt-4">
                 {/* Skip button */}
                 <button
                   onClick={() => animateOut("left")}
                   disabled={isAnimatingOut !== null}
                   className="flex flex-col items-center gap-2 group"
                 >
-                  <div className="p-5 bg-white hover:bg-red-50 border-3 border-red-200 hover:border-red-400 rounded-full shadow-lg hover:shadow-xl transition-all group-hover:scale-110 group-active:scale-95">
-                    <X className="w-7 h-7 text-red-400 group-hover:text-red-500" />
+                  <div className="p-4 md:p-5 bg-white hover:bg-red-50 border-3 border-red-200 hover:border-red-400 rounded-full shadow-lg hover:shadow-xl transition-all group-hover:scale-110 group-active:scale-95 touch-target">
+                    <X className="w-6 md:w-7 h-6 md:h-7 text-red-400 group-hover:text-red-500" />
                   </div>
                   <span className="text-sm font-bold text-red-500">Skip</span>
                 </button>
@@ -575,8 +575,8 @@ export default function SelectPage() {
                   disabled={swipeHistory.length === 0}
                   className="flex flex-col items-center gap-2 group"
                 >
-                  <div className="p-4 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 rounded-full shadow-md hover:shadow-lg transition-all disabled:opacity-30 group-hover:scale-105 group-active:scale-95">
-                    <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                  <div className="p-3 md:p-4 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 rounded-full shadow-md hover:shadow-lg transition-all disabled:opacity-30 group-hover:scale-105 group-active:scale-95 touch-target-sm">
+                    <RotateCcw className="w-4 md:w-5 h-4 md:h-5 text-gray-400 group-hover:text-gray-600" />
                   </div>
                   <span className="text-xs font-medium text-gray-400">
                     Undo
@@ -592,8 +592,8 @@ export default function SelectPage() {
                   }
                   className="flex flex-col items-center gap-2 group disabled:opacity-50"
                 >
-                  <div className="p-5 bg-white hover:bg-green-50 border-3 border-green-200 hover:border-green-400 rounded-full shadow-lg hover:shadow-xl transition-all group-hover:scale-110 group-active:scale-95">
-                    <Heart className="w-7 h-7 text-green-400 group-hover:text-green-500 group-hover:fill-green-500 transition-all" />
+                  <div className="p-4 md:p-5 bg-white hover:bg-green-50 border-3 border-green-200 hover:border-green-400 rounded-full shadow-lg hover:shadow-xl transition-all group-hover:scale-110 group-active:scale-95 touch-target">
+                    <Heart className="w-6 md:w-7 h-6 md:h-7 text-green-400 group-hover:text-green-500 group-hover:fill-green-500 transition-all" />
                   </div>
                   <span className="text-sm font-bold text-green-500">Keep</span>
                 </button>
@@ -611,24 +611,24 @@ export default function SelectPage() {
         </div>
 
         {/* Right sidebar - Selected concepts */}
-        <div className="w-80 border-l border-gray-200/50 bg-white/40 backdrop-blur-sm p-5 flex flex-col">
+        <div className="w-full md:w-72 lg:w-80 border-t md:border-t-0 md:border-l border-gray-200/50 bg-white/40 backdrop-blur-sm p-4 md:p-5 flex flex-col md:max-h-none max-h-[30vh] md:overflow-visible overflow-y-auto momentum-scroll">
           {/* HMW Statement */}
-          <div className="mb-5">
+          <div className="mb-4 md:mb-5">
             <div className="flex items-center gap-2 mb-2">
               <Lightbulb className="w-4 h-4 text-blue-500" />
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                 Challenge
               </span>
             </div>
-            <p className="text-sm text-gray-700 font-medium leading-relaxed">
+            <p className="text-sm text-gray-700 font-medium leading-relaxed line-clamp-2 md:line-clamp-none">
               {state.hmwStatement}
             </p>
           </div>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-5" />
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-4 md:mb-5" />
 
           {/* Selected concepts header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2">
               <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
               <span className="text-sm font-bold text-gray-700">
@@ -647,13 +647,13 @@ export default function SelectPage() {
           </div>
 
           {/* Selected concept slots */}
-          <div className="flex-1 space-y-3 overflow-y-auto">
+          <div className="flex-1 flex md:flex-col flex-row gap-2 md:gap-3 overflow-x-auto md:overflow-y-auto md:overflow-x-hidden momentum-scroll">
             {[...Array(maxConcepts)].map((_, idx) => {
               const concept = selectedConceptNotes[idx];
               return (
                 <div
                   key={idx}
-                  className={`relative rounded-2xl transition-all duration-300 ${
+                  className={`relative rounded-2xl transition-all duration-300 flex-shrink-0 md:flex-shrink w-40 md:w-auto ${
                     concept
                       ? "animate-slide-up"
                       : "border-2 border-dashed border-gray-200 bg-gray-50/50"
@@ -678,7 +678,7 @@ export default function SelectPage() {
                             {concept.text}
                           </p>
                           {concept.details && (
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-1 hidden md:block">
                               {concept.details}
                             </p>
                           )}
@@ -686,7 +686,7 @@ export default function SelectPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-4 flex items-center justify-center">
+                    <div className="p-3 md:p-4 flex items-center justify-center">
                       <span className="text-sm text-gray-400 font-medium">
                         Slot {idx + 1}
                       </span>
@@ -699,10 +699,10 @@ export default function SelectPage() {
 
           {/* Continue button at bottom of sidebar */}
           {selectedConcepts.length >= minConcepts && (
-            <div className="mt-4 pt-4 border-t border-gray-200/50">
+            <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200/50">
               <button
                 onClick={handleProceedToRefine}
-                className="w-full fun-button-primary flex items-center justify-center gap-2 font-bold text-sm"
+                className="w-full fun-button-primary flex items-center justify-center gap-2 font-bold text-sm touch-target"
               >
                 <Trophy className="w-4 h-4" />
                 Continue to Refine
@@ -711,8 +711,8 @@ export default function SelectPage() {
             </div>
           )}
 
-          {/* Keyboard hints */}
-          <div className="mt-4 pt-4 border-t border-gray-200/50">
+          {/* Keyboard hints - hidden on touch devices */}
+          <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200/50 hidden md:block">
             <div className="flex items-center gap-2 mb-2">
               <Keyboard className="w-3.5 h-3.5 text-gray-400" />
               <span className="text-xs font-medium text-gray-400">

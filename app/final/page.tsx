@@ -764,7 +764,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                   key={idx}
                   onClick={() => setCurrentAIEvalIndex(idx)}
                   disabled={aiEvaluations[idx]?.isLoading}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all ${
+                  className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all touch-manipulation ${
                     idx === currentAIEvalIndex
                       ? "bg-gradient-to-br from-blue-500 to-teal-500 text-white scale-110 shadow-lg"
                       : aiEvaluations[idx]?.isLoading
@@ -784,17 +784,17 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="flex-1 flex items-center justify-center p-4 md:p-6">
           <div className="w-full max-w-4xl">
             {/* Concept Card (expanded, with AI Score on the right) */}
-            <div className="fun-card p-6 border-3 border-blue-200 mb-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-4 flex-1">
+            <div className="fun-card p-4 md:p-6 border-3 border-blue-200 mb-4 md:mb-6">
+              <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+                <div className="flex items-start gap-3 md:gap-4 flex-1">
                   {currentNote?.image && (
                     <img
                       src={currentNote.image.dataUrl}
                       alt="Concept"
-                      className="w-20 h-20 rounded-2xl object-cover border-3 border-white shadow-lg flex-shrink-0"
+                      className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover border-3 border-white shadow-lg flex-shrink-0"
                     />
                   )}
                   <div className="flex-1">
@@ -804,7 +804,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                           Concept {currentAIEvalIndex + 1} of{" "}
                           {selectedNotes.length}
                         </p>
-                        <h2 className="text-xl font-black text-gray-800">
+                        <h2 className="text-lg md:text-xl font-black text-gray-800">
                           {currentNote?.text}
                         </h2>
                         {currentEval?.isLoading ? (
@@ -824,26 +824,28 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 </div>
 
                 {/* Inline AI Growth Tier display */}
-                <div className="flex-shrink-0 ml-4 text-center w-28">
+                <div className="flex-shrink-0 md:ml-4 text-center w-full md:w-28 flex md:flex-col items-center justify-center gap-3 md:gap-0">
                   {(() => {
                     const tier = currentEval
                       ? scoreToGrowthTier(currentEval.overallScore)
                       : null;
                     return (
                       <>
-                        <div className="w-24 h-24 rounded-lg flex flex-col items-center justify-center text-white shadow-lg mx-auto bg-gradient-to-br from-teal-400 to-emerald-500">
+                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg flex flex-col items-center justify-center text-white shadow-lg mx-auto bg-gradient-to-br from-teal-400 to-emerald-500">
                           {currentEval?.isLoading ? (
                             <Loader2 className="w-8 h-8 text-white animate-spin" />
                           ) : (
                             <>
-                              <span className="text-3xl">{tier?.emoji}</span>
+                              <span className="text-2xl md:text-3xl">
+                                {tier?.emoji}
+                              </span>
                               <span className="text-xs font-bold mt-1">
                                 {tier?.label}
                               </span>
                             </>
                           )}
                         </div>
-                        <div className="text-xs text-gray-700 font-bold mt-2 flex items-center gap-2 justify-center">
+                        <div className="text-xs text-gray-700 font-bold mt-0 md:mt-2 flex items-center gap-2 justify-center">
                           <span>Growth Stage</span>
                           <Tooltip
                             content={
@@ -883,29 +885,29 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 {/* NOTE: Overall Score moved inline with Concept Card (above) */}
 
                 {/* Strengths & Improvements - Visual Showcase */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   {/* Strengths Card */}
-                  <div className="fun-card p-5 border-3 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+                  <div className="fun-card p-4 md:p-5 border-3 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-green-200/30 rounded-full -translate-y-8 translate-x-8" />
                     <div className="relative">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg">
-                          <Zap className="w-5 h-5 text-white" />
+                      <div className="flex items-center gap-3 mb-3 md:mb-4">
+                        <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg">
+                          <Zap className="w-4 h-4 md:w-5 md:h-5 text-white" />
                         </div>
-                        <h4 className="font-black text-green-800 text-lg">
+                        <h4 className="font-black text-green-800 text-base md:text-lg">
                           What&apos;s Working
                         </h4>
                       </div>
-                      <div className="space-y-3">
+                      <div className="space-y-2 md:space-y-3">
                         {currentEval.strengths.map((s, i) => (
                           <div
                             key={i}
-                            className="flex items-start gap-3 bg-white/60 rounded-xl p-3 border border-green-200/50"
+                            className="flex items-start gap-2 md:gap-3 bg-white/60 rounded-xl p-2.5 md:p-3 border border-green-200/50"
                           >
-                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <Check className="w-3.5 h-3.5 text-white" />
+                            <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Check className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" />
                             </div>
-                            <p className="text-sm text-green-900 font-semibold leading-relaxed">
+                            <p className="text-xs md:text-sm text-green-900 font-semibold leading-relaxed">
                               {s}
                             </p>
                           </div>
@@ -915,27 +917,27 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                   </div>
 
                   {/* Improvements Card */}
-                  <div className="fun-card p-5 border-3 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 relative overflow-hidden">
+                  <div className="fun-card p-4 md:p-5 border-3 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-amber-200/30 rounded-full -translate-y-8 translate-x-8" />
                     <div className="relative">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                          <TrendingUp className="w-5 h-5 text-white" />
+                      <div className="flex items-center gap-3 mb-3 md:mb-4">
+                        <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                          <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-white" />
                         </div>
-                        <h4 className="font-black text-amber-800 text-lg">
+                        <h4 className="font-black text-amber-800 text-base md:text-lg">
                           Room to Grow
                         </h4>
                       </div>
-                      <div className="space-y-3">
+                      <div className="space-y-2 md:space-y-3">
                         {currentEval.improvements.map((s, i) => (
                           <div
                             key={i}
-                            className="flex items-start gap-3 bg-white/60 rounded-xl p-3 border border-amber-200/50"
+                            className="flex items-start gap-2 md:gap-3 bg-white/60 rounded-xl p-2.5 md:p-3 border border-amber-200/50"
                           >
-                            <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <Lightbulb className="w-3.5 h-3.5 text-white" />
+                            <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Lightbulb className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" />
                             </div>
-                            <p className="text-sm text-amber-900 font-semibold leading-relaxed">
+                            <p className="text-xs md:text-sm text-amber-900 font-semibold leading-relaxed">
                               {s}
                             </p>
                           </div>
@@ -1104,12 +1106,12 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             ) : null}
 
             {/* Action Buttons */}
-            <div className="flex justify-center gap-4 mt-8">
+            <div className="flex justify-center gap-3 md:gap-4 mt-6 md:mt-8">
               {currentAIEvalIndex < selectedNotes.length - 1 ? (
                 <button
                   onClick={() => setCurrentAIEvalIndex((prev) => prev + 1)}
                   disabled={aiEvaluations[currentAIEvalIndex + 1]?.isLoading}
-                  className="fun-button-primary flex items-center gap-2 disabled:opacity-50"
+                  className="fun-button-primary flex items-center gap-2 disabled:opacity-50 touch-manipulation px-5 py-3"
                 >
                   Next Concept
                   <ArrowRight className="w-5 h-5" />
@@ -1117,7 +1119,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
               ) : allLoaded ? (
                 <button
                   onClick={() => setAiEvalComplete(true)}
-                  className="fun-button-primary flex items-center gap-2"
+                  className="fun-button-primary flex items-center gap-2 touch-manipulation px-5 py-3"
                 >
                   Continue to Self-Assessment
                   <Sparkles className="w-5 h-5" />
@@ -1147,7 +1149,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
       .sort((a, b) => b.score - a.score);
 
     return (
-      <div className="min-h-screen fun-gradient-bg p-6 relative overflow-hidden">
+      <div className="min-h-screen fun-gradient-bg p-4 md:p-6 relative overflow-hidden">
         {/* Celebration confetti */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {[...Array(20)].map((_, i) => (
@@ -1172,33 +1174,33 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
 
         <div className="max-w-4xl mx-auto relative z-10">
           {/* Header */}
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-yellow-200 to-orange-200 mb-4 shadow-lg animate-bounce">
-              <Trophy className="w-10 h-10 text-yellow-600" />
+          <div className="text-center mb-6 md:mb-10">
+            <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-br from-yellow-200 to-orange-200 mb-4 shadow-lg animate-bounce">
+              <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-600" />
             </div>
-            <h1 className="text-4xl font-black text-gray-800 mb-3">
+            <h1 className="text-2xl md:text-4xl font-black text-gray-800 mb-2 md:mb-3">
               🎊 Your Self-Assessment
             </h1>
-            <p className="text-lg text-gray-600 font-semibold">
+            <p className="text-base md:text-lg text-gray-600 font-semibold">
               Here&apos;s how you rated your concepts
             </p>
           </div>
 
           {/* Ranked Concepts */}
-          <div className="space-y-6 mb-8">
+          <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
             {rankedConcepts.map((item, idx) => (
               <div
                 key={item.note.id}
-                className={`fun-card p-6 border-3 transition-all ${
+                className={`fun-card p-4 md:p-6 border-3 transition-all ${
                   idx === 0
                     ? "border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50"
                     : "border-teal-200"
                 }`}
               >
-                <div className="flex items-start gap-5">
+                <div className="flex items-start gap-3 md:gap-5">
                   {/* Rank Badge */}
                   <div
-                    className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg ${
+                    className={`flex-shrink-0 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-2xl font-black shadow-lg ${
                       idx === 0
                         ? "bg-gradient-to-br from-yellow-400 to-orange-400 text-white"
                         : idx === 1
@@ -1212,14 +1214,16 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                   {/* Concept Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      {idx === 0 && <span className="text-2xl">👑</span>}
-                      <h3 className="text-xl font-black text-gray-800 truncate">
+                      {idx === 0 && (
+                        <span className="text-xl md:text-2xl">👑</span>
+                      )}
+                      <h3 className="text-base md:text-xl font-black text-gray-800 truncate">
                         {item.note.text}
                       </h3>
                     </div>
 
                     {/* Mini Criteria Bars */}
-                    <div className="flex flex-wrap gap-3 mt-4">
+                    <div className="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-4">
                       {SELF_EVAL_CRITERIA.map((criteria) => {
                         const rating = item.ratings.find(
                           (r) => r.criteriaId === criteria.id
@@ -1227,14 +1231,16 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                         return (
                           <div
                             key={criteria.id}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-1 md:gap-2"
                           >
-                            <span className="text-lg">{criteria.emoji}</span>
+                            <span className="text-base md:text-lg">
+                              {criteria.emoji}
+                            </span>
                             <div className="flex gap-0.5">
                               {[1, 2, 3, 4, 5].map((star) => (
                                 <Star
                                   key={star}
-                                  className={`w-4 h-4 ${
+                                  className={`w-3 h-3 md:w-4 md:h-4 ${
                                     rating && star <= rating.score
                                       ? "fill-current"
                                       : "text-gray-300"
@@ -1260,17 +1266,19 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                       const tier = scoreToGrowthTier(item.score);
                       return (
                         <>
-                          <div className="w-16 h-16 rounded-full flex flex-col items-center justify-center text-white shadow-lg bg-gradient-to-br from-teal-400 to-emerald-500">
-                            <span className="text-2xl">{tier.emoji}</span>
+                          <div className="w-12 h-12 md:w-16 md:h-16 rounded-full flex flex-col items-center justify-center text-white shadow-lg bg-gradient-to-br from-teal-400 to-emerald-500">
+                            <span className="text-xl md:text-2xl">
+                              {tier.emoji}
+                            </span>
                           </div>
-                          <p className="text-xs text-gray-500 font-bold mt-1">
+                          <p className="text-xs text-gray-500 font-bold mt-1 hidden md:block">
                             {tier.label}
                           </p>
                         </>
                       );
                     })()}
                     {item.aiEval && !item.aiEval.isLoading && (
-                      <div className="mt-2 flex items-center justify-center gap-1">
+                      <div className="mt-1 md:mt-2 flex items-center justify-center gap-1">
                         <Bot className="w-3 h-3 text-teal-500" />
                         <span className="text-xs font-bold text-teal-600">
                           {scoreToGrowthTier(item.aiEval.overallScore).emoji}
@@ -1284,29 +1292,29 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           </div>
 
           {/* AI Insight Card */}
-          <div className="fun-card p-6 border-3 border-blue-300 bg-gradient-to-br from-blue-50 to-teal-50 mb-8">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-teal-400 flex items-center justify-center shadow-lg">
+          <div className="fun-card p-4 md:p-6 border-3 border-blue-300 bg-gradient-to-br from-blue-50 to-teal-50 mb-6 md:mb-8">
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-400 to-teal-400 flex items-center justify-center shadow-lg">
                 {isLoadingInsight ? (
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  <Loader2 className="w-5 h-5 md:w-6 md:h-6 text-white animate-spin" />
                 ) : (
-                  <Lightbulb className="w-6 h-6 text-white" />
+                  <Lightbulb className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 )}
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-black text-gray-800 mb-2">
+                <h3 className="text-base md:text-lg font-black text-gray-800 mb-2">
                   🤖 AI Insight
                 </h3>
                 {isLoadingInsight ? (
-                  <p className="text-gray-500 font-semibold">
+                  <p className="text-gray-500 font-semibold text-sm md:text-base">
                     Analyzing your ratings...
                   </p>
                 ) : aiInsight ? (
-                  <p className="text-gray-700 font-semibold leading-relaxed">
+                  <p className="text-gray-700 font-semibold leading-relaxed text-sm md:text-base">
                     {aiInsight}
                   </p>
                 ) : (
-                  <p className="text-gray-600 font-semibold leading-relaxed">
+                  <p className="text-gray-600 font-semibold leading-relaxed text-sm md:text-base">
                     Your top-rated concept is{" "}
                     <span className="text-teal-600 font-black">
                       &quot;{rankedConcepts[0]?.note.text}&quot;
@@ -1319,16 +1327,16 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-center gap-4 flex-wrap">
+          <div className="flex justify-center gap-3 md:gap-4 flex-wrap">
             <button
               onClick={handleExport}
               disabled={isGeneratingPDF}
-              className="fun-button-secondary flex items-center gap-2 disabled:opacity-50"
+              className="fun-button-secondary flex items-center gap-2 disabled:opacity-50 touch-manipulation px-4 py-3 text-sm md:text-base"
             >
               {isGeneratingPDF ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
               ) : (
-                <Download className="w-5 h-5" />
+                <Download className="w-4 h-4 md:w-5 md:h-5" />
               )}
               {isGeneratingPDF ? "Generating..." : "Download PDF"}
             </button>
@@ -1345,16 +1353,16 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                   }))
                 );
               }}
-              className="fun-button-secondary flex items-center gap-2"
+              className="fun-button-secondary flex items-center gap-2 touch-manipulation px-4 py-3 text-sm md:text-base"
             >
-              <RefreshCw className="w-5 h-5" />
+              <RefreshCw className="w-4 h-4 md:w-5 md:h-5" />
               Re-evaluate
             </button>
             <button
               onClick={handleStartOver}
-              className="fun-button-primary flex items-center gap-2"
+              className="fun-button-primary flex items-center gap-2 touch-manipulation px-4 py-3 text-sm md:text-base"
             >
-              <Sparkles className="w-5 h-5" />
+              <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
               Start New Project
             </button>
           </div>
@@ -1365,14 +1373,14 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           onClick={() =>
             window.open("https://forms.gle/YfeDaGo1SvyihXfL9", "_blank")
           }
-          className="fixed bottom-6 right-6 flex flex-col items-center z-20 hover:scale-105 transition-transform duration-200 cursor-pointer group"
+          className="fixed bottom-4 right-4 md:bottom-6 md:right-6 flex flex-col items-center z-20 hover:scale-105 transition-transform duration-200 cursor-pointer group touch-manipulation"
         >
           <img
             src="/feedback.jpg"
             alt="Feedback QR Code"
-            className="w-32 h-32 rounded-xl shadow-lg border-2 border-white group-hover:shadow-xl"
+            className="w-24 h-24 md:w-32 md:h-32 rounded-xl shadow-lg border-2 border-white group-hover:shadow-xl"
           />
-          <span className="mt-2 text-sm font-bold text-gray-600 bg-white/80 px-3 py-1 rounded-full shadow-sm group-hover:bg-white">
+          <span className="mt-2 text-xs md:text-sm font-bold text-gray-600 bg-white/80 px-2 md:px-3 py-1 rounded-full shadow-sm group-hover:bg-white">
             Give Feedback
           </span>
         </button>
@@ -1428,7 +1436,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
         rightContent={
           <>
             {/* Progress */}
-            <div className="flex-1 max-w-xs mx-4">
+            <div className="flex-1 max-w-xs mx-2 md:mx-4 hidden sm:block">
               <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-blue-500 to-teal-500 transition-all duration-500"
@@ -1438,11 +1446,11 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             </div>
 
             {/* Concept indicator */}
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 md:gap-2">
               {selectedNotes.map((_, idx) => (
                 <div
                   key={idx}
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm transition-all ${
+                  className={`w-7 h-7 md:w-9 md:h-9 rounded-lg md:rounded-xl flex items-center justify-center font-bold text-xs md:text-sm transition-all ${
                     idx === currentConceptIndex
                       ? "bg-gradient-to-br from-blue-500 to-teal-500 text-white scale-110 shadow-lg"
                       : idx < currentConceptIndex
@@ -1459,33 +1467,33 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center p-4 md:p-6">
         <div className="w-full max-w-2xl">
           {/* Current Concept Card */}
           <div
-            className={`fun-card p-6 border-3 border-teal-200 mb-8 transition-all duration-300 ${
+            className={`fun-card p-4 md:p-6 border-3 border-teal-200 mb-6 md:mb-8 transition-all duration-300 ${
               isTransitioning
                 ? "opacity-0 translate-x-8"
                 : "opacity-100 translate-x-0"
             }`}
           >
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-3 md:gap-4">
               {currentConcept?.image && (
                 <img
                   src={currentConcept.image.dataUrl}
                   alt="Concept"
-                  className="w-24 h-24 rounded-2xl object-cover border-3 border-white shadow-lg flex-shrink-0"
+                  className="w-16 h-16 md:w-24 md:h-24 rounded-xl md:rounded-2xl object-cover border-3 border-white shadow-lg flex-shrink-0"
                 />
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-black text-teal-600 uppercase tracking-wide mb-1">
                   Concept {currentConceptIndex + 1}
                 </p>
-                <h2 className="text-xl font-black text-gray-800 mb-2 leading-tight">
+                <h2 className="text-lg md:text-xl font-black text-gray-800 mb-1 md:mb-2 leading-tight">
                   {currentConcept?.text}
                 </h2>
                 {currentConcept?.details && (
-                  <p className="text-sm text-gray-600 font-semibold line-clamp-2">
+                  <p className="text-xs md:text-sm text-gray-600 font-semibold line-clamp-2">
                     {currentConcept.details.split("\n")[0]}
                   </p>
                 )}
@@ -1495,7 +1503,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
 
           {/* Rating Card */}
           <div
-            className={`fun-card p-8 border-3 mb-6 transition-all duration-300 ${
+            className={`fun-card p-5 md:p-8 border-3 mb-6 transition-all duration-300 ${
               isTransitioning
                 ? "opacity-0 -translate-x-8"
                 : "opacity-100 translate-x-0"
@@ -1503,31 +1511,33 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             style={{ borderColor: currentCriteria?.color }}
           >
             {/* Criteria Header */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-6 md:mb-8">
               <div
-                className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-lg"
+                className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-xl md:rounded-2xl mb-3 md:mb-4 shadow-lg"
                 style={{ backgroundColor: `${currentCriteria?.color}20` }}
               >
-                <span className="text-4xl">{currentCriteria?.emoji}</span>
+                <span className="text-3xl md:text-4xl">
+                  {currentCriteria?.emoji}
+                </span>
               </div>
-              <h3 className="text-2xl font-black text-gray-800 mb-2">
+              <h3 className="text-xl md:text-2xl font-black text-gray-800 mb-2">
                 {currentCriteria?.label}
               </h3>
-              <p className="text-gray-600 font-semibold">
+              <p className="text-sm md:text-base text-gray-600 font-semibold">
                 {currentCriteria?.description}
               </p>
             </div>
 
             {/* Rating Buttons */}
-            <div className="flex justify-center gap-4 mb-6">
+            <div className="flex justify-center gap-2.5 md:gap-4 mb-5 md:mb-6">
               {[1, 2, 3, 4, 5].map((score) => (
                 <button
                   key={score}
                   onClick={() => handleRatingSelect(score)}
-                  className={`group relative w-16 h-16 rounded-2xl font-black text-xl transition-all duration-200 ${
+                  className={`group relative w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl font-black text-lg md:text-xl transition-all duration-200 touch-manipulation ${
                     currentRating === score
-                      ? "scale-125 shadow-xl"
-                      : "hover:scale-110 hover:shadow-lg"
+                      ? "scale-110 md:scale-125 shadow-xl"
+                      : "hover:scale-105 md:hover:scale-110 hover:shadow-lg active:scale-95"
                   }`}
                   style={{
                     backgroundColor:
@@ -1541,7 +1551,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 >
                   {score}
                   {currentRating === score && (
-                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-2xl animate-bounce">
+                    <span className="absolute -top-7 md:-top-8 left-1/2 -translate-x-1/2 text-xl md:text-2xl animate-bounce">
                       {SCORE_REACTIONS[score - 1][0]}
                     </span>
                   )}
@@ -1550,13 +1560,13 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             </div>
 
             {/* Scale Labels */}
-            <div className="flex justify-between text-sm text-gray-500 font-bold px-2">
+            <div className="flex justify-between text-xs md:text-sm text-gray-500 font-bold px-1 md:px-2">
               <span>{currentCriteria?.lowLabel}</span>
               <span>{currentCriteria?.highLabel}</span>
             </div>
 
-            {/* Keyboard hint */}
-            <div className="mt-4 text-center">
+            {/* Keyboard hint - hide on smaller screens */}
+            <div className="mt-4 text-center hidden md:block">
               <p className="text-xs text-gray-400 font-medium">
                 💡 Press{" "}
                 <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-200 font-mono text-gray-600">
@@ -1580,22 +1590,22 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             <button
               onClick={handleNext}
               disabled={currentRating === 0}
-              className="fun-button-primary flex items-center gap-3 text-lg px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="fun-button-primary flex items-center gap-2 md:gap-3 text-base md:text-lg px-6 py-3 md:px-8 md:py-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none touch-manipulation"
             >
               {currentCriteriaIndex < SELF_EVAL_CRITERIA.length - 1 ? (
                 <>
                   Next
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                 </>
               ) : currentConceptIndex < selectedNotes.length - 1 ? (
                 <>
                   Next Concept
-                  <ArrowRight className="w-6 h-6" />
+                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
                 </>
               ) : (
                 <>
                   See Results
-                  <Sparkles className="w-6 h-6" />
+                  <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
                 </>
               )}
             </button>

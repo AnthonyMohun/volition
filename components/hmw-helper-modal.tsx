@@ -202,25 +202,27 @@ export function HMWHelperModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-indigo-900/20 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-indigo-900/20 z-50 flex items-center justify-center p-3 md:p-4 backdrop-blur-sm">
       <div className="bg-white rounded-2xl border border-gray-200 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-10">
           <div>
-            <h2 className="text-2xl font-black text-gray-800">HMW Builder</h2>
-            <p className="text-sm text-gray-500 mt-0.5 font-medium">
+            <h2 className="text-xl md:text-2xl font-black text-gray-800">
+              HMW Builder
+            </h2>
+            <p className="text-xs md:text-sm text-gray-500 mt-0.5 font-medium">
               Build your "How Might We" statement with guided templates
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600 touch-manipulation"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
           {!selectedTemplate ? (
             <>
               <p className="text-gray-600 text-sm font-medium">
@@ -246,17 +248,17 @@ export function HMWHelperModal({
                           setBlanks({});
                         }
                       }}
-                      className="group p-4 bg-gray-50 rounded-xl border-2 border-transparent hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left"
+                      className="group p-3 md:p-4 bg-gray-50 rounded-xl border-2 border-transparent hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left touch-manipulation active:scale-98"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 md:gap-4">
                         <div className="bg-white p-2 rounded-lg shadow-sm group-hover:scale-110 transition-transform">
-                          <IconComponent className="w-6 h-6 text-gray-400 group-hover:text-indigo-500 transition-colors" />
+                          <IconComponent className="w-5 h-5 md:w-6 md:h-6 text-gray-400 group-hover:text-indigo-500 transition-colors" />
                         </div>
                         <div>
-                          <h3 className="font-bold text-gray-800 group-hover:text-indigo-700 transition-colors">
+                          <h3 className="font-bold text-gray-800 group-hover:text-indigo-700 transition-colors text-sm md:text-base">
                             {tmpl.label}
                           </h3>
-                          <p className="text-sm text-gray-500 mt-1 font-medium">
+                          <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1 font-medium">
                             {tmpl.description}
                           </p>
                         </div>
@@ -271,20 +273,20 @@ export function HMWHelperModal({
               {/* Back Button */}
               <button
                 onClick={handleReset}
-                className="text-indigo-500 hover:text-indigo-700 text-sm font-bold transition-colors flex items-center gap-1"
+                className="text-indigo-500 hover:text-indigo-700 text-sm font-bold transition-colors flex items-center gap-1 touch-manipulation py-2"
               >
                 ← Back to Templates
               </button>
 
               {/* Form */}
               <div className="space-y-4">
-                <h3 className="font-bold text-xl text-gray-800">
+                <h3 className="font-bold text-lg md:text-xl text-gray-800">
                   {template?.label} Challenge
                 </h3>
 
                 {template?.blanks.map((blank) => (
                   <div key={blank.key}>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-xs md:text-sm font-bold text-gray-700 mb-2">
                       {blank.label}
                     </label>
                     <input
@@ -297,34 +299,34 @@ export function HMWHelperModal({
                         }))
                       }
                       placeholder={blank.placeholder}
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 text-gray-800 placeholder:text-gray-400 transition-all font-medium"
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 text-gray-800 placeholder:text-gray-400 transition-all font-medium text-sm md:text-base touch-manipulation"
                     />
                   </div>
                 ))}
               </div>
 
               {/* Preview */}
-              <div className="p-5 bg-indigo-50 rounded-xl border border-indigo-100">
+              <div className="p-4 md:p-5 bg-indigo-50 rounded-xl border border-indigo-100">
                 <p className="text-xs uppercase tracking-wide text-indigo-600 font-bold mb-2">
                   Your Statement
                 </p>
-                <p className="text-gray-800 text-lg leading-relaxed font-medium">
+                <p className="text-gray-800 text-base md:text-lg leading-relaxed font-medium">
                   {generatedStatement}
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleReset}
-                  className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors font-bold"
+                  className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors font-bold touch-manipulation"
                 >
                   Start Over
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={!isComplete}
-                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-teal-600 text-white font-bold hover:from-indigo-500 hover:to-teal-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-indigo-500/30"
+                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-teal-600 text-white font-bold hover:from-indigo-500 hover:to-teal-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-indigo-500/30 touch-manipulation"
                 >
                   {isComplete ? "Use This Statement" : "Fill in all fields"}
                 </button>

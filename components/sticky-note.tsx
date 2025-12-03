@@ -247,7 +247,7 @@ export function StickyNote({
       <div
         {...dragHandleProps}
         className={cn(
-          "w-64 p-5 rounded-3xl transition-all cursor-move relative",
+          "w-56 md:w-64 p-4 md:p-5 rounded-3xl transition-all cursor-move relative no-select",
           isDragging && "opacity-60 scale-95",
           note.isConcept &&
             "ring-4 ring-yellow-400/40 ring-offset-4 ring-offset-white/50 scale-105",
@@ -281,7 +281,7 @@ export function StickyNote({
             onClick={toggleConcept}
             onPointerDown={(e) => e.stopPropagation()}
             className={cn(
-              "p-2 rounded-xl hover:scale-110 transition-all shadow-sm",
+              "p-2 md:p-2 rounded-xl hover:scale-110 transition-all shadow-sm touch-target-sm",
               note.isConcept
                 ? "text-yellow-600 bg-yellow-100/80"
                 : "text-gray-400 hover:text-yellow-500 hover:bg-white/50"
@@ -295,11 +295,11 @@ export function StickyNote({
               )}
             />
           </button>
-          <div className="flex gap-2">
+          <div className="flex gap-1 md:gap-2">
             <button
               onClick={() => fileInputRef.current?.click()}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-gray-500 hover:text-gray-700 shadow-sm"
+              className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-gray-500 hover:text-gray-700 shadow-sm touch-target-sm"
               title="Attach image"
             >
               <ImageIcon className="w-4 h-4" />
@@ -308,7 +308,7 @@ export function StickyNote({
               onClick={handleOpenDrawing}
               onPointerDown={(e) => e.stopPropagation()}
               className={cn(
-                "p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all shadow-sm",
+                "p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all shadow-sm touch-target-sm",
                 note.drawing
                   ? "text-blue-500 hover:text-blue-700"
                   : "text-gray-500 hover:text-gray-700"
@@ -324,7 +324,7 @@ export function StickyNote({
                   setDetailsText(note.details || "");
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
-                className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-teal-500 hover:text-teal-700 shadow-sm"
+                className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-teal-500 hover:text-teal-700 shadow-sm touch-target-sm"
                 title="Edit concept details"
               >
                 <FileText className="w-4 h-4" />
@@ -333,7 +333,7 @@ export function StickyNote({
             <button
               onClick={onDelete}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-2 rounded-xl hover:bg-red-100 hover:scale-110 text-red-400 hover:text-red-600 transition-all shadow-sm"
+              className="p-2 rounded-xl hover:bg-red-100 hover:scale-110 text-red-400 hover:text-red-600 transition-all shadow-sm touch-target-sm"
               title="Delete note"
             >
               <Trash2 className="w-4 h-4" />

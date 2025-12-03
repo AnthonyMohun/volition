@@ -64,6 +64,9 @@ export default function CanvasPage() {
   const micHelpButtonRef = useRef<HTMLButtonElement | null>(null);
   const micHelpPopoverRef = useRef<HTMLDivElement | null>(null);
 
+  // AI Panel collapse state for iPad
+  const [isAIPanelCollapsed, setIsAIPanelCollapsed] = useState(false);
+
   // Canvas navigation state
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
@@ -782,7 +785,10 @@ export default function CanvasPage() {
 
       <div className="flex-1 flex overflow-hidden">
         {/* AI Question Panel */}
-        <AIQuestionPanel />
+        <AIQuestionPanel
+          isCollapsed={isAIPanelCollapsed}
+          onToggleCollapse={() => setIsAIPanelCollapsed(!isAIPanelCollapsed)}
+        />
 
         {/* Main Canvas */}
         <div
@@ -921,9 +927,9 @@ export default function CanvasPage() {
           </div>
 
           {/* Floating toolbar */}
-          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20">
-            <div className="fun-card px-6 py-4 flex items-center gap-5 shadow-2xl">
-              <div className="flex gap-3">
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20 safe-area-bottom">
+            <div className="fun-card px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 md:gap-5 shadow-2xl">
+              <div className="flex gap-2 md:gap-3">
                 {STICKY_COLORS.map((color) => {
                   // Map light colors to their fun mode display colors
                   const colorMap: Record<string, string> = {
@@ -940,7 +946,7 @@ export default function CanvasPage() {
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-10 h-10 rounded-2xl transition-all relative ${
+                      className={`w-9 h-9 md:w-10 md:h-10 rounded-2xl transition-all relative touch-target-sm ${
                         selectedColor === color
                           ? "hover:scale-110 border-3 border-white shadow-md after:absolute after:-bottom-3.5 after:left-1/2 after:-translate-x-1/2 after:w-2 after:h-1 after:bg-gray-400 after:rounded-full after:transition-all after:duration-300"
                           : "hover:scale-110 border-3 border-white shadow-md after:absolute after:-bottom-3.5 after:left-1/2 after:-translate-x-1/2 after:w-2 after:h-1 after:bg-gray-400 after:rounded-full after:transition-all after:duration-300 after:opacity-0"
@@ -953,12 +959,12 @@ export default function CanvasPage() {
                   );
                 })}
               </div>
-              <div className="border-l-3 border-blue-200 h-10 mx-2" />
-              <div className="flex items-center gap-3 ml-2">
+              <div className="border-l-3 border-blue-200 h-8 md:h-10 mx-1 md:mx-2" />
+              <div className="flex items-center gap-2 md:gap-3 ml-1 md:ml-2">
                 <button
                   onClick={undo}
                   disabled={!canUndo}
-                  className={`p-2.5 rounded-xl transition-all shadow-sm ${
+                  className={`p-2 md:p-2.5 rounded-xl transition-all shadow-sm touch-target-sm ${
                     canUndo
                       ? "text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:scale-110"
                       : "text-gray-300"
@@ -970,7 +976,7 @@ export default function CanvasPage() {
                 <button
                   onClick={redo}
                   disabled={!canRedo}
-                  className={`p-2.5 rounded-xl transition-all shadow-sm ${
+                  className={`p-2 md:p-2.5 rounded-xl transition-all shadow-sm touch-target-sm ${
                     canRedo
                       ? "text-gray-600 hover:bg-teal-50 hover:text-teal-600 hover:scale-110"
                       : "text-gray-300"
@@ -980,8 +986,8 @@ export default function CanvasPage() {
                   <RotateCw className="w-5 h-5" />
                 </button>
               </div>
-              <div className="border-l-3 border-blue-200 h-10 mx-2" />
-              <div className="flex items-center gap-3 ml-2">
+              <div className="border-l-3 border-blue-200 h-8 md:h-10 mx-1 md:mx-2" />
+              <div className="flex items-center gap-2 md:gap-3 ml-1 md:ml-2">
                 <div className="relative flex items-center">
                   <AnimatePresence>
                     {(state.voiceTranscript && state.voiceMode) ||
@@ -1015,7 +1021,7 @@ export default function CanvasPage() {
                     onTouchStart={() => setVoiceMode(true)}
                     onTouchEnd={() => setVoiceMode(false)}
                     onTouchCancel={() => isRecording && setVoiceMode(false)}
-                    className={`p-2.5 rounded-xl transition-all shadow-sm ${
+                    className={`p-2 md:p-2.5 rounded-xl transition-all shadow-sm touch-target-sm ${
                       isRecording
                         ? "bg-red-100 text-red-600 animate-pulse"
                         : "text-gray-500 hover:bg-teal-50 hover:text-teal-600"
@@ -1040,7 +1046,7 @@ export default function CanvasPage() {
                     onClick={() => {
                       setShowVoiceHelpPopover((prev) => !prev);
                     }}
-                    className={`absolute bottom-0 -right-3 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold transition-all ${
+                    className={`absolute bottom-0 -right-3 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold transition-all touch-target-sm ${
                       showVoiceHelpPopover
                         ? "bg-teal-600 text-white shadow-md"
                         : "bg-gray-200 text-gray-600 hover:bg-teal-100 hover:text-teal-600"

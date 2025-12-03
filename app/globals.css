@@ -378,3 +378,170 @@ body {
 .animate-card-flip {
   animation: card-flip 0.6s ease-in-out;
 }
+
+/* ============================================
+   iPad Mini Responsive Utilities (768-1024px)
+   ============================================ */
+
+/* Touch-friendly minimum target sizes (44px per Apple HIG) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.touch-target-sm {
+  min-width: 36px;
+  min-height: 36px;
+}
+
+/* iPad Mini portrait (768px) and landscape (1024px) breakpoints */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Increase base touch targets */
+  button,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better spacing for touch */
+  .fun-card {
+    padding: 1.25rem;
+  }
+
+  .fun-button-primary,
+  .fun-button-secondary {
+    padding: 16px 24px;
+    font-size: 1rem;
+  }
+
+  /* Scrollbar for touch */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* iPad portrait mode specific */
+@media (min-width: 768px) and (max-width: 834px) and (orientation: portrait) {
+  .ipad-portrait-hidden {
+    display: none !important;
+  }
+
+  .ipad-portrait-full {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .ipad-portrait-compact {
+    padding: 0.75rem !important;
+  }
+}
+
+/* iPad landscape mode specific */
+@media (min-width: 1024px) and (max-width: 1194px) and (orientation: landscape) {
+  .ipad-landscape-sidebar {
+    width: 280px !important;
+    min-width: 280px !important;
+  }
+}
+
+/* Touch gesture feedback */
+@media (pointer: coarse) {
+  /* Larger hit areas for touch devices */
+  .touch-interactive {
+    position: relative;
+  }
+
+  .touch-interactive::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    z-index: -1;
+  }
+
+  /* Active state feedback */
+  button:active,
+  [role="button"]:active {
+    transform: scale(0.97);
+  }
+
+  /* Disable hover effects on touch */
+  .no-touch-hover:hover {
+    transform: none;
+    box-shadow: inherit;
+  }
+}
+
+/* Collapsible sidebar transition */
+.sidebar-collapsible {
+  transition: width 0.3s ease-in-out, min-width 0.3s ease-in-out,
+    opacity 0.2s ease-in-out;
+}
+
+.sidebar-collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  opacity: 0;
+}
+
+/* Floating action button for mobile/tablet */
+.fab {
+  position: fixed;
+  z-index: 40;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fab:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Prevent text selection on interactive elements for touch */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Smooth momentum scrolling for iPad */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* Responsive text sizes for iPad */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .text-responsive-lg {
+    font-size: 1.125rem;
+  }
+
+  .text-responsive-xl {
+    font-size: 1.25rem;
+  }
+
+  .text-responsive-2xl {
+    font-size: 1.5rem;
+  }
+}

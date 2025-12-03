@@ -23,6 +23,8 @@ import {
   Volume2,
   VolumeX,
   Eye,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { STICKY_COLORS } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -48,7 +50,15 @@ const STUCK_NUDGE_MESSAGES = [
 
 const STUCK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
-export function AIQuestionPanel() {
+interface AIQuestionPanelProps {
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
+}
+
+export function AIQuestionPanel({
+  isCollapsed = false,
+  onToggleCollapse,
+}: AIQuestionPanelProps) {
   const {
     state,
     addQuestion,
@@ -514,8 +524,39 @@ export function AIQuestionPanel() {
 
   // Voice toggle is now handled by the canvas floating toolbar (spacebar or mic button)
 
+  // Collapsed state FAB for iPad - shows when panel is collapsed
+  if (isCollapsed) {
+    return (
+      <>
+        {/* Collapsed FAB */}
+        <button
+          onClick={onToggleCollapse}
+          className="fixed left-4 top-1/2 -translate-y-1/2 z-30 fab bg-gradient-to-br from-blue-500 to-teal-500 text-white shadow-lg hover:shadow-xl transition-all"
+          aria-label="Open AI panel"
+        >
+          <PanelLeftOpen className="w-6 h-6" />
+        </button>
+
+        {/* Hidden voice input still needs to run */}
+        <div style={{ display: "none" }}>
+          <VoiceInput
+            onTranscript={handleVoiceTranscript}
+            onCommand={handleVoiceCommand}
+            isEnabled={state.voiceMode || false}
+            onToggle={() => setVoiceMode(!state.voiceMode)}
+            isMuted={isCurrentlySpeaking()}
+          />
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div className="bg-gradient-to-b from-white to-blue-50/30 border-r-4 border-blue-200 w-80 flex flex-col order-first shadow-xl z-10">
+    <div
+      className={`bg-gradient-to-b from-white to-blue-50/30 border-r-4 border-blue-200 flex flex-col order-first shadow-xl z-10 sidebar-collapsible ${
+        isCollapsed ? "sidebar-collapsed" : "w-80 md:w-72 lg:w-80"
+      }`}
+    >
       <div className="p-4 border-b-3 border-blue-100 bg-gradient-to-br from-blue-50 to-teal-50">
         {/* Clean, minimal header */}
         <div className="flex items-center justify-between">
@@ -545,23 +586,37 @@ export function AIQuestionPanel() {
             </div>
           </div>
 
-          {/* Mute Button Only */}
-          <button
-            onClick={() => setIsMuted(!isMuted)}
-            title={isMuted ? "Unmute AI voice" : "Mute AI voice"}
-            aria-label={isMuted ? "Unmute AI voice" : "Mute AI voice"}
-            className={`p-2 rounded-xl hover:scale-110 transition-all shadow-sm ${
-              isMuted
-                ? "text-red-500 bg-red-100 border border-red-200"
-                : "text-gray-500 hover:bg-gray-100 border border-gray-200"
-            }`}
-          >
-            {isMuted ? (
-              <VolumeX className="w-4 h-4" />
-            ) : (
-              <Volume2 className="w-4 h-4" />
+          {/* Controls */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              title={isMuted ? "Unmute AI voice" : "Mute AI voice"}
+              aria-label={isMuted ? "Unmute AI voice" : "Mute AI voice"}
+              className={`p-2 rounded-xl hover:scale-110 transition-all shadow-sm touch-target-sm ${
+                isMuted
+                  ? "text-red-500 bg-red-100 border border-red-200"
+                  : "text-gray-500 hover:bg-gray-100 border border-gray-200"
+              }`}
+            >
+              {isMuted ? (
+                <VolumeX className="w-4 h-4" />
+              ) : (
+                <Volume2 className="w-4 h-4" />
+              )}
+            </button>
+
+            {/* Collapse button for iPad */}
+            {onToggleCollapse && (
+              <button
+                onClick={onToggleCollapse}
+                title="Collapse panel"
+                aria-label="Collapse AI panel"
+                className="p-2 rounded-xl hover:scale-110 transition-all shadow-sm touch-target-sm text-gray-500 hover:bg-gray-100 border border-gray-200 hidden md:flex lg:hidden"
+              >
+                <PanelLeftClose className="w-4 h-4" />
+              </button>
             )}
-          </button>
+          </div>
         </div>
 
         {/* Voice recognition engine - UI is in canvas floating toolbar, recognition logic handled here */}

@@ -330,12 +330,12 @@ export default function RefinePage() {
       />
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-6 flex justify-center items-center">
+      <div className="flex-1 overflow-auto p-4 md:p-6 flex justify-center items-start md:items-center">
         <div className="w-full max-w-4xl">
           {/* Wizard View */}
           {!wizardComplete && editingId && (
             <div
-              className="fun-card p-6 border-3 border-blue-200 mb-6 relative overflow-hidden mx-auto"
+              className="fun-card p-4 md:p-6 border-3 border-blue-200 mb-6 relative overflow-hidden mx-auto"
               style={{ width: "100%", maxWidth: "600px" }}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/30 to-transparent rounded-full blur-2xl"></div>
@@ -357,20 +357,20 @@ export default function RefinePage() {
               </div>
 
               {/* Header */}
-              <div className="flex items-center justify-between mb-5 relative z-10">
+              <div className="flex items-center justify-between mb-4 md:mb-5 relative z-10 flex-wrap gap-2">
                 <div className="text-sm text-gray-600 font-bold">
                   Concept {guidedIndex + 1} of {selectedNotes.length}
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={skipConcept}
-                    className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-all font-bold"
+                    className="px-4 py-2.5 md:py-2 text-sm text-gray-500 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-all font-bold touch-manipulation"
                   >
                     Skip
                   </button>
                   <button
                     onClick={saveConceptGuided}
-                    className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-xl hover:from-blue-600 hover:to-teal-600 transition-all font-bold shadow-md"
+                    className="px-4 py-2.5 md:py-2 text-sm bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-xl hover:from-blue-600 hover:to-teal-600 transition-all font-bold shadow-md touch-manipulation"
                   >
                     {guidedIndex < selectedNotes.length - 1
                       ? "Next →"
@@ -444,11 +444,11 @@ export default function RefinePage() {
                               })
                             }
                             placeholder="Give your idea a catchy name"
-                            className="w-full px-4 py-3 pr-12 bg-white border-3 border-blue-200 rounded-2xl text-gray-800 text-lg placeholder:text-gray-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-200 transition-all font-bold shadow-sm"
+                            className="w-full px-4 py-3 md:py-3 pr-14 bg-white border-3 border-blue-200 rounded-2xl text-gray-800 text-base md:text-lg placeholder:text-gray-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-200 transition-all font-bold shadow-sm touch-manipulation"
                           />
                           <button
                             onClick={() => toggleRecording("title")}
-                            className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
+                            className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 md:p-2 rounded-xl transition-all touch-manipulation ${
                               recordingField === "title"
                                 ? "bg-red-500 text-white hover:bg-red-600"
                                 : "bg-blue-100 text-blue-600 hover:bg-blue-200"
@@ -464,10 +464,10 @@ export default function RefinePage() {
                                 animate={{ scale: [1, 1.2, 1] }}
                                 transition={{ repeat: Infinity, duration: 1 }}
                               >
-                                <Mic className="w-4 h-4" />
+                                <Mic className="w-5 h-5 md:w-4 md:h-4" />
                               </motion.div>
                             ) : (
-                              <Mic className="w-4 h-4" />
+                              <Mic className="w-5 h-5 md:w-4 md:h-4" />
                             )}
                           </button>
                         </div>
@@ -494,12 +494,12 @@ export default function RefinePage() {
                               })
                             }
                             placeholder="Describe your concept in a few sentences..."
-                            rows={8}
-                            className="w-full px-4 py-3 pr-12 bg-white border-3 border-blue-200 rounded-2xl text-gray-800 placeholder:text-gray-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-200 transition-all resize-none font-semibold shadow-sm"
+                            rows={6}
+                            className="w-full px-4 py-3 pr-14 bg-white border-3 border-blue-200 rounded-2xl text-gray-800 text-base placeholder:text-gray-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-200 transition-all resize-none font-semibold shadow-sm touch-manipulation"
                           />
                           <button
                             onClick={() => toggleRecording("description")}
-                            className={`absolute right-3 top-3 p-2 rounded-xl transition-all ${
+                            className={`absolute right-3 top-3 p-2.5 md:p-2 rounded-xl transition-all touch-manipulation ${
                               recordingField === "description"
                                 ? "bg-red-500 text-white hover:bg-red-600"
                                 : "bg-blue-100 text-blue-600 hover:bg-blue-200"
@@ -515,10 +515,10 @@ export default function RefinePage() {
                                 animate={{ scale: [1, 1.2, 1] }}
                                 transition={{ repeat: Infinity, duration: 1 }}
                               >
-                                <Mic className="w-4 h-4" />
+                                <Mic className="w-5 h-5 md:w-4 md:h-4" />
                               </motion.div>
                             ) : (
-                              <Mic className="w-4 h-4" />
+                              <Mic className="w-5 h-5 md:w-4 md:h-4" />
                             )}
                           </button>
                         </div>
@@ -534,7 +534,7 @@ export default function RefinePage() {
                         <button
                           type="button"
                           onClick={() => setShowExtras(!showExtras)}
-                          className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors"
+                          className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors py-2 touch-manipulation"
                         >
                           <ChevronDown
                             className={`w-4 h-4 transition-transform ${
@@ -557,18 +557,18 @@ export default function RefinePage() {
                                   setTargetAudience(e.target.value)
                                 }
                                 placeholder="Who is this for?"
-                                className="w-full px-3 py-2 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                                className="w-full px-3 py-3 md:py-2 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all text-sm touch-manipulation"
                               />
                             </div>
                             <div>
-                              <label className="text-xs font-bold text-gray-600 mb-1 block">
+                              <label className="text-xs font-bold text-gray-600 mb-2 block">
                                 Platform
                               </label>
-                              <div className="flex flex-wrap gap-2">
+                              <div className="flex flex-wrap gap-3 md:gap-2">
                                 {PLATFORM_OPTIONS.map((option) => (
                                   <label
                                     key={option}
-                                    className="flex items-center gap-1 text-sm font-medium"
+                                    className="flex items-center gap-2 md:gap-1 text-sm font-medium py-1 touch-manipulation"
                                   >
                                     <input
                                       type="checkbox"
@@ -582,7 +582,7 @@ export default function RefinePage() {
                                           );
                                         }
                                       }}
-                                      className="accent-blue-500"
+                                      className="accent-blue-500 w-5 h-5 md:w-4 md:h-4"
                                     />
                                     {option}
                                   </label>
@@ -598,7 +598,7 @@ export default function RefinePage() {
                                 value={keyBenefits}
                                 onChange={(e) => setKeyBenefits(e.target.value)}
                                 placeholder="Main advantages or value"
-                                className="w-full px-3 py-2 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                                className="w-full px-3 py-3 md:py-2 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all text-sm touch-manipulation"
                               />
                             </div>
                             <div>
@@ -612,7 +612,7 @@ export default function RefinePage() {
                                   setMainFeatures(e.target.value)
                                 }
                                 placeholder="Core features of the concept"
-                                className="w-full px-3 py-2 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                                className="w-full px-3 py-3 md:py-2 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all text-sm touch-manipulation"
                               />
                             </div>
                             <div className="relative">
@@ -626,11 +626,11 @@ export default function RefinePage() {
                                 }
                                 placeholder="Other notes, technical ideas, etc. (optional)"
                                 rows={2}
-                                className="w-full px-4 py-3 pr-12 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-100 transition-all resize-none text-sm mt-2"
+                                className="w-full px-4 py-3 pr-14 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-100 transition-all resize-none text-sm mt-2 touch-manipulation"
                               />
                               <button
                                 onClick={() => toggleRecording("extras")}
-                                className={`absolute right-3 top-3 p-2 rounded-xl transition-all ${
+                                className={`absolute right-3 top-5 p-2.5 md:p-2 rounded-xl transition-all touch-manipulation ${
                                   recordingField === "extras"
                                     ? "bg-red-500 text-white hover:bg-red-600"
                                     : "bg-blue-100 text-blue-600 hover:bg-blue-200"
@@ -649,10 +649,10 @@ export default function RefinePage() {
                                       duration: 1,
                                     }}
                                   >
-                                    <Mic className="w-4 h-4" />
+                                    <Mic className="w-5 h-5 md:w-4 md:h-4" />
                                   </motion.div>
                                 ) : (
-                                  <Mic className="w-4 h-4" />
+                                  <Mic className="w-5 h-5 md:w-4 md:h-4" />
                                 )}
                               </button>
                               {recordingField === "extras" && (
@@ -673,13 +673,13 @@ export default function RefinePage() {
 
           {/* Completed View */}
           {wizardComplete && (
-            <div className="fun-card p-6 border-3 border-green-300 relative overflow-hidden">
+            <div className="fun-card p-4 md:p-6 border-3 border-green-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-200/30 to-transparent rounded-full blur-2xl"></div>
-              <div className="flex items-center gap-3 mb-6 relative z-10">
+              <div className="flex items-center gap-3 mb-5 md:mb-6 relative z-10">
                 <div className="bg-gradient-to-br from-green-100 to-emerald-200 p-2.5 rounded-2xl shadow-md">
                   <CheckCircle2 className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="text-xl font-black text-gray-800">
+                <h3 className="text-lg md:text-xl font-black text-gray-800">
                   Ready to Rate! ✨
                 </h3>
               </div>
@@ -700,24 +700,24 @@ export default function RefinePage() {
                   return (
                     <div
                       key={note.id}
-                      className="flex items-center gap-4 p-4 bg-gradient-to-br from-white to-blue-50/30 rounded-2xl border-3 border-blue-200 shadow-sm hover:border-blue-300 transition-all group"
+                      className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gradient-to-br from-white to-blue-50/30 rounded-2xl border-3 border-blue-200 shadow-sm hover:border-blue-300 transition-all group"
                     >
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-black text-gray-800 flex items-center gap-2">
+                        <h4 className="font-black text-gray-800 flex items-center gap-2 text-sm md:text-base">
                           <span>💡</span>
                           {note.text}
                         </h4>
                         {descText && (
-                          <p className="text-sm text-gray-500 truncate mt-1">
+                          <p className="text-xs md:text-sm text-gray-500 truncate mt-1">
                             {descText}
                           </p>
                         )}
                       </div>
                       <button
                         onClick={() => startEditingConcept(note)}
-                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-blue-100 rounded-xl transition-all"
+                        className="p-2.5 md:p-2 md:opacity-0 md:group-hover:opacity-100 hover:bg-blue-100 rounded-xl transition-all touch-manipulation"
                       >
-                        <Edit3 className="w-4 h-4 text-blue-500" />
+                        <Edit3 className="w-5 h-5 md:w-4 md:h-4 text-blue-500" />
                       </button>
                     </div>
                   );
