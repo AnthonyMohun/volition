@@ -545,18 +545,37 @@ export function StickyNote({
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="fixed inset-0 bg-teal-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 bg-teal-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200 select-none no-callout"
             onClick={() => setShowDrawingModal(false)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              return false;
+            }}
+            style={{
+              WebkitUserSelect: "none",
+              userSelect: "none",
+              WebkitTouchCallout: "none",
+            }}
           >
             <div
               className={cn(
-                "fun-card w-full transition-all duration-300 flex flex-col",
+                "fun-card w-full transition-all duration-300 flex flex-col select-none no-callout",
                 isFullScreen ? "fixed inset-4 max-w-none z-[60]" : "max-w-2xl"
               )}
               onClick={(e) => e.stopPropagation()}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+              }}
               style={{
                 backgroundColor: getFunColor(note.color),
                 padding: isFullScreen ? "24px" : "48px",
+                WebkitUserSelect: "none",
+                userSelect: "none",
+                WebkitTouchCallout: "none",
+                touchAction: "none",
               }}
             >
               <div className="flex items-center justify-between mb-3">

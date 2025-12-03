@@ -8,7 +8,16 @@ import {
   useImperativeHandle,
 } from "react";
 import { ReactSketchCanvas, ReactSketchCanvasRef } from "react-sketch-canvas";
-import { Undo2, Redo2, Eraser, Trash2, Plus, Download } from "lucide-react";
+import {
+  Undo2,
+  Redo2,
+  Eraser,
+  Trash2,
+  Plus,
+  Download,
+  Hand,
+  Pencil,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DrawingData, CanvasPath, STICKY_COLORS } from "@/lib/types";
 
@@ -75,6 +84,8 @@ export const DrawingCanvas = forwardRef<
   const [customColor, setCustomColor] = useState<string | null>(null);
   const [isEraser, setIsEraser] = useState(false);
   const [hasContent, setHasContent] = useState(false);
+  // Palm rejection: "pen" = Apple Pencil only, "all" = finger + pencil
+  const [pointerType, setPointerType] = useState<"all" | "pen">("all");
 
   // Color palette matching sticky note colors (darker versions for drawing)
   const stickyNoteStrokeColors = STICKY_COLORS.map((color) =>
@@ -202,19 +213,96 @@ export const DrawingCanvas = forwardRef<
     hasContent: () => hasContent,
   }));
 
+  // Prevent context menu (copy/paste popup) on the canvas - especially for iPad
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const preventContextMenu = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    };
+
+    const preventSelection = (e: Event) => {
+      e.preventDefault();
+      return false;
+    };
+
+    // Block context menu on right-click and long-press
+    container.addEventListener("contextmenu", preventContextMenu, {
+      capture: true,
+    });
+    // Block selection start which triggers iOS callout
+    container.addEventListener("selectstart", preventSelection, {
+      capture: true,
+    });
+    // Block touchforcechange which can trigger 3D touch menus
+    container.addEventListener("touchforcechange", preventContextMenu, {
+      passive: false,
+    });
+    // Block webkitmouseforcedown (force touch)
+    container.addEventListener("webkitmouseforcedown", preventContextMenu, {
+      capture: true,
+    });
+
+    return () => {
+      container.removeEventListener("contextmenu", preventContextMenu);
+      container.removeEventListener("selectstart", preventSelection);
+      container.removeEventListener("touchforcechange", preventContextMenu);
+      container.removeEventListener("webkitmouseforcedown", preventContextMenu);
+    };
+  }, []);
+
   return (
     <div
-      className={cn("flex flex-col gap-4", height === "100%" ? "h-full" : "")}
+      className={cn(
+        "flex flex-col gap-4 select-none no-callout",
+        height === "100%" ? "h-full" : ""
+      )}
       onPointerDown={(e) => e.stopPropagation()}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }}
+      onSelect={(e) => {
+        e.preventDefault();
+      }}
+      style={{
+        WebkitUserSelect: "none",
+        userSelect: "none",
+        WebkitTouchCallout: "none",
+        touchAction: "none",
+        // @ts-ignore - webkit specific
+        WebkitUserDrag: "none",
+      }}
     >
       {/* Drawing Canvas */}
       <div
         ref={containerRef}
         className={cn(
-          "rounded-xl overflow-hidden border-2 border-gray-200 bg-white shadow-inner mx-auto",
+          "rounded-xl overflow-hidden border-2 border-gray-200 bg-white shadow-inner mx-auto select-none no-callout",
           height === "100%" ? "flex-1 w-full" : ""
         )}
-        style={height === "100%" ? { width: "100%" } : { width, height }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }}
+        onTouchStart={(e) => {
+          // Mark as handled to prevent callout
+          (e.target as HTMLElement).style.webkitTouchCallout = "none";
+        }}
+        style={{
+          ...(height === "100%" ? { width: "100%" } : { width, height }),
+          touchAction: "none",
+          WebkitUserSelect: "none",
+          userSelect: "none",
+          WebkitTouchCallout: "none",
+          // @ts-ignore - webkit specific
+          WebkitUserDrag: "none",
+        }}
       >
         <ReactSketchCanvas
           ref={canvasRef}
@@ -225,6 +313,7 @@ export const DrawingCanvas = forwardRef<
           canvasColor="transparent"
           exportWithBackgroundImage={false}
           onStroke={handleStroke}
+          allowOnlyPointerType={pointerType}
           style={{
             border: "none",
             borderRadius: "0.75rem",
@@ -324,6 +413,30 @@ export const DrawingCanvas = forwardRef<
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          {/* Palm Rejection Toggle - shows on touch devices */}
+          <button
+            onClick={() =>
+              setPointerType(pointerType === "all" ? "pen" : "all")
+            }
+            className={cn(
+              "p-1.5 rounded-lg transition-all",
+              pointerType === "pen"
+                ? "bg-purple-100 text-purple-600"
+                : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            )}
+            title={
+              pointerType === "pen"
+                ? "Pencil only (palm rejection ON) - tap to allow finger"
+                : "Finger + Pencil - tap for pencil only"
+            }
+          >
+            {pointerType === "pen" ? (
+              <Pencil className="w-4 h-4" />
+            ) : (
+              <Hand className="w-4 h-4" />
+            )}
+          </button>
+          <div className="w-px h-4 bg-gray-200" />
           <button
             onClick={toggleEraser}
             className={cn(

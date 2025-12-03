@@ -988,7 +988,7 @@ export default function CanvasPage() {
               </div>
               <div className="border-l-3 border-blue-200 h-8 md:h-10 mx-1 md:mx-2" />
               <div className="flex items-center gap-2 md:gap-3 ml-1 md:ml-2">
-                <div className="relative flex items-center">
+                <div className="relative flex items-center gap-1">
                   <AnimatePresence>
                     {(state.voiceTranscript && state.voiceMode) ||
                     showVoiceHelpTooltip ? (
@@ -1018,14 +1018,25 @@ export default function CanvasPage() {
                     onPointerUp={() => setVoiceMode(false)}
                     onPointerCancel={() => isRecording && setVoiceMode(false)}
                     onPointerLeave={() => isRecording && setVoiceMode(false)}
-                    onTouchStart={() => setVoiceMode(true)}
-                    onTouchEnd={() => setVoiceMode(false)}
+                    onTouchStart={(e) => {
+                      e.preventDefault(); // Prevent text selection on iPad
+                      setVoiceMode(true);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      setVoiceMode(false);
+                    }}
                     onTouchCancel={() => isRecording && setVoiceMode(false)}
-                    className={`p-2 md:p-2.5 rounded-xl transition-all shadow-sm touch-target-sm ${
+                    className={`p-2 md:p-2.5 rounded-xl transition-all shadow-sm touch-target-sm select-none ${
                       isRecording
                         ? "bg-red-100 text-red-600 animate-pulse"
                         : "text-gray-500 hover:bg-teal-50 hover:text-teal-600"
                     }`}
+                    style={{
+                      touchAction: "manipulation",
+                      WebkitTouchCallout: "none",
+                      WebkitUserSelect: "none",
+                    }}
                     title={
                       isRecording
                         ? "Release to stop speaking"
@@ -1038,7 +1049,7 @@ export default function CanvasPage() {
                     }
                     aria-pressed={isRecording}
                   >
-                    <Mic className="w-5 h-5" />
+                    <Mic className="w-5 h-5 pointer-events-none" />
                   </button>
 
                   <button
@@ -1046,14 +1057,16 @@ export default function CanvasPage() {
                     onClick={() => {
                       setShowVoiceHelpPopover((prev) => !prev);
                     }}
-                    className={`absolute bottom-0 -right-3 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold transition-all touch-target-sm ${
+                    className={`p-1.5 md:p-2 rounded-xl transition-all touch-target-sm select-none ${
                       showVoiceHelpPopover
                         ? "bg-teal-600 text-white shadow-md"
-                        : "bg-gray-200 text-gray-600 hover:bg-teal-100 hover:text-teal-600"
+                        : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                     }`}
+                    style={{ touchAction: "manipulation" }}
                     title="Voice commands help"
+                    aria-label="Voice commands help"
                   >
-                    ?
+                    <HelpCircle className="w-4 h-4 pointer-events-none" />
                   </button>
 
                   <AnimatePresence>
