@@ -288,27 +288,29 @@ export default function RefinePage() {
   return (
     <div className="min-h-screen fun-gradient-bg flex flex-col relative overflow-hidden">
       {/* Floating decorative elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
-        <div className="absolute top-20 left-10 text-6xl float-animation">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Gradient orbs */}
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-br from-blue-300/20 to-teal-300/15 rounded-full blur-3xl float-animation" />
+        <div
+          className="absolute bottom-1/4 -right-20 w-80 h-80 bg-gradient-to-br from-purple-300/15 to-pink-300/15 rounded-full blur-3xl float-animation"
+          style={{ animationDelay: "1.5s" }}
+        />
+
+        {/* Floating emojis - subtle */}
+        <div className="absolute top-24 left-[8%] text-4xl opacity-10 float-animation">
           ✨
         </div>
         <div
-          className="absolute top-40 right-20 text-5xl float-animation"
+          className="absolute top-32 right-[12%] text-3xl opacity-10 float-animation"
           style={{ animationDelay: "1s" }}
         >
           📝
         </div>
         <div
-          className="absolute bottom-32 left-1/4 text-5xl float-animation"
+          className="absolute bottom-40 left-[15%] text-3xl opacity-10 float-animation"
           style={{ animationDelay: "2s" }}
         >
           💡
-        </div>
-        <div
-          className="absolute bottom-20 right-1/3 text-6xl float-animation"
-          style={{ animationDelay: "0.5s" }}
-        >
-          🚀
         </div>
       </div>
 
@@ -335,42 +337,58 @@ export default function RefinePage() {
           {/* Wizard View */}
           {!wizardComplete && editingId && (
             <div
-              className="fun-card p-4 md:p-6 border-3 border-blue-200 mb-6 relative overflow-hidden mx-auto"
-              style={{ width: "100%", maxWidth: "600px" }}
+              className="fun-card p-4 md:p-6 mb-6 relative overflow-hidden mx-auto border-3 border-blue-200"
+              style={{
+                width: "100%",
+                maxWidth: "600px",
+              }}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/30 to-transparent rounded-full blur-2xl"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-teal-200/30 to-transparent rounded-full blur-2xl"></div>
 
               {/* Progress Bar */}
               <div className="mb-5 flex gap-2 relative z-10">
                 {selectedNotes.map((_, idx) => (
                   <div
                     key={idx}
-                    className={`h-2 flex-1 rounded-full transition-all duration-500 ${
+                    className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
                       idx < guidedIndex
-                        ? "bg-gradient-to-r from-green-400 to-emerald-500"
+                        ? "bg-gradient-to-r from-teal-400 to-emerald-400"
                         : idx === guidedIndex
-                        ? "bg-gradient-to-r from-blue-500 to-teal-500"
-                        : "bg-gray-200"
+                        ? "bg-gradient-to-r from-blue-400 to-teal-400"
+                        : "bg-gray-200/80"
                     }`}
+                    style={{
+                      boxShadow:
+                        idx <= guidedIndex
+                          ? "0 1px 3px rgba(20, 184, 166, 0.2)"
+                          : "none",
+                    }}
                   />
                 ))}
               </div>
 
               {/* Header */}
               <div className="flex items-center justify-between mb-4 md:mb-5 relative z-10 flex-wrap gap-2">
-                <div className="text-sm text-gray-600 font-bold">
+                <div className="text-sm text-gray-500 font-semibold">
                   Concept {guidedIndex + 1} of {selectedNotes.length}
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={skipConcept}
-                    className="px-4 py-2.5 md:py-2 text-sm text-gray-500 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-all font-bold touch-manipulation"
+                    className="px-4 py-2.5 md:py-2 text-sm text-gray-500 hover:text-gray-700 rounded-xl hover:bg-gray-100/80 transition-all font-semibold touch-manipulation"
                   >
                     Skip
                   </button>
                   <button
                     onClick={saveConceptGuided}
-                    className="px-4 py-2.5 md:py-2 text-sm bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-xl hover:from-blue-600 hover:to-teal-600 transition-all font-bold shadow-md touch-manipulation"
+                    className="px-4 py-2.5 md:py-2 text-sm text-white rounded-xl transition-all font-bold touch-manipulation"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #3b82f6 0%, #14b8a6 100%)",
+                      boxShadow:
+                        "0 2px 8px rgba(59, 130, 246, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)",
+                    }}
                   >
                     {guidedIndex < selectedNotes.length - 1
                       ? "Next →"
@@ -390,19 +408,19 @@ export default function RefinePage() {
                   <div key={note.id} className="relative z-10">
                     {/* Show attached image and/or sketch if available */}
                     {(note.image || note.drawing?.dataUrl) && (
-                      <div className="mb-6 p-4 bg-gradient-to-br from-blue-50 to-teal-50 rounded-2xl border-3 border-blue-200 shadow-md flex gap-4">
+                      <div className="mb-6 p-4 rounded-2xl flex gap-4 bg-gradient-to-br from-blue-50/80 to-teal-50/60 border-2 border-blue-100">
                         {note.image && !note.drawing?.dataUrl && (
                           <img
                             src={note.image.dataUrl}
                             alt={note.image.caption || "Concept image"}
-                            className="w-full max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                            className="w-full max-h-48 object-contain rounded-xl border-2 border-white shadow-md"
                           />
                         )}
                         {note.drawing?.dataUrl && !note.image && (
                           <img
                             src={note.drawing.dataUrl}
                             alt="Concept sketch"
-                            className="w-full max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                            className="w-full max-h-48 object-contain rounded-xl border-2 border-white shadow-md bg-white"
                           />
                         )}
                         {note.image && note.drawing?.dataUrl && (
@@ -410,7 +428,7 @@ export default function RefinePage() {
                             <img
                               src={note.image.dataUrl}
                               alt={note.image.caption || "Concept image"}
-                              className="w-1/2 max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                              className="w-1/2 max-h-48 object-contain rounded-xl border-2 border-white shadow-md"
                             />
                             <img
                               src={note.drawing.dataUrl}
@@ -419,7 +437,7 @@ export default function RefinePage() {
                                   ? `${note.image.caption} (sketch)`
                                   : "Concept sketch"
                               }
-                              className="w-1/2 max-h-48 object-contain rounded-xl border-3 border-white shadow-lg"
+                              className="w-1/2 max-h-48 object-contain rounded-xl border-2 border-white shadow-md bg-white"
                             />
                           </>
                         )}
@@ -430,7 +448,7 @@ export default function RefinePage() {
                     <div className="space-y-5">
                       {/* Title */}
                       <div>
-                        <label className="text-sm font-black text-gray-700 mb-2 block flex items-center gap-2">
+                        <label className="text-xs font-bold text-gray-600 mb-2 block flex items-center gap-2 uppercase tracking-wide">
                           <span>💡</span> Concept Name
                         </label>
                         <div className="relative">
@@ -444,14 +462,14 @@ export default function RefinePage() {
                               })
                             }
                             placeholder="Give your idea a catchy name"
-                            className="w-full px-4 py-3 md:py-3 pr-14 bg-white border-3 border-blue-200 rounded-2xl text-gray-800 text-base md:text-lg placeholder:text-gray-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-200 transition-all font-bold shadow-sm touch-manipulation"
+                            className="w-full px-4 py-3 md:py-3 pr-14 rounded-2xl text-gray-800 text-base md:text-lg placeholder:text-gray-400 transition-all font-semibold touch-manipulation bg-white border-2 border-blue-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-300 shadow-sm"
                           />
                           <button
                             onClick={() => toggleRecording("title")}
                             className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 md:p-2 rounded-xl transition-all touch-manipulation ${
                               recordingField === "title"
                                 ? "bg-red-500 text-white hover:bg-red-600"
-                                : "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                                : "text-teal-600 hover:bg-teal-50 bg-teal-50 border border-teal-200"
                             }`}
                             title={
                               recordingField === "title"
@@ -472,7 +490,7 @@ export default function RefinePage() {
                           </button>
                         </div>
                         {recordingField === "title" && (
-                          <p className="text-xs text-blue-600 mt-1 font-semibold animate-pulse">
+                          <p className="text-xs text-teal-600 mt-1.5 font-medium animate-pulse">
                             🎤 Listening...
                           </p>
                         )}
@@ -481,7 +499,7 @@ export default function RefinePage() {
 
                       {/* Description - combines problem + solution */}
                       <div>
-                        <label className="text-sm font-black text-gray-700 mb-2 block flex items-center gap-2">
+                        <label className="text-xs font-bold text-gray-600 mb-2 block flex items-center gap-2 uppercase tracking-wide">
                           <span>📝</span> What&apos;s the idea?
                         </label>
                         <div className="relative">
@@ -495,14 +513,14 @@ export default function RefinePage() {
                             }
                             placeholder="Describe your concept in a few sentences..."
                             rows={6}
-                            className="w-full px-4 py-3 pr-14 bg-white border-3 border-blue-200 rounded-2xl text-gray-800 text-base placeholder:text-gray-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-200 transition-all resize-none font-semibold shadow-sm touch-manipulation"
+                            className="w-full px-4 py-3 pr-14 rounded-2xl text-gray-800 text-base placeholder:text-gray-400 transition-all resize-none font-medium touch-manipulation bg-white border-2 border-blue-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-300 shadow-sm"
                           />
                           <button
                             onClick={() => toggleRecording("description")}
                             className={`absolute right-3 top-3 p-2.5 md:p-2 rounded-xl transition-all touch-manipulation ${
                               recordingField === "description"
                                 ? "bg-red-500 text-white hover:bg-red-600"
-                                : "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                                : "text-teal-600 hover:bg-teal-50 bg-teal-50 border border-teal-200"
                             }`}
                             title={
                               recordingField === "description"
@@ -523,7 +541,7 @@ export default function RefinePage() {
                           </button>
                         </div>
                         {recordingField === "description" && (
-                          <p className="text-xs text-blue-600 mt-1 font-semibold animate-pulse">
+                          <p className="text-xs text-teal-600 mt-1.5 font-medium animate-pulse">
                             🎤 Listening...
                           </p>
                         )}
@@ -534,20 +552,27 @@ export default function RefinePage() {
                         <button
                           type="button"
                           onClick={() => setShowExtras(!showExtras)}
-                          className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors py-2 touch-manipulation"
+                          className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-teal-600 transition-colors py-2 touch-manipulation"
                         >
                           <ChevronDown
                             className={`w-4 h-4 transition-transform ${
                               showExtras ? "rotate-180" : ""
                             }`}
                           />
-                          {showExtras ? "Hide" : "Add"} extra notes
+                          {showExtras ? "Hide" : "Add"} extra details
                         </button>
 
                         {showExtras && (
-                          <div className="space-y-4 mt-3">
+                          <div
+                            className="space-y-4 mt-3 p-4 rounded-xl"
+                            style={{
+                              background:
+                                "linear-gradient(135deg, rgba(248,250,252,0.8) 0%, rgba(241,245,249,0.6) 100%)",
+                              border: "1px solid rgba(226, 232, 240, 0.6)",
+                            }}
+                          >
                             <div>
-                              <label className="text-xs font-bold text-gray-600 mb-1 block">
+                              <label className="text-xs font-semibold text-gray-500 mb-1 block">
                                 Target Audience
                               </label>
                               <input
@@ -557,18 +582,18 @@ export default function RefinePage() {
                                   setTargetAudience(e.target.value)
                                 }
                                 placeholder="Who is this for?"
-                                className="w-full px-3 py-3 md:py-2 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all text-sm touch-manipulation"
+                                className="w-full px-3 py-3 md:py-2.5 bg-white/80 border border-gray-200/80 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-teal-300 focus:ring-2 focus:ring-teal-100 transition-all text-sm touch-manipulation"
                               />
                             </div>
                             <div>
-                              <label className="text-xs font-bold text-gray-600 mb-2 block">
+                              <label className="text-xs font-semibold text-gray-500 mb-2 block">
                                 Platform
                               </label>
                               <div className="flex flex-wrap gap-3 md:gap-2">
                                 {PLATFORM_OPTIONS.map((option) => (
                                   <label
                                     key={option}
-                                    className="flex items-center gap-2 md:gap-1 text-sm font-medium py-1 touch-manipulation"
+                                    className="flex items-center gap-2 md:gap-1.5 text-sm font-medium text-gray-600 py-1 touch-manipulation cursor-pointer"
                                   >
                                     <input
                                       type="checkbox"
@@ -582,7 +607,7 @@ export default function RefinePage() {
                                           );
                                         }
                                       }}
-                                      className="accent-blue-500 w-5 h-5 md:w-4 md:h-4"
+                                      className="accent-teal-500 w-5 h-5 md:w-4 md:h-4 rounded"
                                     />
                                     {option}
                                   </label>
@@ -590,7 +615,7 @@ export default function RefinePage() {
                               </div>
                             </div>
                             <div>
-                              <label className="text-xs font-bold text-gray-600 mb-1 block">
+                              <label className="text-xs font-semibold text-gray-500 mb-1 block">
                                 Key Benefits
                               </label>
                               <input
@@ -598,11 +623,11 @@ export default function RefinePage() {
                                 value={keyBenefits}
                                 onChange={(e) => setKeyBenefits(e.target.value)}
                                 placeholder="Main advantages or value"
-                                className="w-full px-3 py-3 md:py-2 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all text-sm touch-manipulation"
+                                className="w-full px-3 py-3 md:py-2.5 bg-white/80 border border-gray-200/80 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-teal-300 focus:ring-2 focus:ring-teal-100 transition-all text-sm touch-manipulation"
                               />
                             </div>
                             <div>
-                              <label className="text-xs font-bold text-gray-600 mb-1 block">
+                              <label className="text-xs font-semibold text-gray-500 mb-1 block">
                                 Main Features
                               </label>
                               <input
@@ -612,7 +637,7 @@ export default function RefinePage() {
                                   setMainFeatures(e.target.value)
                                 }
                                 placeholder="Core features of the concept"
-                                className="w-full px-3 py-3 md:py-2 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all text-sm touch-manipulation"
+                                className="w-full px-3 py-3 md:py-2.5 bg-white/80 border border-gray-200/80 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-teal-300 focus:ring-2 focus:ring-teal-100 transition-all text-sm touch-manipulation"
                               />
                             </div>
                             <div className="relative">
@@ -626,14 +651,14 @@ export default function RefinePage() {
                                 }
                                 placeholder="Other notes, technical ideas, etc. (optional)"
                                 rows={2}
-                                className="w-full px-4 py-3 pr-14 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-100 transition-all resize-none text-sm mt-2 touch-manipulation"
+                                className="w-full px-4 py-3 pr-14 bg-white border-2 border-gray-200 rounded-xl text-gray-700 placeholder:text-gray-400 focus:border-teal-300 focus:ring-2 focus:ring-teal-100 transition-all resize-none text-sm mt-2 touch-manipulation"
                               />
                               <button
                                 onClick={() => toggleRecording("extras")}
                                 className={`absolute right-3 top-5 p-2.5 md:p-2 rounded-xl transition-all touch-manipulation ${
                                   recordingField === "extras"
                                     ? "bg-red-500 text-white hover:bg-red-600"
-                                    : "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                                    : "text-teal-600 hover:bg-teal-50 bg-teal-50 border border-teal-200"
                                 }`}
                                 title={
                                   recordingField === "extras"
@@ -656,7 +681,7 @@ export default function RefinePage() {
                                 )}
                               </button>
                               {recordingField === "extras" && (
-                                <p className="text-xs text-blue-600 mt-1 font-semibold animate-pulse">
+                                <p className="text-xs text-teal-600 mt-1.5 font-medium animate-pulse">
                                   🎤 Listening...
                                 </p>
                               )}
@@ -673,13 +698,23 @@ export default function RefinePage() {
 
           {/* Completed View */}
           {wizardComplete && (
-            <div className="fun-card p-4 md:p-6 border-3 border-green-300 relative overflow-hidden">
+            <div className="fun-card p-4 md:p-6 relative overflow-hidden border-3 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50">
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-200/30 to-transparent rounded-full blur-2xl"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-teal-200/30 to-transparent rounded-full blur-2xl"></div>
+
               <div className="flex items-center gap-3 mb-5 md:mb-6 relative z-10">
-                <div className="bg-gradient-to-br from-green-100 to-emerald-200 p-2.5 rounded-2xl shadow-md">
-                  <CheckCircle2 className="w-6 h-6 text-green-600" />
+                <div
+                  className="p-2.5 rounded-xl"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(209,250,229,0.9) 0%, rgba(167,243,208,0.7) 100%)",
+                    boxShadow:
+                      "0 2px 6px rgba(16, 185, 129, 0.15), inset 0 1px 1px rgba(255,255,255,0.5)",
+                  }}
+                >
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                 </div>
-                <h3 className="text-lg md:text-xl font-black text-gray-800">
+                <h3 className="text-lg md:text-xl font-bold text-gray-800">
                   Ready to Rate! ✨
                 </h3>
               </div>
@@ -700,10 +735,17 @@ export default function RefinePage() {
                   return (
                     <div
                       key={note.id}
-                      className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gradient-to-br from-white to-blue-50/30 rounded-2xl border-3 border-blue-200 shadow-sm hover:border-blue-300 transition-all group"
+                      className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl transition-all group"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.8) 100%)",
+                        border: "1px solid rgba(226, 232, 240, 0.6)",
+                        boxShadow:
+                          "0 2px 6px rgba(163, 177, 198, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
+                      }}
                     >
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-black text-gray-800 flex items-center gap-2 text-sm md:text-base">
+                        <h4 className="font-bold text-gray-800 flex items-center gap-2 text-sm md:text-base">
                           <span>💡</span>
                           {note.text}
                         </h4>
@@ -715,9 +757,9 @@ export default function RefinePage() {
                       </div>
                       <button
                         onClick={() => startEditingConcept(note)}
-                        className="p-2.5 md:p-2 md:opacity-0 md:group-hover:opacity-100 hover:bg-blue-100 rounded-xl transition-all touch-manipulation"
+                        className="p-2.5 md:p-2 md:opacity-0 md:group-hover:opacity-100 hover:bg-teal-50 rounded-xl transition-all touch-manipulation"
                       >
-                        <Edit3 className="w-5 h-5 md:w-4 md:h-4 text-blue-500" />
+                        <Edit3 className="w-5 h-5 md:w-4 md:h-4 text-teal-500" />
                       </button>
                     </div>
                   );

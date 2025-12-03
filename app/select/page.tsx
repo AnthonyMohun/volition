@@ -18,6 +18,8 @@ import {
   Sparkles,
   Trophy,
   X,
+  Rocket,
+  Target,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 
@@ -33,6 +35,7 @@ export default function SelectPage() {
   const [swipeHistory, setSwipeHistory] = useState<
     { id: string; direction: "left" | "right" }[]
   >([]);
+  const [showCompletionCard, setShowCompletionCard] = useState(false);
 
   // Drag state for top card
   const [dragState, setDragState] = useState({
@@ -58,9 +61,21 @@ export default function SelectPage() {
       !selectedConcepts.includes(note.id) && !skippedConcepts.includes(note.id)
   );
 
-  const isComplete =
-    remainingCards.length === 0 || selectedConcepts.length >= maxConcepts;
-  const topCard = remainingCards[0];
+  // Show completion card when all concept cards have been swiped
+  const allCardsReviewed =
+    remainingCards.length === 0 && conceptNotes.length > 0;
+  const hasEnoughConcepts = selectedConcepts.length >= minConcepts;
+  const isComplete = selectedConcepts.length >= maxConcepts;
+  const topCard = showCompletionCard ? null : remainingCards[0];
+
+  // When all cards are reviewed, show completion card
+  useEffect(() => {
+    if (allCardsReviewed && !showCompletionCard) {
+      // Small delay to let the last card animate out
+      const timer = setTimeout(() => setShowCompletionCard(true), 350);
+      return () => clearTimeout(timer);
+    }
+  }, [allCardsReviewed, showCompletionCard]);
 
   // Track when a new card becomes top - skip entrance transition
   useEffect(() => {
@@ -216,6 +231,7 @@ export default function SelectPage() {
     setSelectedConcepts([]);
     setSkippedConcepts([]);
     setSwipeHistory([]);
+    setShowCompletionCard(false);
   };
 
   const getFunColor = (color: string) => {
@@ -319,14 +335,222 @@ export default function SelectPage() {
           </>
         }
       />
-      {/* Main Content - Two Column Layout */}
+      {/* Main Content - Three Column Layout */}
       <div className="flex-1 flex flex-col md:flex-row relative">
+        {/* Left sidebar - Instructions (hidden on mobile) */}
+        <div
+          className="hidden lg:flex w-64 xl:w-72 p-5 flex-col"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.95) 100%)",
+            borderRight: "2px solid rgba(255, 255, 255, 0.6)",
+            boxShadow:
+              "4px 0 16px rgba(163, 177, 198, 0.15), inset -1px 0 2px rgba(163, 177, 198, 0.08), inset 1px 0 2px rgba(255, 255, 255, 0.8)",
+          }}
+        >
+          {/* Tips section */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Lightbulb className="w-4 h-4 text-yellow-500" />
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                Quick Tips
+              </span>
+            </div>
+            <div className="space-y-3">
+              <div
+                className="flex items-start gap-3 p-3 rounded-xl"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,250,252,0.6) 100%)",
+                  border: "1px solid rgba(226, 232, 240, 0.5)",
+                  boxShadow:
+                    "0 2px 6px rgba(163, 177, 198, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
+                }}
+              >
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(220,252,231,0.9) 0%, rgba(187,247,208,0.7) 100%)",
+                    boxShadow: "0 1px 3px rgba(34, 197, 94, 0.1)",
+                  }}
+                >
+                  <Heart className="w-4 h-4 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">
+                    Swipe Right
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Keep concepts that excite you
+                  </p>
+                </div>
+              </div>
+              <div
+                className="flex items-start gap-3 p-3 rounded-xl"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,250,252,0.6) 100%)",
+                  border: "1px solid rgba(226, 232, 240, 0.5)",
+                  boxShadow:
+                    "0 2px 6px rgba(163, 177, 198, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
+                }}
+              >
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(254,226,226,0.9) 0%, rgba(254,202,202,0.7) 100%)",
+                    boxShadow: "0 1px 3px rgba(239, 68, 68, 0.1)",
+                  }}
+                >
+                  <X className="w-4 h-4 text-red-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">
+                    Swipe Left
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Skip concepts to revisit later
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-200/60 to-transparent mb-6" />
+
+          {/* What to look for */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Target className="w-4 h-4 text-teal-500" />
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                What to Consider
+              </span>
+            </div>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="text-teal-500 mt-0.5">•</span>
+                <span>Does this concept solve the core challenge?</span>
+              </li>
+              <li className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="text-teal-500 mt-0.5">•</span>
+                <span>Is it feasible to implement?</span>
+              </li>
+              <li className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="text-teal-500 mt-0.5">•</span>
+                <span>Does it spark your creativity?</span>
+              </li>
+              <li className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="text-teal-500 mt-0.5">•</span>
+                <span>Would users find it valuable?</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Decorative element at bottom */}
+          <div className="mt-auto pt-6">
+            <div
+              className="p-4 rounded-xl"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(240,253,250,0.8) 0%, rgba(239,246,255,0.6) 100%)",
+                border: "1px solid rgba(153, 246, 228, 0.3)",
+                boxShadow:
+                  "0 2px 8px rgba(20, 184, 166, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
+              }}
+            >
+              <div className="text-2xl mb-2">🎯</div>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                <span className="font-semibold text-gray-700">
+                  Focus on quality.
+                </span>{" "}
+                You can always come back to explore more concepts later.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Center - Card swipe area */}
         <div className="flex-1 flex items-center justify-center p-4 md:p-6">
           <div className="flex flex-col items-center gap-4 md:gap-6 w-full max-w-md">
             {/* Card Stack Container */}
             <div className="relative w-full h-[380px] md:h-[450px] flex items-center justify-center">
-              {!isComplete ? (
+              {/* Show completion card at end of stack */}
+              {showCompletionCard ? (
+                <div
+                  className="absolute flex justify-center animate-slide-up"
+                  style={{ zIndex: 20 }}
+                >
+                  <div className="w-full max-w-[300px] md:max-w-[360px] p-6 md:p-8 rounded-3xl border-4 shadow-2xl relative overflow-hidden select-none bg-gradient-to-br from-green-50 via-white to-teal-50 border-green-300">
+                    {/* Decorative elements */}
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-200/40 to-transparent rounded-full blur-2xl"></div>
+                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-teal-200/30 to-transparent rounded-full blur-2xl"></div>
+
+                    <div className="relative z-10 text-center">
+                      <div className="text-6xl mb-4 animate-bounce-in">🎉</div>
+                      <h3 className="text-2xl font-black text-gray-800 mb-2">
+                        All Reviewed!
+                      </h3>
+                      <p className="text-gray-600 font-medium mb-6">
+                        You've selected{" "}
+                        <span
+                          className={`font-bold ${
+                            hasEnoughConcepts
+                              ? "text-green-600"
+                              : "text-orange-500"
+                          }`}
+                        >
+                          {selectedConcepts.length}
+                        </span>{" "}
+                        concept{selectedConcepts.length !== 1 ? "s" : ""}
+                      </p>
+
+                      {hasEnoughConcepts ? (
+                        <div className="space-y-3">
+                          <button
+                            onClick={handleProceedToRefine}
+                            className="w-full fun-button-primary flex items-center justify-center gap-2 font-bold px-6 py-4 text-base"
+                          >
+                            <Rocket className="w-5 h-5" />
+                            Continue to Refine
+                            <ArrowRight className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={handleReset}
+                            className="w-full px-4 py-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
+                          >
+                            <RotateCcw className="w-4 h-4" />
+                            Review Again
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="bg-orange-50 border-2 border-orange-200 rounded-2xl p-4">
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                              <AlertCircle className="w-5 h-5 text-orange-500" />
+                              <span className="font-bold text-orange-700">
+                                Need more concepts
+                              </span>
+                            </div>
+                            <p className="text-sm text-orange-600">
+                              Select at least {minConcepts} concepts to
+                              continue. You have {selectedConcepts.length}.
+                            </p>
+                          </div>
+                          <button
+                            onClick={handleReset}
+                            className="w-full px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-gray-700 transition-all flex items-center justify-center gap-2"
+                          >
+                            <RotateCcw className="w-5 h-5" />
+                            Start Over
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : !isComplete ? (
                 <>
                   {/* Stacked cards behind (rendered first = behind) */}
                   {remainingCards
@@ -508,54 +732,43 @@ export default function SelectPage() {
                   )}
                 </>
               ) : (
-                /* Completion state */
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center fun-card p-10 border-3 border-green-300 bg-gradient-to-br from-green-50 to-white max-w-sm">
-                    <div className="text-7xl mb-5">🎉</div>
-                    <h3 className="text-2xl font-black text-gray-800 mb-3">
-                      All Done!
-                    </h3>
-                    <p className="text-gray-600 font-medium mb-6">
-                      You've selected{" "}
-                      <span className="font-bold text-green-600">
-                        {selectedConcepts.length}
-                      </span>{" "}
-                      concept
-                      {selectedConcepts.length !== 1 ? "s" : ""} to refine
-                    </p>
-                    {selectedConcepts.length >= minConcepts ? (
+                /* Max concepts reached before reviewing all cards */
+                <div
+                  className="absolute flex justify-center animate-slide-up"
+                  style={{ zIndex: 20 }}
+                >
+                  <div className="w-full max-w-[300px] md:max-w-[360px] p-6 md:p-8 rounded-3xl border-4 shadow-2xl relative overflow-hidden select-none bg-gradient-to-br from-green-50 via-white to-teal-50 border-green-300">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-200/40 to-transparent rounded-full blur-2xl"></div>
+                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-teal-200/30 to-transparent rounded-full blur-2xl"></div>
+
+                    <div className="relative z-10 text-center">
+                      <div className="text-6xl mb-4 animate-bounce-in">🏆</div>
+                      <h3 className="text-2xl font-black text-gray-800 mb-2">
+                        Perfect Selection!
+                      </h3>
+                      <p className="text-gray-600 font-medium mb-6">
+                        You've selected{" "}
+                        <span className="font-bold text-green-600">
+                          {maxConcepts}
+                        </span>{" "}
+                        concepts to refine
+                      </p>
                       <button
                         onClick={handleProceedToRefine}
-                        className="fun-button-primary flex items-center gap-2 font-bold px-8 py-4 shadow-lg hover:shadow-green mx-auto text-lg"
+                        className="w-full fun-button-primary flex items-center justify-center gap-2 font-bold px-6 py-4 text-base"
                       >
-                        <Trophy className="w-5 h-5" />
+                        <Rocket className="w-5 h-5" />
                         Continue to Refine
                         <ArrowRight className="w-5 h-5" />
                       </button>
-                    ) : (
-                      <>
-                        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-4">
-                          <p className="text-orange-700 font-semibold flex items-center justify-center gap-2">
-                            <AlertCircle className="w-5 h-5" />
-                            You need at least {minConcepts} concepts
-                          </p>
-                        </div>
-                        <button
-                          onClick={handleReset}
-                          className="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-gray-700 transition-all flex items-center gap-2 mx-auto"
-                        >
-                          <RotateCcw className="w-5 h-5" />
-                          Start Over
-                        </button>
-                      </>
-                    )}
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Controls below cards */}
-            {!isComplete && (
+            {!showCompletionCard && !isComplete && topCard && (
               <div className="flex items-center justify-center gap-6 md:gap-8 mt-4">
                 {/* Skip button */}
                 <button
@@ -600,20 +813,52 @@ export default function SelectPage() {
               </div>
             )}
 
-            {/* Remaining count */}
-            {!isComplete && (
-              <p className="text-sm text-gray-400 font-medium mt-2">
-                {remainingCards.length} card
-                {remainingCards.length !== 1 ? "s" : ""} remaining
-              </p>
+            {/* Progress indicator */}
+            {!showCompletionCard && !isComplete && (
+              <div className="flex flex-col items-center gap-3 mt-4">
+                {/* Progress bar */}
+                <div className="w-48 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-teal-400 to-blue-500 transition-all duration-300"
+                    style={{
+                      width: `${
+                        ((conceptNotes.length - remainingCards.length) /
+                          conceptNotes.length) *
+                        100
+                      }%`,
+                    }}
+                  />
+                </div>
+                <p className="text-sm text-gray-400 font-medium">
+                  {remainingCards.length} card
+                  {remainingCards.length !== 1 ? "s" : ""} remaining
+                </p>
+              </div>
             )}
           </div>
         </div>
 
         {/* Right sidebar - Selected concepts */}
-        <div className="w-full md:w-72 lg:w-80 border-t md:border-t-0 md:border-l border-gray-200/50 bg-white/40 backdrop-blur-sm p-4 md:p-5 flex flex-col md:max-h-none max-h-[30vh] md:overflow-visible overflow-y-auto momentum-scroll">
+        <div
+          className="w-full md:w-72 lg:w-80 p-4 md:p-5 flex flex-col md:max-h-none max-h-[30vh] md:overflow-visible overflow-y-auto momentum-scroll border-t-2 md:border-t-0 md:border-l-2 border-white/60"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.95) 100%)",
+            boxShadow:
+              "-4px 0 16px rgba(163, 177, 198, 0.15), inset 1px 0 2px rgba(163, 177, 198, 0.08), inset -1px 0 2px rgba(255, 255, 255, 0.8)",
+          }}
+        >
           {/* HMW Statement */}
-          <div className="mb-4 md:mb-5">
+          <div
+            className="mb-4 md:mb-5 p-3 rounded-xl"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(239,246,255,0.7) 0%, rgba(240,249,255,0.5) 100%)",
+              border: "1px solid rgba(186, 230, 253, 0.4)",
+              boxShadow:
+                "0 2px 6px rgba(163, 177, 198, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
+            }}
+          >
             <div className="flex items-center gap-2 mb-2">
               <Lightbulb className="w-4 h-4 text-blue-500" />
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -625,49 +870,82 @@ export default function SelectPage() {
             </p>
           </div>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-4 md:mb-5" />
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-200/60 to-transparent mb-4 md:mb-5" />
 
           {/* Selected concepts header */}
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2">
               <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
-              <span className="text-sm font-bold text-gray-700">
+              <span className="text-sm font-semibold text-gray-700">
                 Selected Concepts
               </span>
             </div>
             <div
-              className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                selectedConcepts.length >= minConcepts
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-100 text-gray-600"
-              }`}
+              className="px-2.5 py-1 rounded-full text-xs font-bold"
+              style={{
+                background:
+                  selectedConcepts.length >= minConcepts
+                    ? "linear-gradient(135deg, rgba(220,252,231,0.9) 0%, rgba(187,247,208,0.7) 100%)"
+                    : "linear-gradient(135deg, rgba(255,237,213,0.9) 0%, rgba(254,215,170,0.7) 100%)",
+                color:
+                  selectedConcepts.length >= minConcepts
+                    ? "#15803d"
+                    : "#c2410c",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+              }}
             >
               {selectedConcepts.length}/{maxConcepts}
             </div>
           </div>
 
+          {/* Minimum concepts hint */}
+          {selectedConcepts.length < minConcepts && (
+            <div
+              className="mb-3 p-2.5 rounded-xl flex items-center gap-2"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(255,251,235,0.8) 0%, rgba(254,243,199,0.6) 100%)",
+                border: "1px solid rgba(251, 191, 36, 0.3)",
+                boxShadow: "0 1px 3px rgba(251, 191, 36, 0.08)",
+              }}
+            >
+              <Target className="w-4 h-4 text-amber-500 flex-shrink-0" />
+              <p className="text-xs text-amber-700 font-medium">
+                Select at least {minConcepts} concepts to continue
+              </p>
+            </div>
+          )}
+
           {/* Selected concept slots */}
           <div className="flex-1 flex md:flex-col flex-row gap-2 md:gap-3 overflow-x-auto md:overflow-y-auto md:overflow-x-hidden momentum-scroll">
             {[...Array(maxConcepts)].map((_, idx) => {
               const concept = selectedConceptNotes[idx];
+              const isRequired = idx < minConcepts;
               return (
                 <div
                   key={idx}
-                  className={`relative rounded-2xl transition-all duration-300 flex-shrink-0 md:flex-shrink w-40 md:w-auto ${
+                  className="relative rounded-xl transition-all duration-300 flex-shrink-0 md:flex-shrink w-40 md:w-auto"
+                  style={
                     concept
-                      ? "animate-slide-up"
-                      : "border-2 border-dashed border-gray-200 bg-gray-50/50"
-                  }`}
-                  style={{
-                    backgroundColor: concept
-                      ? getFunColor(concept.color)
-                      : undefined,
-                    borderColor: concept
-                      ? getAccentColor(concept.color)
-                      : undefined,
-                    borderWidth: concept ? "2px" : undefined,
-                    borderStyle: concept ? "solid" : undefined,
-                  }}
+                      ? {
+                          background: `linear-gradient(135deg, ${getFunColor(
+                            concept.color
+                          )}ee 0%, ${getFunColor(concept.color)}cc 100%)`,
+                          border: `1px solid ${getAccentColor(
+                            concept.color
+                          )}60`,
+                          boxShadow:
+                            "0 2px 8px rgba(163, 177, 198, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.6)",
+                        }
+                      : {
+                          background: isRequired
+                            ? "linear-gradient(135deg, rgba(255,251,235,0.4) 0%, rgba(254,243,199,0.3) 100%)"
+                            : "linear-gradient(135deg, rgba(248,250,252,0.5) 0%, rgba(241,245,249,0.4) 100%)",
+                          border: isRequired
+                            ? "1px dashed rgba(251, 191, 36, 0.4)"
+                            : "1px dashed rgba(203, 213, 225, 0.6)",
+                        }
+                  }
                 >
                   {concept ? (
                     <div className="p-3">
@@ -686,9 +964,16 @@ export default function SelectPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-3 md:p-4 flex items-center justify-center">
-                      <span className="text-sm text-gray-400 font-medium">
-                        Slot {idx + 1}
+                    <div className="p-3 md:p-4 flex items-center justify-center gap-2">
+                      {isRequired && (
+                        <Star className="w-3 h-3 text-amber-400" />
+                      )}
+                      <span
+                        className={`text-sm font-medium ${
+                          isRequired ? "text-amber-500" : "text-gray-400"
+                        }`}
+                      >
+                        {isRequired ? "Required" : "Optional"}
                       </span>
                     </div>
                   )}
@@ -697,14 +982,14 @@ export default function SelectPage() {
             })}
           </div>
 
-          {/* Continue button at bottom of sidebar */}
-          {selectedConcepts.length >= minConcepts && (
-            <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200/50">
+          {/* Continue button at bottom of sidebar - only show when NOT on completion card */}
+          {selectedConcepts.length >= minConcepts && !showCompletionCard && (
+            <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200/30">
               <button
                 onClick={handleProceedToRefine}
                 className="w-full fun-button-primary flex items-center justify-center gap-2 font-bold text-sm touch-target"
               >
-                <Trophy className="w-4 h-4" />
+                <Rocket className="w-4 h-4" />
                 Continue to Refine
                 <ArrowRight className="w-4 h-4" />
               </button>
@@ -712,7 +997,7 @@ export default function SelectPage() {
           )}
 
           {/* Keyboard hints - hidden on touch devices */}
-          <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200/50 hidden md:block">
+          <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200/30 hidden md:block">
             <div className="flex items-center gap-2 mb-2">
               <Keyboard className="w-3.5 h-3.5 text-gray-400" />
               <span className="text-xs font-medium text-gray-400">
@@ -721,19 +1006,43 @@ export default function SelectPage() {
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center gap-1.5 text-gray-500">
-                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
+                <kbd
+                  className="px-1.5 py-0.5 rounded text-[10px] font-mono"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(248,250,252,0.9) 0%, rgba(241,245,249,0.8) 100%)",
+                    border: "1px solid rgba(203, 213, 225, 0.5)",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                  }}
+                >
                   ←
                 </kbd>
                 <span>Skip</span>
               </div>
               <div className="flex items-center gap-1.5 text-gray-500">
-                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
+                <kbd
+                  className="px-1.5 py-0.5 rounded text-[10px] font-mono"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(248,250,252,0.9) 0%, rgba(241,245,249,0.8) 100%)",
+                    border: "1px solid rgba(203, 213, 225, 0.5)",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                  }}
+                >
                   →
                 </kbd>
                 <span>Keep</span>
               </div>
               <div className="flex items-center gap-1.5 text-gray-500 col-span-2">
-                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono">
+                <kbd
+                  className="px-1.5 py-0.5 rounded text-[10px] font-mono"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(248,250,252,0.9) 0%, rgba(241,245,249,0.8) 100%)",
+                    border: "1px solid rgba(203, 213, 225, 0.5)",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                  }}
+                >
                   ⌘Z
                 </kbd>
                 <span>Undo last action</span>
