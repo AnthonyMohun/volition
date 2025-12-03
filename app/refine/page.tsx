@@ -314,7 +314,7 @@ export default function RefinePage() {
 
       <PageHeader
         title="Refine Concepts"
-        icon={<Pencil className="w-5 h-5 text-blue-500" />}
+        icon={<Pencil className="w-5 h-5 text-teal-500" />}
         backPath="/select"
         onNewProject={handleStartNewProject}
         rightContent={

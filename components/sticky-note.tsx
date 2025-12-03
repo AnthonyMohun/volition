@@ -265,6 +265,19 @@ export function StickyNote({
     return shadowMap[color] || "rgba(163, 177, 198, 0.3)";
   };
 
+  // Get darker accent color for text (better readability)
+  const getDarkerAccentColor = (color: string) => {
+    const darkerMap: Record<string, string> = {
+      "#fef3c7": "#b45309", // yellow -> amber-700
+      "#fecaca": "#b91c1c", // red -> red-700
+      "#bbf7d0": "#047857", // green -> emerald-700
+      "#bfdbfe": "#1d4ed8", // blue -> blue-700
+      "#dbeafe": "#1e40af", // light blue -> blue-800
+      "#dcfce7": "#0f766e", // light teal -> teal-700
+    };
+    return darkerMap[color] || "#374151";
+  };
+
   return (
     <>
       <div
@@ -417,15 +430,15 @@ export function StickyNote({
         {/* Source Question - Permanent display when note was created from AI panel */}
         {note.sourceQuestion && (
           <div
-            className="mb-3 p-2.5 rounded-xl border opacity-80"
+            className="mb-3 p-2.5 rounded-xl"
             style={{
               backgroundColor: `${getAccentColor(note.color)}15`,
-              borderColor: `${getAccentColor(note.color)}40`,
+              border: `2px solid ${getAccentColor(note.color)}`,
             }}
           >
             <p
-              className="text-xs font-semibold leading-relaxed"
-              style={{ color: getAccentColor(note.color) }}
+              className="text-sm font-bold leading-relaxed"
+              style={{ color: getDarkerAccentColor(note.color) }}
             >
               {note.sourceQuestion}
             </p>
@@ -461,7 +474,7 @@ export function StickyNote({
           </div>
         ) : (
           <p
-            className="text-sm text-gray-800 whitespace-pre-wrap break-words cursor-text leading-relaxed font-bold"
+            className="text-sm text-gray-800 whitespace-pre-wrap break-words cursor-text leading-relaxed font-semibold"
             onClick={() => {
               setEditText(note.text);
               setIsEditing(true);
@@ -486,11 +499,13 @@ export function StickyNote({
               style={{
                 backgroundColor: isDelvingDeeper
                   ? "#e5e7eb"
-                  : `${getAccentColor(note.color)}20`,
-                color: isDelvingDeeper ? "#9ca3af" : getAccentColor(note.color),
+                  : `${getAccentColor(note.color)}15`,
+                color: isDelvingDeeper
+                  ? "#9ca3af"
+                  : getDarkerAccentColor(note.color),
                 border: `2px solid ${
                   isDelvingDeeper ? "#d1d5db" : getAccentColor(note.color)
-                }50`,
+                }`,
               }}
               title="Ask AI to help you explore this idea deeper"
             >

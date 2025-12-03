@@ -297,7 +297,7 @@ export default function SelectPage() {
 
       <PageHeader
         title="Concept Selection"
-        icon={<Sparkles className="w-5 h-5 text-blue-500" />}
+        icon={<Sparkles className="w-5 h-5 text-teal-500" />}
         backPath="/canvas"
         onNewProject={handleStartNewProject}
         rightContent={

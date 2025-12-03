@@ -88,10 +88,12 @@ export default function Home() {
       <div className="max-w-3xl w-full relative z-10">
         {/* Hero Section */}
         <div className="text-center mb-8 md:mb-12">
-          <h1 className="text-5xl md:text-7xl font-black fun-gradient-text tracking-tight mb-3 md:mb-4">
-            Volition
-          </h1>
-          <p className="text-gray-700 text-lg md:text-2xl font-bold px-4">
+          <img
+            src="/logo.png"
+            alt="Volition"
+            className="h-24 md:h-32 mx-auto mb-3 md:mb-4"
+          />
+          <p className="text-gray-700 text-lg md:text-2xl font-bold px-4 max-w-md mx-auto">
             Transform design challenges into clear, actionable concepts
           </p>
         </div>

@@ -837,14 +837,7 @@ export function AIQuestionPanel({
         <button
           onClick={askNextQuestion}
           disabled={isLoading || stateRef.current.notes.length === 0}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-semibold text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-          style={{
-            background: "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)",
-            boxShadow:
-              isLoading || stateRef.current.notes.length === 0
-                ? "none"
-                : "0 4px 12px rgba(20, 184, 166, 0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
-          }}
+          className="fun-button-primary w-full flex items-center justify-center gap-2 !py-2.5 !px-4 !rounded-xl !text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:transform-none"
         >
           <Sparkles className="w-4 h-4" />
           <span>{isLoading ? "Thinking..." : "Ask Next Question"}</span>

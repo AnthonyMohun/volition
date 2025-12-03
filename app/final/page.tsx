@@ -754,7 +754,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
 
         <PageHeader
           title="AI Concept Evaluation"
-          icon={<Bot className="w-5 h-5 text-blue-500" />}
+          icon={<Bot className="w-5 h-5 text-teal-500" />}
           backPath="/refine"
           subtitle="See how your concepts measure up"
           rightContent={
@@ -1429,7 +1429,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
 
       <PageHeader
         title="Rate Your Concepts"
-        icon={<Target className="w-5 h-5 text-blue-500" />}
+        icon={<Target className="w-5 h-5 text-teal-500" />}
         backPath="/refine"
         onNewProject={handleStartOver}
         subtitle={`Step ${currentStep} of ${totalSteps}`}

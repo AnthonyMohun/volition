@@ -829,7 +829,7 @@ export default function CanvasPage() {
     <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-teal-50 to-yellow-50">
       <PageHeader
         title="Ideation Canvas"
-        icon={<Palette className="w-5 h-5 text-blue-500" />}
+        icon={<Palette className="w-5 h-5 text-teal-500" />}
         onNewProject={handleStartNewProject}
         subtitle={state.hmwStatement}
         rightContent={
