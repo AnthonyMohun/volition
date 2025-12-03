@@ -8,6 +8,7 @@ import { DraggableNote } from "@/components/draggable-note";
 import { AIQuestionPanel } from "@/components/ai-question-panel";
 import { CanvasControls } from "@/components/canvas-controls";
 import { CanvasMinimap } from "@/components/canvas-minimap";
+import { NoteConnections } from "@/components/note-connections";
 import { snapToGrid, calculateAlignmentGuides } from "@/components/canvas-grid";
 import {
   DndContext,
@@ -35,6 +36,7 @@ import { findNonOverlappingPosition } from "@/lib/utils";
 import {
   askAI,
   SOCRATIC_SYSTEM_PROMPT,
+  DELVE_DEEPER_SYSTEM_PROMPT,
   buildConversationContext,
 } from "@/lib/ai-client";
 import { speak, isSpeechSynthesisSupported } from "@/lib/speech";
@@ -46,6 +48,8 @@ export default function CanvasPage() {
     addNote,
     updateNote,
     deleteNote,
+    addConnection,
+    deleteConnection,
     addQuestion,
     setPhase,
     resetSession,
@@ -99,6 +103,15 @@ export default function CanvasPage() {
 
   // Delve deeper state - tracks which note is currently being processed
   const [delvingNoteId, setDelvingNoteId] = useState<string | null>(null);
+
+  // Link mode state - for creating connections between notes
+  const [linkingFromNoteId, setLinkingFromNoteId] = useState<string | null>(
+    null
+  );
+  const [linkPreviewPos, setLinkPreviewPos] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
 
   const GRID_SIZE = 40;
   const CANVAS_WIDTH = 4000;
@@ -637,7 +650,7 @@ export default function CanvasPage() {
     });
   };
 
-  // Delve deeper handler for individual notes
+  // Delve deeper handler - asks a question to develop a specific note
   const handleDelveDeeper = useCallback(
     async (noteId: string, noteText: string) => {
       if (!noteText.trim()) {
@@ -648,19 +661,16 @@ export default function CanvasPage() {
       setDelvingNoteId(noteId);
 
       try {
-        // Build context using only the HMW statement and this specific note
-        const context = buildConversationContext(
-          state.hmwStatement,
-          [{ text: noteText } as any],
-          []
-        );
-
         const response = await askAI([
-          { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
-          { role: "user", content: context },
+          { role: "system", content: DELVE_DEEPER_SYSTEM_PROMPT },
           {
             role: "user",
-            content: `My note: "${noteText}"\n\nAsk ONE question that helps me develop THIS idea into a real concept. Ask about: specific features, target users, how it works, or what makes it unique. Under 15 words. Just the question.`,
+            content: `The design challenge is: "${state.hmwStatement}"
+
+The student wrote this idea on their sticky note:
+"${noteText}"
+
+Ask ONE question about their specific idea to help them develop it further.`,
           },
         ]);
 
@@ -672,14 +682,13 @@ export default function CanvasPage() {
           timestamp: Date.now(),
         });
 
-        showToast("🔍 New question added to the AI panel!");
+        showToast("New question added!");
 
-        // Auto-speak the AI response if voice output is enabled
         if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
           try {
             await speak(response);
           } catch (err) {
-            console.warn("TTS failed for delve deeper:", err);
+            console.warn("TTS failed:", err);
           }
         }
       } catch (err) {
@@ -690,6 +699,112 @@ export default function CanvasPage() {
       }
     },
     [state.hmwStatement, state.voiceOutputEnabled, addQuestion, showToast]
+  );
+
+  // Link mode handlers - initiated from sticky note link button
+  const handleStartLinking = useCallback(
+    (noteId: string) => {
+      if (linkingFromNoteId === noteId) {
+        // Clicking same note cancels linking
+        setLinkingFromNoteId(null);
+        setLinkPreviewPos(null);
+        showToast("Link cancelled");
+      } else if (linkingFromNoteId) {
+        // Already linking from another note - create connection
+        const existingConnection = (state.connections || []).find(
+          (c) =>
+            (c.fromNoteId === linkingFromNoteId && c.toNoteId === noteId) ||
+            (c.fromNoteId === noteId && c.toNoteId === linkingFromNoteId)
+        );
+
+        if (existingConnection) {
+          showToast("These notes are already connected!");
+        } else {
+          addConnection({
+            id: `conn-${Date.now()}`,
+            fromNoteId: linkingFromNoteId,
+            toNoteId: noteId,
+            type: "relates",
+            createdAt: Date.now(),
+          });
+          showToast("🔗 Notes linked!");
+        }
+        setLinkingFromNoteId(null);
+        setLinkPreviewPos(null);
+      } else {
+        // Start linking from this note
+        setLinkingFromNoteId(noteId);
+        showToast("Now click another note's link button to connect");
+      }
+    },
+    [linkingFromNoteId, state.connections, addConnection, showToast]
+  );
+
+  const handleNoteClickForLink = useCallback(
+    (noteId: string, event: React.MouseEvent) => {
+      if (!linkingFromNoteId) return;
+
+      event.stopPropagation();
+
+      if (linkingFromNoteId === noteId) {
+        // Clicked same note - cancel
+        setLinkingFromNoteId(null);
+        setLinkPreviewPos(null);
+        showToast("Link cancelled");
+      } else {
+        // Create connection
+        // Check if connection already exists
+        const existingConnection = (state.connections || []).find(
+          (c) =>
+            (c.fromNoteId === linkingFromNoteId && c.toNoteId === noteId) ||
+            (c.fromNoteId === noteId && c.toNoteId === linkingFromNoteId)
+        );
+
+        if (existingConnection) {
+          showToast("These notes are already connected!");
+        } else {
+          addConnection({
+            id: `conn-${Date.now()}`,
+            fromNoteId: linkingFromNoteId,
+            toNoteId: noteId,
+            type: "relates",
+            createdAt: Date.now(),
+          });
+          showToast("🔗 Notes linked!");
+        }
+
+        // Reset linking state
+        setLinkingFromNoteId(null);
+        setLinkPreviewPos(null);
+      }
+    },
+    [linkingFromNoteId, state.connections, addConnection, showToast]
+  );
+
+  // Update link preview position when mouse moves while linking
+  const handleCanvasMouseMoveForLink = useCallback(
+    (e: React.MouseEvent) => {
+      if (!linkingFromNoteId || !containerRef.current) return;
+
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const cursorViewX = e.clientX - containerRect.left;
+      const cursorViewY = e.clientY - containerRect.top;
+
+      // Convert to canvas coordinates
+      const canvasX = (cursorViewX - panX) / zoom;
+      const canvasY = (cursorViewY - panY) / zoom;
+
+      setLinkPreviewPos({ x: canvasX, y: canvasY });
+    },
+    [linkingFromNoteId, panX, panY, zoom]
+  );
+
+  const handleDeleteConnection = useCallback(
+    (connectionId: string) => {
+      deleteConnection(connectionId);
+      showToast("Connection removed");
+    },
+    [deleteConnection, showToast]
   );
 
   const handleDragMove = (event: DragMoveEvent) => {
@@ -863,9 +978,14 @@ export default function CanvasPage() {
         {/* Main Canvas */}
         <div
           ref={containerRef}
-          className="flex-1 relative overflow-hidden bg-gradient-to-br from-blue-50/30 via-transparent to-teal-50/30 touch-none"
+          className={`flex-1 relative overflow-hidden bg-gradient-to-br from-blue-50/30 via-transparent to-teal-50/30 touch-none ${
+            linkingFromNoteId ? "cursor-crosshair" : ""
+          }`}
           onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
+          onMouseMove={(e) => {
+            handleMouseMove(e);
+            handleCanvasMouseMoveForLink(e);
+          }}
           onMouseUp={handleMouseUp}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -878,8 +998,20 @@ export default function CanvasPage() {
             if (!target.closest("[data-note]")) {
               (document.activeElement as HTMLElement)?.blur();
             }
+            // Cancel link mode if clicking on empty canvas
+            if (linkingFromNoteId && !target.closest("[data-note]")) {
+              setLinkingFromNoteId(null);
+              setLinkPreviewPos(null);
+              showToast("Link cancelled");
+            }
           }}
-          style={{ cursor: isPanning ? "grabbing" : "default" }}
+          style={{
+            cursor: isPanning
+              ? "grabbing"
+              : linkingFromNoteId
+              ? "crosshair"
+              : "default",
+          }}
         >
           <div
             ref={canvasRef}
@@ -891,6 +1023,18 @@ export default function CanvasPage() {
               transformOrigin: "0 0",
             }}
           >
+            {/* Note Connections */}
+            <NoteConnections
+              notes={state.notes}
+              connections={state.connections || []}
+              onDeleteConnection={handleDeleteConnection}
+              canvasWidth={CANVAS_WIDTH}
+              canvasHeight={CANVAS_HEIGHT}
+              linkingFrom={linkingFromNoteId}
+              linkingTo={linkPreviewPos}
+              linkType="relates"
+            />
+
             {/* Alignment Guides */}
             {isDragging && (
               <>
@@ -961,22 +1105,41 @@ export default function CanvasPage() {
               onDragMove={handleDragMove}
               onDragEnd={handleDragEnd}
             >
-              {state.notes.map((note) => (
-                <div
-                  key={note.id}
-                  style={{ position: "absolute", left: note.x, top: note.y }}
-                >
-                  <DraggableNote
-                    note={note}
-                    onUpdate={(updates) => updateNote(note.id, updates)}
-                    onDelete={() => deleteNote(note)}
-                    onDelveDeeper={(noteText) =>
-                      handleDelveDeeper(note.id, noteText)
-                    }
-                    isDelvingDeeper={delvingNoteId === note.id}
-                  />
-                </div>
-              ))}
+              {state.notes.map((note) => {
+                // Count connections for this note
+                const connectionCount = (state.connections || []).filter(
+                  (c) => c.fromNoteId === note.id || c.toNoteId === note.id
+                ).length;
+
+                return (
+                  <div
+                    key={note.id}
+                    style={{ position: "absolute", left: note.x, top: note.y }}
+                    onClick={(e) => handleNoteClickForLink(note.id, e)}
+                    className={`${
+                      linkingFromNoteId
+                        ? linkingFromNoteId === note.id
+                          ? "ring-4 ring-blue-400 ring-offset-2 rounded-3xl"
+                          : "hover:ring-2 hover:ring-blue-300 hover:ring-offset-1 rounded-3xl cursor-pointer"
+                        : ""
+                    }`}
+                  >
+                    <DraggableNote
+                      note={note}
+                      onUpdate={(updates) => updateNote(note.id, updates)}
+                      onDelete={() => deleteNote(note)}
+                      onDelveDeeper={(noteText) =>
+                        handleDelveDeeper(note.id, noteText)
+                      }
+                      isDelvingDeeper={delvingNoteId === note.id}
+                      onStartLinking={handleStartLinking}
+                      isLinkingFrom={linkingFromNoteId === note.id}
+                      isLinkingMode={!!linkingFromNoteId}
+                      connectionCount={connectionCount}
+                    />
+                  </div>
+                );
+              })}
             </DndContext>
 
             {state.notes.length === 0 && (

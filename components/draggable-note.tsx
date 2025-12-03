@@ -11,6 +11,11 @@ interface DraggableNoteProps {
   onDelete: () => void;
   onDelveDeeper?: (noteText: string) => void;
   isDelvingDeeper?: boolean;
+  // Link mode props
+  onStartLinking?: (noteId: string) => void;
+  isLinkingFrom?: boolean;
+  isLinkingMode?: boolean;
+  connectionCount?: number;
 }
 
 export function DraggableNote({
@@ -19,6 +24,10 @@ export function DraggableNote({
   onDelete,
   onDelveDeeper,
   isDelvingDeeper,
+  onStartLinking,
+  isLinkingFrom,
+  isLinkingMode,
+  connectionCount,
 }: DraggableNoteProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -45,6 +54,10 @@ export function DraggableNote({
         dragHandleProps={{ ...listeners, ...attributes }}
         onDelveDeeper={onDelveDeeper}
         isDelvingDeeper={isDelvingDeeper}
+        onStartLinking={onStartLinking}
+        isLinkingFrom={isLinkingFrom}
+        isLinkingMode={isLinkingMode}
+        connectionCount={connectionCount}
       />
     </div>
   );

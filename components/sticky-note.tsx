@@ -17,10 +17,11 @@ import {
   Minimize2,
   Eye,
   Loader2,
+  Link2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DrawingCanvas, DrawingCanvasHandle } from "./drawing-canvas";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface StickyNoteProps {
   note: StickyNoteType;
@@ -30,6 +31,11 @@ interface StickyNoteProps {
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
   onDelveDeeper?: (noteText: string) => void;
   isDelvingDeeper?: boolean;
+  // Link mode props
+  onStartLinking?: (noteId: string) => void;
+  isLinkingFrom?: boolean;
+  isLinkingMode?: boolean; // true when any note is being linked
+  connectionCount?: number;
 }
 
 export function StickyNote({
@@ -40,6 +46,10 @@ export function StickyNote({
   dragHandleProps,
   onDelveDeeper,
   isDelvingDeeper,
+  onStartLinking,
+  isLinkingFrom,
+  isLinkingMode,
+  connectionCount = 0,
 }: StickyNoteProps) {
   // Start in edit mode if this is a newly created note
   const [isEditing, setIsEditing] = useState(note.isNewNote || false);
@@ -51,6 +61,7 @@ export function StickyNote({
   const [showDrawingModal, setShowDrawingModal] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isRecordingDetails, setIsRecordingDetails] = useState(false);
+  const [isNoteHovered, setIsNoteHovered] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const drawingCanvasRef = useRef<DrawingCanvasHandle>(null);
@@ -282,6 +293,8 @@ export function StickyNote({
     <>
       <div
         {...dragHandleProps}
+        onMouseEnter={() => setIsNoteHovered(true)}
+        onMouseLeave={() => setIsNoteHovered(false)}
         className={cn(
           "w-56 md:w-64 p-4 md:p-5 rounded-3xl transition-all cursor-move relative no-select",
           isDragging && "opacity-60 scale-95",
@@ -522,6 +535,47 @@ export function StickyNote({
               )}
             </button>
           </div>
+        )}
+
+        {/* Link Button Footer - visible on hover only when NOT in linking mode */}
+        {onStartLinking && (
+          <AnimatePresence>
+            {(isNoteHovered || isLinkingFrom) && !isLinkingMode && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.15 }}
+                className="mt-3 pt-3 border-t border-gray-200/60 flex justify-center overflow-hidden"
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStartLinking(note.id);
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center transition-all relative",
+                    isLinkingFrom
+                      ? "bg-blue-500 text-white shadow-lg scale-110"
+                      : "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
+                  )}
+                  title={
+                    isLinkingFrom
+                      ? "Click another note to link"
+                      : "Link to another note"
+                  }
+                >
+                  <Link2 className="w-4 h-4" />
+                  {connectionCount > 0 && !isLinkingFrom && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                      {connectionCount}
+                    </span>
+                  )}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
 
         {/* Hidden file input */}

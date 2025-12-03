@@ -9,6 +9,8 @@ import {
   OPENING_QUESTIONS,
   DEEPENING_QUESTIONS,
   EXPANSION_QUESTIONS,
+  UNSTUCK_QUESTIONS,
+  SYNTHESIS_QUESTIONS,
   buildConversationContext,
   MessageRole,
 } from "@/lib/ai-client";
@@ -39,12 +41,10 @@ import { findNonOverlappingPosition } from "@/lib/utils";
 
 // Stuck detection: nudge messages when user hasn't added notes in 5 minutes
 const STUCK_NUDGE_MESSAGES = [
-  "Feeling stuck? Let's try a different angle 🔄",
-  "Take a breath! What's one wild idea you haven't explored? 🌟",
-  "Sometimes the best ideas come from constraints—what if you couldn't use technology?",
-  "What would a 5-year-old suggest for this problem? 👶",
-  "Flip it: What's the opposite of what you've been thinking?",
-  "What's the most obvious solution you've been avoiding?",
+  "Stuck? Try thinking about who has this problem the most.",
+  "What's the simplest version of your idea?",
+  "What would make someone try this today?",
+  "What's one thing you haven't considered yet?",
 ];
 
 const STUCK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
@@ -207,7 +207,7 @@ export function AIQuestionPanel({
         { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
         {
           role: "user",
-          content: `${context}\n\nAsk me ONE opening question to start generating concepts. Focus on understanding the problem space or target users. Keep it under 15 words. Just the question, nothing else.`,
+          content: `${context}\n\nAsk ONE opening question to get them started. Under 15 words.`,
         },
       ]);
 
@@ -219,7 +219,6 @@ export function AIQuestionPanel({
         timestamp: Date.now(),
       });
 
-      // Auto-speak first AI response if voice output is enabled and user is not currently recording
       trySpeak(response);
     } catch (err) {
       setError(
@@ -236,7 +235,6 @@ export function AIQuestionPanel({
     setError(null);
 
     try {
-      // Pass ALL notes to give AI full visibility of explored themes
       const allNotes = stateRef.current.notes;
       const concepts = stateRef.current.concepts.map((c) => ({
         title: c.title,
@@ -255,7 +253,7 @@ export function AIQuestionPanel({
         { role: "user", content: context },
       ];
 
-      // Add recent Q&A history
+      // Add recent Q&A history for continuity
       const recentQuestions = stateRef.current.questions.slice(-3);
       recentQuestions.forEach((q) => {
         const role: MessageRole = q.fromAI ? "assistant" : "user";
@@ -265,10 +263,21 @@ export function AIQuestionPanel({
         });
       });
 
+      // Simple instruction based on progress
+      let instruction =
+        "Ask ONE question to help them develop their ideas. Under 15 words.";
+
+      if (allNotes.length === 0) {
+        instruction =
+          "They haven't written anything yet. Ask a simple question to get them started.";
+      } else if (allNotes.length >= 5) {
+        instruction =
+          "They have several ideas. Ask a question to help them pick or combine the best ones.";
+      }
+
       messages.push({
         role: "user" as const,
-        content:
-          "Review all my notes above. Ask ONE question that guides me toward a DIFFERENT angle, perspective, or theme NOT already explored in my existing notes. Help me think divergently. Under 15 words. Just the question.",
+        content: instruction,
       });
 
       const response = await askAI(messages);
@@ -281,7 +290,6 @@ export function AIQuestionPanel({
         timestamp: Date.now(),
       });
 
-      // Auto-speak AI response if voice output is enabled and user is not currently recording
       trySpeak(response);
     } catch (err) {
       setError("Failed to get next question from AI.");
@@ -625,10 +633,10 @@ export function AIQuestionPanel({
               <Sparkles className="w-7 h-7 text-teal-500" />
             </div>
             <p className="font-bold text-gray-700 text-sm mb-1">
-              Ready to explore!
+              Ready to help!
             </p>
             <p className="text-xs text-gray-500">
-              Questions will appear here to guide your ideation
+              Questions will appear here to guide your thinking
             </p>
           </div>
         )}
@@ -837,16 +845,16 @@ export function AIQuestionPanel({
       >
         <button
           onClick={askNextQuestion}
-          disabled={isLoading || stateRef.current.notes.length === 0}
+          disabled={isLoading}
           className="fun-button-primary w-full flex items-center justify-center gap-2 !py-2.5 !px-4 !rounded-xl !text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:transform-none"
         >
           <Sparkles className="w-4 h-4" />
-          <span>{isLoading ? "Thinking..." : "Ask Next Question"}</span>
+          <span>{isLoading ? "Thinking..." : "Next Question"}</span>
         </button>
         <p className="text-xs text-gray-500 mt-2.5 text-center">
           {stateRef.current.notes.length === 0
             ? "Add some notes to get started"
-            : "Use 'Delve Deeper' on any note to explore ideas"}
+            : "Click 'Delve Deeper' on any note to explore it"}
         </p>
       </div>
     </div>

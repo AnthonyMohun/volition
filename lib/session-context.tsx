@@ -22,6 +22,7 @@ import {
   AIQuestion,
   Concept,
   ConceptEvaluation,
+  NoteConnection,
 } from "./types";
 
 interface SessionContextType {
@@ -30,6 +31,9 @@ interface SessionContextType {
   addNote: (note: StickyNote) => void;
   updateNote: (id: string, updates: Partial<StickyNote>) => void;
   deleteNote: (note: StickyNote) => void;
+  addConnection: (connection: NoteConnection) => void;
+  deleteConnection: (connectionId: string) => void;
+  updateConnection: (id: string, updates: Partial<NoteConnection>) => void;
   addQuestion: (question: AIQuestion) => void;
   markQuestionAnswered: (id: string) => void;
   toggleQuestionAnswered: (id: string) => void;
@@ -166,7 +170,37 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteNote = (note: StickyNote) => {
+    // Also delete any connections involving this note
+    setState((prev) => ({
+      ...prev,
+      connections: prev.connections.filter(
+        (c) => c.fromNoteId !== note.id && c.toNoteId !== note.id
+      ),
+    }));
     pushCommand(new DeleteNoteCommand(note));
+  };
+
+  const addConnection = (connection: NoteConnection) => {
+    setState((prev) => ({
+      ...prev,
+      connections: [...prev.connections, connection],
+    }));
+  };
+
+  const deleteConnection = (connectionId: string) => {
+    setState((prev) => ({
+      ...prev,
+      connections: prev.connections.filter((c) => c.id !== connectionId),
+    }));
+  };
+
+  const updateConnection = (id: string, updates: Partial<NoteConnection>) => {
+    setState((prev) => ({
+      ...prev,
+      connections: prev.connections.map((c) =>
+        c.id === id ? { ...c, ...updates } : c
+      ),
+    }));
   };
 
   const addQuestion = (question: AIQuestion) => {
@@ -246,6 +280,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       ...INITIAL_SESSION_STATE,
       projectId: `proj-${Date.now()}`,
       createdAt: Date.now(),
+      connections: [],
     });
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
@@ -318,6 +353,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         addNote,
         updateNote,
         deleteNote,
+        addConnection,
+        deleteConnection,
+        updateConnection,
         addQuestion,
         markQuestionAnswered,
         toggleQuestionAnswered,

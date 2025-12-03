@@ -48,6 +48,28 @@ export interface StickyNote {
   mainFeatures?: string;
 }
 
+// Connection type for linking notes together
+export type ConnectionType = "relates" | "causes" | "supports" | "contradicts";
+
+export interface NoteConnection {
+  id: string;
+  fromNoteId: string;
+  toNoteId: string;
+  type: ConnectionType;
+  label?: string;
+  createdAt: number;
+}
+
+export const CONNECTION_TYPES: Record<
+  ConnectionType,
+  { label: string; emoji: string; color: string }
+> = {
+  relates: { label: "Relates to", emoji: "🔗", color: "#60a5fa" }, // blue
+  causes: { label: "Leads to", emoji: "➡️", color: "#34d399" }, // green
+  supports: { label: "Supports", emoji: "💪", color: "#a78bfa" }, // purple
+  contradicts: { label: "Contradicts", emoji: "⚡", color: "#f87171" }, // red
+};
+
 export interface AIQuestion {
   id: string;
   text: string;
@@ -216,6 +238,7 @@ export interface SessionState {
   projectId: string;
   hmwStatement: string;
   notes: StickyNote[];
+  connections: NoteConnection[];
   questions: AIQuestion[];
   concepts: Concept[];
   evaluations: ConceptEvaluation[];
@@ -241,6 +264,7 @@ export const INITIAL_SESSION_STATE: SessionState = {
   projectId: "",
   hmwStatement: "",
   notes: [],
+  connections: [],
   questions: [],
   concepts: [],
   evaluations: [],

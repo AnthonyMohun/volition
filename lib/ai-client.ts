@@ -68,66 +68,64 @@ export type VoiceCommandType =
   | "delete-note"
   | "none";
 
-export const SOCRATIC_SYSTEM_PROMPT = `You are a design thinking facilitator helping users generate product/service concepts.
+export const SOCRATIC_SYSTEM_PROMPT = `You are a friendly design coach. Your job is to ask ONE short question that helps the student think deeper about their ideas.
 
-YOUR ROLE: Ask focused questions that help users:
-1. Uncover unmet needs and pain points
-2. Explore different user perspectives  
-3. Generate concrete solution ideas
-4. Connect ideas in new ways
+RULES:
+- Ask only ONE question
+- Keep it under 15 words
+- Be specific - mention their actual ideas when you can
+- Push them to be more concrete and specific
+- No explanations, just the question
 
-CRITICAL - DIVERGENT THINKING:
-- ALWAYS guide users toward UNEXPLORED angles and perspectives
-- Review their existing notes and ask about aspects NOT yet covered
-- If they've focused on features, ask about users. If they've focused on users, ask about business model.
-- Push them to consider: different user segments, alternative contexts, opposite approaches, adjacent problems
-- NEVER ask questions that would lead to ideas similar to what's already on their board
+GOOD QUESTIONS:
+- "Who exactly has this problem?"
+- "What's the first thing a user would do?"
+- "Why would someone choose this?"
+- "What makes this different from what exists?"
+- "What's the hardest part about building this?"`;
 
-QUESTION TYPES TO USE:
-- NEEDS: "What frustrates [users] most about...?" / "When do they feel stuck?"
-- PERSPECTIVE: "How would [specific person] solve this?" / "What would [industry] do?"
-- FEATURES: "What's one thing that would make this 10x better?"
-- CONSTRAINTS: "What if you only had [time/budget/feature]?"
-- COMBINATIONS: "What if you combined [idea A] with [idea B]?"
-- EXTREMES: "What's the premium version?" / "What's the free version?"
-- UNEXPLORED: "What angle haven't you considered yet?" / "Who else might benefit from this?"
+// Simpler prompt for delve deeper
+export const DELVE_DEEPER_SYSTEM_PROMPT = `You are a design coach helping someone develop their idea.
 
-FORMAT:
-- Ask ONE clear question per response
-- Keep questions under 15 words
-- Be specific to their context - reference their HMW and notes
-- No greetings, no filler, no explanations - just the question
+RULES:
+- Read their idea carefully
+- Ask ONE question that builds on what they wrote
+- Reference something specific from their idea
+- Keep it under 15 words
+- Just the question, nothing else`;
 
-EXAMPLES:
-"What's the #1 thing users wish they could do but can't?"
-"If this was an app, what's the first screen?"
-"Who would pay $100/month for this?"
-"What would make someone tell their friends about this?"
-"What existing product does this replace?"`;
-
-// Question bank for different stages of ideation
+// Question banks for different stages
 export const OPENING_QUESTIONS = [
-  "Who struggles with this problem the most?",
-  "What's the current workaround people use?",
-  "When does this problem hurt the most?",
-  "What would solving this unlock for users?",
-  "Who else has tried to solve this?",
+  "Who has this problem?",
+  "What do people do today to solve this?",
+  "When is this problem most frustrating?",
+  "Why does this matter?",
 ];
 
 export const DEEPENING_QUESTIONS = [
-  "What's the simplest version of this idea?",
-  "What feature would make this addictive?",
-  "Who would use this daily vs. occasionally?",
-  "What would make someone switch to this?",
-  "What's the 'aha moment' for new users?",
+  "What's the simplest version of this?",
+  "What would make someone use this every day?",
+  "What's the main benefit?",
+  "What makes this different?",
 ];
 
 export const EXPANSION_QUESTIONS = [
-  "What adjacent problem could this also solve?",
-  "How would this work for a different audience?",
-  "What's the enterprise version of this?",
-  "What's the consumer version of this?",
-  "How would this look in 5 years?",
+  "What else could this solve?",
+  "Who else might want this?",
+  "What's the bigger vision?",
+  "What would make this 10x better?",
+];
+
+export const UNSTUCK_QUESTIONS = [
+  "What's the dream version of this?",
+  "What would a competitor never try?",
+  "What assumption might be wrong?",
+];
+
+export const SYNTHESIS_QUESTIONS = [
+  "What connects these ideas?",
+  "Which idea excites you most?",
+  "What's the core concept here?",
 ];
 
 export async function askAI(
@@ -221,7 +219,12 @@ Return ONLY the category name in lowercase, nothing else. If unsure, return "non
 
 export function buildConversationContext(
   hmwStatement: string,
-  allNotes: Array<{ text: string; image?: { caption?: string } }>,
+  allNotes: Array<{
+    id?: string;
+    text: string;
+    image?: { caption?: string };
+    createdAt?: number;
+  }>,
   concepts: Array<{
     title: string;
     description: string;
@@ -229,35 +232,28 @@ export function buildConversationContext(
     platform?: string[];
     keyBenefits?: string;
     mainFeatures?: string;
+  }>,
+  connections?: Array<{
+    fromNoteId: string;
+    toNoteId: string;
+    type: string;
+    createdAt?: number;
   }>
 ): string {
-  let context = `Project Context:\nHow Might We: ${hmwStatement}\n\n`;
+  let context = `Challenge: ${hmwStatement}\n\n`;
 
   if (allNotes.length > 0) {
-    context += `ALL ideas currently on the board (${allNotes.length} notes):\n`;
+    context += `Their notes:\n`;
     allNotes.forEach((note, i) => {
-      context += `${i + 1}. ${note.text}`;
-      if (note.image?.caption) {
-        context += ` [Image: ${note.image.caption}]`;
-      }
-      context += "\n";
+      context += `- ${note.text}\n`;
     });
-    context +=
-      "\nIMPORTANT: Ask about angles, perspectives, or themes NOT already covered by these notes.\n\n";
+    context += "\n";
   }
 
   if (concepts.length > 0) {
-    context += `Current concepts:\n`;
-    concepts.forEach((concept, i) => {
-      context += `${i + 1}. ${concept.title}: ${concept.description}\n`;
-      if (concept.targetAudience)
-        context += `   Target Audience: ${concept.targetAudience}\n`;
-      if (concept.platform && concept.platform.length)
-        context += `   Platform: ${concept.platform.join(", ")}\n`;
-      if (concept.keyBenefits)
-        context += `   Key Benefits: ${concept.keyBenefits}\n`;
-      if (concept.mainFeatures)
-        context += `   Main Features: ${concept.mainFeatures}\n`;
+    context += `Their concepts:\n`;
+    concepts.forEach((concept) => {
+      context += `- ${concept.title}: ${concept.description}\n`;
     });
   }
 
