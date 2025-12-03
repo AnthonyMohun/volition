@@ -575,10 +575,40 @@ export function StickyNote({
                 <span className="text-3xl">📝</span>
                 Add Concept Details
               </h3>
-              <p className="text-sm text-gray-600 mb-5 font-medium">
+              <p className="text-sm text-gray-600 mb-4 font-medium">
                 Provide more information about this concept to help the AI
                 evaluate it better.
               </p>
+
+              {/* Show sticky note content for context */}
+              <div
+                className="p-4 rounded-2xl mb-5 border-2 border-dashed border-gray-200"
+                style={{ backgroundColor: `${note.color}40` }}
+              >
+                <p className="text-xs text-gray-500 font-bold mb-2 uppercase tracking-wide">
+                  Your concept:
+                </p>
+                <p className="text-sm text-gray-800 font-semibold whitespace-pre-wrap">
+                  {note.text || (
+                    <span className="italic text-gray-400">No text</span>
+                  )}
+                </p>
+                {note.image && (
+                  <img
+                    src={note.image.dataUrl}
+                    alt={note.image.caption || "Concept image"}
+                    className="mt-3 max-h-24 rounded-xl object-cover border-2 border-white shadow-sm"
+                  />
+                )}
+                {note.drawing?.dataUrl && (
+                  <img
+                    src={note.drawing.dataUrl}
+                    alt="Concept sketch"
+                    className="mt-3 max-h-24 rounded-xl object-cover border-2 border-white shadow-sm"
+                  />
+                )}
+              </div>
+
               <div className="relative">
                 <textarea
                   value={detailsText}

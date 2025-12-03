@@ -76,6 +76,13 @@ YOUR ROLE: Ask focused questions that help users:
 3. Generate concrete solution ideas
 4. Connect ideas in new ways
 
+CRITICAL - DIVERGENT THINKING:
+- ALWAYS guide users toward UNEXPLORED angles and perspectives
+- Review their existing notes and ask about aspects NOT yet covered
+- If they've focused on features, ask about users. If they've focused on users, ask about business model.
+- Push them to consider: different user segments, alternative contexts, opposite approaches, adjacent problems
+- NEVER ask questions that would lead to ideas similar to what's already on their board
+
 QUESTION TYPES TO USE:
 - NEEDS: "What frustrates [users] most about...?" / "When do they feel stuck?"
 - PERSPECTIVE: "How would [specific person] solve this?" / "What would [industry] do?"
@@ -83,6 +90,7 @@ QUESTION TYPES TO USE:
 - CONSTRAINTS: "What if you only had [time/budget/feature]?"
 - COMBINATIONS: "What if you combined [idea A] with [idea B]?"
 - EXTREMES: "What's the premium version?" / "What's the free version?"
+- UNEXPLORED: "What angle haven't you considered yet?" / "Who else might benefit from this?"
 
 FORMAT:
 - Ask ONE clear question per response
@@ -213,7 +221,7 @@ Return ONLY the category name in lowercase, nothing else. If unsure, return "non
 
 export function buildConversationContext(
   hmwStatement: string,
-  recentNotes: Array<{ text: string; image?: { caption?: string } }>,
+  allNotes: Array<{ text: string; image?: { caption?: string } }>,
   concepts: Array<{
     title: string;
     description: string;
@@ -225,16 +233,17 @@ export function buildConversationContext(
 ): string {
   let context = `Project Context:\nHow Might We: ${hmwStatement}\n\n`;
 
-  if (recentNotes.length > 0) {
-    context += `Recent student notes:\n`;
-    recentNotes.slice(-5).forEach((note, i) => {
+  if (allNotes.length > 0) {
+    context += `ALL ideas currently on the board (${allNotes.length} notes):\n`;
+    allNotes.forEach((note, i) => {
       context += `${i + 1}. ${note.text}`;
       if (note.image?.caption) {
         context += ` [Image: ${note.image.caption}]`;
       }
       context += "\n";
     });
-    context += "\n";
+    context +=
+      "\nIMPORTANT: Ask about angles, perspectives, or themes NOT already covered by these notes.\n\n";
   }
 
   if (concepts.length > 0) {

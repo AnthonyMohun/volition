@@ -236,7 +236,8 @@ export function AIQuestionPanel({
     setError(null);
 
     try {
-      const recentNotes = stateRef.current.notes.slice(-5);
+      // Pass ALL notes to give AI full visibility of explored themes
+      const allNotes = stateRef.current.notes;
       const concepts = stateRef.current.concepts.map((c) => ({
         title: c.title,
         description: c.description,
@@ -244,7 +245,7 @@ export function AIQuestionPanel({
 
       const context = buildConversationContext(
         stateRef.current.hmwStatement,
-        recentNotes,
+        allNotes,
         concepts
       );
 
@@ -267,7 +268,7 @@ export function AIQuestionPanel({
       messages.push({
         role: "user" as const,
         content:
-          "Based on my notes, ask ONE question that helps me develop a concrete concept. Focus on: features, users, or how it works. Under 15 words. Just the question.",
+          "Review all my notes above. Ask ONE question that guides me toward a DIFFERENT angle, perspective, or theme NOT already explored in my existing notes. Help me think divergently. Under 15 words. Just the question.",
       });
 
       const response = await askAI(messages);
