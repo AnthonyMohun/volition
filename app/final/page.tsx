@@ -884,8 +884,8 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
               <div className="space-y-4">
                 {/* NOTE: Overall Score moved inline with Concept Card (above) */}
 
-                {/* Strengths & Improvements - Visual Showcase */}
-                <div className="grid grid-cols-1 gap-4">
+                {/* Strengths & Improvements - Side by Side */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Strengths Card */}
                   <div className="fun-card p-4 md:p-5 border-3 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-green-200/30 rounded-full -translate-y-8 translate-x-8" />

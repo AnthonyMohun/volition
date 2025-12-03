@@ -36,6 +36,11 @@ export interface StickyNote {
   contentType?: NoteContentType;
   details?: string;
   createdAt: number;
+  // Source question - permanently displayed on note when created from AI panel
+  questionId?: string;
+  sourceQuestion?: string;
+  // Flag to enable immediate edit mode on creation
+  isNewNote?: boolean;
   // Refine phase structured fields
   targetAudience?: string;
   platform?: string[];

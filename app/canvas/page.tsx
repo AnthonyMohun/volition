@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
+import { useToast } from "@/lib/toast-context";
 import { DraggableNote } from "@/components/draggable-note";
 import { AIQuestionPanel } from "@/components/ai-question-panel";
 import { CanvasControls } from "@/components/canvas-controls";
@@ -31,6 +32,12 @@ import { VoiceCommandsHelp } from "@/components/voice-commands-help";
 import { AnimatePresence, motion } from "framer-motion";
 import { STICKY_COLORS } from "@/lib/types";
 import { findNonOverlappingPosition } from "@/lib/utils";
+import {
+  askAI,
+  SOCRATIC_SYSTEM_PROMPT,
+  buildConversationContext,
+} from "@/lib/ai-client";
+import { speak, isSpeechSynthesisSupported } from "@/lib/speech";
 
 export default function CanvasPage() {
   const router = useRouter();
@@ -39,6 +46,7 @@ export default function CanvasPage() {
     addNote,
     updateNote,
     deleteNote,
+    addQuestion,
     setPhase,
     resetSession,
     undo,
@@ -49,6 +57,7 @@ export default function CanvasPage() {
     clearExampleSessionFlag,
     setVoiceMode,
   } = useSession();
+  const { showToast } = useToast();
   const [selectedColor, setSelectedColor] = useState(STICKY_COLORS[0]);
   const [isDragging, setIsDragging] = useState(false);
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
@@ -87,6 +96,9 @@ export default function CanvasPage() {
     vertical: number[];
     horizontal: number[];
   }>({ vertical: [], horizontal: [] });
+
+  // Delve deeper state - tracks which note is currently being processed
+  const [delvingNoteId, setDelvingNoteId] = useState<string | null>(null);
 
   const GRID_SIZE = 40;
   const CANVAS_WIDTH = 4000;
@@ -583,12 +595,13 @@ export default function CanvasPage() {
 
     addNote({
       id: `note-${Date.now()}`,
-      text: "New note...",
+      text: "",
       x: gridSnap ? snapToGrid(x, GRID_SIZE, true) : x,
       y: gridSnap ? snapToGrid(y, GRID_SIZE, true) : y,
       color: selectedColor,
       isConcept: false,
       createdAt: Date.now(),
+      isNewNote: true,
     });
   };
 
@@ -611,16 +624,73 @@ export default function CanvasPage() {
     const y = gridSnap ? snapToGrid(canvasY, GRID_SIZE, true) : canvasY;
 
     // For manual placement (double-click), place exactly where clicked
+    // Set isNewNote to enable immediate edit mode
     addNote({
       id: `note-${Date.now()}`,
-      text: "New note...",
+      text: "",
       x,
       y,
       color: selectedColor,
       isConcept: false,
       createdAt: Date.now(),
+      isNewNote: true,
     });
   };
+
+  // Delve deeper handler for individual notes
+  const handleDelveDeeper = useCallback(
+    async (noteId: string, noteText: string) => {
+      if (!noteText.trim()) {
+        showToast("Add some text to your note first!");
+        return;
+      }
+
+      setDelvingNoteId(noteId);
+
+      try {
+        // Build context using only the HMW statement and this specific note
+        const context = buildConversationContext(
+          state.hmwStatement,
+          [{ text: noteText } as any],
+          []
+        );
+
+        const response = await askAI([
+          { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
+          { role: "user", content: context },
+          {
+            role: "user",
+            content: `My note: "${noteText}"\n\nAsk ONE question that helps me develop THIS idea into a real concept. Ask about: specific features, target users, how it works, or what makes it unique. Under 15 words. Just the question.`,
+          },
+        ]);
+
+        addQuestion({
+          id: `q-${Date.now()}`,
+          text: response,
+          fromAI: true,
+          answered: false,
+          timestamp: Date.now(),
+        });
+
+        showToast("🔍 New question added to the AI panel!");
+
+        // Auto-speak the AI response if voice output is enabled
+        if (state.voiceOutputEnabled && isSpeechSynthesisSupported()) {
+          try {
+            await speak(response);
+          } catch (err) {
+            console.warn("TTS failed for delve deeper:", err);
+          }
+        }
+      } catch (err) {
+        console.error("Delve deeper error:", err);
+        showToast("Failed to get AI question. Please try again.");
+      } finally {
+        setDelvingNoteId(null);
+      }
+    },
+    [state.hmwStatement, state.voiceOutputEnabled, addQuestion, showToast]
+  );
 
   const handleDragMove = (event: DragMoveEvent) => {
     if (!draggedNoteId) return;
@@ -900,6 +970,10 @@ export default function CanvasPage() {
                     note={note}
                     onUpdate={(updates) => updateNote(note.id, updates)}
                     onDelete={() => deleteNote(note)}
+                    onDelveDeeper={(noteText) =>
+                      handleDelveDeeper(note.id, noteText)
+                    }
+                    isDelvingDeeper={delvingNoteId === note.id}
                   />
                 </div>
               ))}

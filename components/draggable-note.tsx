@@ -9,12 +9,16 @@ interface DraggableNoteProps {
   note: StickyNoteType;
   onUpdate: (updates: Partial<StickyNoteType>) => void;
   onDelete: () => void;
+  onDelveDeeper?: (noteText: string) => void;
+  isDelvingDeeper?: boolean;
 }
 
 export function DraggableNote({
   note,
   onUpdate,
   onDelete,
+  onDelveDeeper,
+  isDelvingDeeper,
 }: DraggableNoteProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -39,6 +43,8 @@ export function DraggableNote({
         onDelete={onDelete}
         isDragging={isDragging}
         dragHandleProps={{ ...listeners, ...attributes }}
+        onDelveDeeper={onDelveDeeper}
+        isDelvingDeeper={isDelvingDeeper}
       />
     </div>
   );

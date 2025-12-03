@@ -15,6 +15,8 @@ import {
   MicOff,
   Maximize2,
   Minimize2,
+  Eye,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DrawingCanvas, DrawingCanvasHandle } from "./drawing-canvas";
@@ -26,6 +28,8 @@ interface StickyNoteProps {
   onDelete: () => void;
   isDragging?: boolean;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
+  onDelveDeeper?: (noteText: string) => void;
+  isDelvingDeeper?: boolean;
 }
 
 export function StickyNote({
@@ -34,9 +38,12 @@ export function StickyNote({
   onDelete,
   isDragging,
   dragHandleProps,
+  onDelveDeeper,
+  isDelvingDeeper,
 }: StickyNoteProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(note.text);
+  // Start in edit mode if this is a newly created note
+  const [isEditing, setIsEditing] = useState(note.isNewNote || false);
+  const [editText, setEditText] = useState(note.isNewNote ? "" : note.text);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsText, setDetailsText] = useState(note.details || "");
@@ -48,6 +55,17 @@ export function StickyNote({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const drawingCanvasRef = useRef<DrawingCanvasHandle>(null);
   const detailsRecognitionRef = useRef<any>(null);
+
+  // Clear the isNewNote flag after the component mounts to prevent re-entering edit mode
+  useEffect(() => {
+    if (note.isNewNote) {
+      // Small delay to ensure edit mode is active, then clear the flag
+      const timer = setTimeout(() => {
+        onUpdate({ isNewNote: false });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [note.isNewNote, onUpdate]);
 
   // Speech recognition for details modal
   const startDetailsRecording = useCallback(() => {
@@ -119,10 +137,15 @@ export function StickyNote({
   }, [showDetailsModal]);
 
   const handleTextSave = () => {
-    if (editText.trim()) {
-      onUpdate({ text: editText.trim() });
-      setIsEditing(false);
+    const trimmedText = editText.trim();
+    // Allow saving empty text only if there's a source question
+    if (trimmedText || note.sourceQuestion) {
+      onUpdate({ text: trimmedText || "" });
+    } else if (!trimmedText && !note.sourceQuestion) {
+      // If empty and no source question, restore original text or set placeholder
+      setEditText(note.text || "New note...");
     }
+    setIsEditing(false);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -391,6 +414,24 @@ export function StickyNote({
           </div>
         )}
 
+        {/* Source Question - Permanent display when note was created from AI panel */}
+        {note.sourceQuestion && (
+          <div
+            className="mb-3 p-2.5 rounded-xl border opacity-80"
+            style={{
+              backgroundColor: `${getAccentColor(note.color)}15`,
+              borderColor: `${getAccentColor(note.color)}40`,
+            }}
+          >
+            <p
+              className="text-xs font-semibold leading-relaxed"
+              style={{ color: getAccentColor(note.color) }}
+            >
+              {note.sourceQuestion}
+            </p>
+          </div>
+        )}
+
         {/* Text Content */}
         {isEditing ? (
           <div className="space-y-2" onPointerDown={(e) => e.stopPropagation()}>
@@ -399,8 +440,12 @@ export function StickyNote({
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               onFocus={(e) => {
-                e.currentTarget.select();
+                // Don't select all for new notes - just focus
+                if (!note.isNewNote) {
+                  e.currentTarget.select();
+                }
               }}
+              placeholder="Type your idea here..."
               className="w-full p-3 border-2 border-gray-300 rounded-xl text-sm resize-none bg-white/70 text-gray-800 focus:border-teal-400 focus:ring-4 focus:ring-teal-200 focus:bg-white transition-all placeholder:text-gray-400 font-semibold shadow-inner"
               rows={3}
               autoFocus
@@ -417,12 +462,51 @@ export function StickyNote({
         ) : (
           <p
             className="text-sm text-gray-800 whitespace-pre-wrap break-words cursor-text leading-relaxed font-bold"
-            onClick={() => setIsEditing(true)}
+            onClick={() => {
+              setEditText(note.text);
+              setIsEditing(true);
+            }}
             onPointerDown={(e) => e.stopPropagation()}
             onDoubleClick={(e) => e.stopPropagation()}
           >
-            {note.text}
+            {note.text || (
+              <span className="text-gray-400 italic">Click to add text...</span>
+            )}
           </p>
+        )}
+
+        {/* Delve Deeper Button */}
+        {onDelveDeeper && note.text && note.text.trim() && (
+          <div className="mt-3 pt-3 border-t border-gray-200/60">
+            <button
+              onClick={() => onDelveDeeper(note.text)}
+              onPointerDown={(e) => e.stopPropagation()}
+              disabled={isDelvingDeeper}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              style={{
+                backgroundColor: isDelvingDeeper
+                  ? "#e5e7eb"
+                  : `${getAccentColor(note.color)}20`,
+                color: isDelvingDeeper ? "#9ca3af" : getAccentColor(note.color),
+                border: `2px solid ${
+                  isDelvingDeeper ? "#d1d5db" : getAccentColor(note.color)
+                }50`,
+              }}
+              title="Ask AI to help you explore this idea deeper"
+            >
+              {isDelvingDeeper ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Thinking...</span>
+                </>
+              ) : (
+                <>
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Delve Deeper</span>
+                </>
+              )}
+            </button>
+          </div>
         )}
 
         {/* Hidden file input */}

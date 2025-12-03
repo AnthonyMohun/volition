@@ -22,7 +22,6 @@ import {
   Coffee,
   Volume2,
   VolumeX,
-  Eye,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
@@ -291,70 +290,6 @@ export function AIQuestionPanel({
     }
   };
 
-  const delveDeeper = async () => {
-    if (stateRef.current.notes.length === 0) {
-      showToast("No notes to delve into yet!");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const lastNote =
-        stateRef.current.notes[stateRef.current.notes.length - 1];
-      const concepts = stateRef.current.concepts.map((c) => ({
-        title: c.title,
-        description: c.description,
-      }));
-
-      const context = buildConversationContext(
-        stateRef.current.hmwStatement,
-        [lastNote],
-        concepts
-      );
-
-      // Build conversation history
-      const messages: Array<{ role: MessageRole; content: string }> = [
-        { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
-        { role: "user", content: context },
-      ];
-
-      // Add recent Q&A history
-      const recentQuestions = stateRef.current.questions.slice(-3);
-      recentQuestions.forEach((q) => {
-        const role: MessageRole = q.fromAI ? "assistant" : "user";
-        messages.push({
-          role,
-          content: q.text,
-        });
-      });
-
-      messages.push({
-        role: "user" as const,
-        content: `My latest note: "${lastNote.text}"\n\nAsk ONE question that helps me develop THIS idea into a real concept. Ask about: specific features, target users, how it works, or what makes it unique. Under 15 words. Just the question.`,
-      });
-
-      const response = await askAI(messages);
-
-      addQuestion({
-        id: `q-${Date.now()}`,
-        text: response,
-        fromAI: true,
-        answered: false,
-        timestamp: Date.now(),
-      });
-
-      // Auto-speak AI response if voice output is enabled and user is not currently recording
-      trySpeak(response);
-    } catch (err) {
-      setError("Failed to get delve deeper question from AI.");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Handle voice transcripts
   const handleVoiceTranscript = useCallback(
     (transcript: string, isFinal: boolean) => {
@@ -464,12 +399,11 @@ export function AIQuestionPanel({
         }
 
         case "delve-deeper": {
-          // If we're currently in voice mode, ensure we exit push-to-talk *before*
-          // delving deeper so the AI voice output is not blocked.
-          // Small delay ensures recognition is stopped and state updates before TTS.
-          setVoiceMode(false);
-          showToast("🔍 Delving deeper...");
-          setTimeout(() => delveDeeper(), 120);
+          // Note: Delve deeper is now per-note, but we can still support the voice command
+          // by showing a toast directing user to use the button on individual notes
+          showToast(
+            "💡 Use the 'Delve Deeper' button on any note to explore that idea!"
+          );
           break;
         }
 
@@ -762,7 +696,7 @@ export function AIQuestionPanel({
 
                       addNote({
                         id: `note-${Date.now()}`,
-                        text: question.text,
+                        text: "",
                         x,
                         y,
                         color:
@@ -771,6 +705,9 @@ export function AIQuestionPanel({
                           ],
                         isConcept: false,
                         createdAt: Date.now(),
+                        questionId: question.id,
+                        sourceQuestion: question.text,
+                        isNewNote: true,
                       });
                     }}
                     className="p-2 rounded-xl hover:bg-teal-100 hover:scale-110 transition-all text-gray-400 hover:text-teal-600 shadow-sm"
@@ -872,30 +809,11 @@ export function AIQuestionPanel({
               {isLoading ? "Thinking... 🤔" : "Ask Next Question"}
             </span>
           </button>
-          <button
-            onClick={delveDeeper}
-            disabled={isLoading || stateRef.current.notes.length === 0}
-            className="flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg text-white font-bold border-none rounded-2xl px-6 py-3 transition-all hover:scale-105 hover:shadow-xl"
-            style={{
-              background:
-                "linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f97316 100%)",
-              backgroundSize: "200% 200%",
-              animation: "gradientFlow 3s ease infinite",
-              boxShadow:
-                "0 8px 16px rgba(139, 92, 246, 0.4), 0 4px 8px rgba(236, 72, 153, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.2)",
-              textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <Eye className="w-5 h-5" />
-            <span className="font-black">
-              {isLoading ? "Thinking... 🤔" : "Delve Deeper"}
-            </span>
-          </button>
         </div>
         <p className="text-xs text-gray-500 mt-3 text-center font-bold">
           {stateRef.current.notes.length === 0
             ? "✏️ Add some notes to get started"
-            : "🚀 Get the next guiding question or deepen your ideas"}
+            : "🔍 Use 'Delve Deeper' on any note to explore ideas"}
         </p>
       </div>
     </div>

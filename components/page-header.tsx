@@ -36,7 +36,22 @@ export function PageHeader({
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-3 md:px-6 py-2 md:py-3 flex items-center justify-between shadow-sm">
+    <div
+      className="sticky top-0 z-50 px-3 md:px-6 py-2 md:py-3 flex items-center justify-between"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(254,254,254,0.92) 100%)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        borderBottom: "2px solid rgba(255, 255, 255, 0.6)",
+        boxShadow: `
+          0 4px 12px rgba(163, 177, 198, 0.25),
+          0 2px 6px rgba(163, 177, 198, 0.15),
+          inset 0 1px 2px rgba(255, 255, 255, 0.8),
+          inset 0 -1px 2px rgba(163, 177, 198, 0.08)
+        `,
+      }}
+    >
       <div className="flex items-center gap-2 md:gap-4 min-w-0">
         {backPath && (
           <button
