@@ -487,35 +487,63 @@ export function AIQuestionPanel({
 
   return (
     <div
-      className={`bg-gradient-to-b from-white to-blue-50/30 border-r-4 border-blue-200 flex flex-col order-first shadow-xl z-10 sidebar-collapsible ${
+      className={`flex flex-col order-first z-10 sidebar-collapsible ${
         isCollapsed ? "sidebar-collapsed" : "w-80 md:w-72 lg:w-80"
       }`}
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.95) 100%)",
+        borderRight: "2px solid rgba(255, 255, 255, 0.6)",
+        boxShadow: `
+          4px 0 16px rgba(163, 177, 198, 0.2),
+          inset -1px 0 2px rgba(163, 177, 198, 0.08),
+          inset 1px 0 2px rgba(255, 255, 255, 0.8)
+        `,
+      }}
     >
-      <div className="p-4 border-b-3 border-blue-100 bg-gradient-to-br from-blue-50 to-teal-50">
+      {/* Header */}
+      <div
+        className="p-4"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(240,249,255,0.8) 0%, rgba(240,253,250,0.6) 100%)",
+          borderBottom: "1px solid rgba(186, 230, 253, 0.4)",
+        }}
+      >
         {/* Clean, minimal header */}
         <div className="flex items-center justify-between">
           {/* Bot Identity */}
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="bg-gradient-to-br from-blue-100 to-teal-100 p-2 rounded-2xl shadow-md">
+              <div
+                className="p-2.5 rounded-xl"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(240,249,255,1) 0%, rgba(204,251,241,1) 100%)",
+                  boxShadow: `
+                    0 2px 8px rgba(20, 184, 166, 0.15),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.8)
+                  `,
+                }}
+              >
                 <Bot className="w-5 h-5 text-teal-600" />
               </div>
-              <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white animate-pulse"></span>
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white"></span>
             </div>
             <div>
-              <h2 className="font-black text-gray-800 text-base">
+              <h2 className="font-bold text-gray-800 text-sm">
                 Socratic Guide
               </h2>
               <p className="text-xs text-gray-500 font-medium">
                 {isLoading
-                  ? "🤔 Thinking..."
+                  ? "Thinking..."
                   : isCurrentlySpeaking()
-                  ? "🗣️ Speaking..."
+                  ? "Speaking..."
                   : state.voiceMode
-                  ? "🎤 Listening..."
+                  ? "Listening..."
                   : isMuted
-                  ? "🔇 Muted"
-                  : "✨ Ready to help"}
+                  ? "Muted"
+                  : "Ready"}
               </p>
             </div>
           </div>
@@ -526,10 +554,10 @@ export function AIQuestionPanel({
               onClick={() => setIsMuted(!isMuted)}
               title={isMuted ? "Unmute AI voice" : "Mute AI voice"}
               aria-label={isMuted ? "Unmute AI voice" : "Mute AI voice"}
-              className={`p-2 rounded-xl hover:scale-110 transition-all shadow-sm touch-target-sm ${
+              className={`p-2 rounded-xl transition-all ${
                 isMuted
-                  ? "text-red-500 bg-red-100 border border-red-200"
-                  : "text-gray-500 hover:bg-gray-100 border border-gray-200"
+                  ? "text-red-500 bg-red-50 hover:bg-red-100"
+                  : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
               }`}
             >
               {isMuted ? (
@@ -545,7 +573,7 @@ export function AIQuestionPanel({
                 onClick={onToggleCollapse}
                 title="Collapse panel"
                 aria-label="Collapse AI panel"
-                className="p-2 rounded-xl hover:scale-110 transition-all shadow-sm touch-target-sm text-gray-500 hover:bg-gray-100 border border-gray-200 hidden md:flex lg:hidden"
+                className="p-2 rounded-xl transition-all text-gray-400 hover:bg-gray-100 hover:text-gray-600 hidden md:flex lg:hidden"
               >
                 <PanelLeftClose className="w-4 h-4" />
               </button>
@@ -565,22 +593,41 @@ export function AIQuestionPanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/50 to-blue-50/30">
+      {/* Questions List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {isLoading && (
-          <div className="flex items-center justify-center gap-3 text-teal-600 py-6 bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-md border-3 border-blue-200 animate-pulse">
-            <Loader2 className="w-6 h-6 animate-spin" />
-            <span className="text-sm font-black">Thinking... 🤔</span>
+          <div
+            className="flex items-center justify-center gap-2 py-4 rounded-xl"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(240,249,255,0.8) 0%, rgba(240,253,250,0.6) 100%)",
+              border: "1px solid rgba(186, 230, 253, 0.5)",
+            }}
+          >
+            <Loader2 className="w-5 h-5 animate-spin text-teal-600" />
+            <span className="text-sm font-semibold text-gray-600">
+              Thinking...
+            </span>
           </div>
         )}
 
         {state.questions.length === 0 && !isLoading && (
-          <div className="text-center text-gray-600 text-sm py-12">
-            <div className="bg-gradient-to-br from-blue-100 to-teal-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
-              <Sparkles className="w-10 h-10 text-teal-500" />
+          <div className="text-center py-8">
+            <div
+              className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(240,249,255,1) 0%, rgba(204,251,241,1) 100%)",
+                boxShadow: "0 2px 8px rgba(20, 184, 166, 0.15)",
+              }}
+            >
+              <Sparkles className="w-7 h-7 text-teal-500" />
             </div>
-            <p className="font-black text-lg mb-2">Ready to explore! ✨</p>
-            <p className="font-semibold text-gray-500">
-              Your AI mentor will ask you questions to guide your ideation
+            <p className="font-bold text-gray-700 text-sm mb-1">
+              Ready to explore!
+            </p>
+            <p className="text-xs text-gray-500">
+              Questions will appear here to guide your ideation
             </p>
           </div>
         )}
@@ -604,31 +651,31 @@ export function AIQuestionPanel({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
                 transition={{ duration: 0.14 }}
-                className={`p-5 rounded-2xl flex items-start gap-3 shadow-md hover:shadow-lg transition-all ${
-                  question.pinned
-                    ? "bg-gradient-to-br from-white to-amber-50 border-3 border-amber-200 ring-2 ring-amber-100"
-                    : question.fromAI
-                    ? "bg-gradient-to-br from-white to-blue-50 border-3 border-blue-200"
-                    : "bg-gradient-to-br from-white to-gray-50 border-3 border-gray-200"
-                } ${question.answered ? "opacity-50" : ""}`}
+                className={`p-4 rounded-xl flex items-start gap-3 transition-all ${
+                  question.answered ? "opacity-50" : ""
+                }`}
+                style={{
+                  background: question.pinned
+                    ? "linear-gradient(135deg, rgba(255,251,235,0.9) 0%, rgba(254,243,199,0.7) 100%)"
+                    : "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.9) 100%)",
+                  border: question.pinned
+                    ? "1px solid rgba(251, 191, 36, 0.3)"
+                    : "1px solid rgba(226, 232, 240, 0.8)",
+                  boxShadow: `
+                    0 2px 8px rgba(163, 177, 198, 0.12),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.8)
+                  `,
+                }}
               >
-                <div className="flex-1">
-                  <div className="flex items-start gap-2 w-full">
-                    <p className="text-sm text-gray-800 font-bold leading-relaxed">
-                      {question.text}
-                    </p>
-                    {question.pinned && <span className="sr-only">Pinned</span>}
-                  </div>
-                  <p className="text-xs text-gray-400 mt-2 font-bold">
-                    <span
-                      title={new Date(question.timestamp).toLocaleString()}
-                      aria-hidden="true"
-                    >
-                      {timeAgo(question.timestamp)}
-                    </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-700 font-medium leading-relaxed">
+                    {question.text}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-2 font-medium">
+                    {timeAgo(question.timestamp)}
                   </p>
                 </div>
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-1">
                   <motion.button
                     title={question.pinned ? "Unpin question" : "Pin question"}
                     aria-label={
@@ -636,46 +683,24 @@ export function AIQuestionPanel({
                     }
                     aria-pressed={question.pinned}
                     onClick={() => toggleQuestionPinned(question.id)}
-                    className={`p-2 rounded-xl hover:scale-110 transition-all shadow-sm ${
+                    className={`p-1.5 rounded-lg transition-all ${
                       question.pinned
-                        ? "text-amber-500 bg-amber-100"
-                        : "text-gray-400 hover:bg-gray-100"
+                        ? "text-amber-500 bg-amber-100/80"
+                        : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                     }`}
                     whileTap={{ scale: 0.9 }}
                   >
-                    <AnimatePresence mode="wait">
-                      {question.pinned ? (
-                        <motion.span
-                          key="pinned"
-                          initial={{ scale: 0, rotate: -10, opacity: 0 }}
-                          animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                          exit={{ scale: 0, rotate: 10, opacity: 0 }}
-                          transition={{ duration: 0.18 }}
-                          className="flex items-center"
-                        >
-                          <Pin className="w-4 h-4 fill-current" />
-                        </motion.span>
-                      ) : (
-                        <motion.span
-                          key="unpinned"
-                          initial={{ scale: 0, rotate: 10, opacity: 0 }}
-                          animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                          exit={{ scale: 0, rotate: -10, opacity: 0 }}
-                          transition={{ duration: 0.18 }}
-                          className="flex items-center"
-                        >
-                          <Pin className="w-4 h-4" />
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
+                    <Pin
+                      className={`w-3.5 h-3.5 ${
+                        question.pinned ? "fill-current" : ""
+                      }`}
+                    />
                   </motion.button>
 
                   <button
                     title="Create note from question"
                     aria-label="Create note from question"
                     onClick={() => {
-                      // Place note near the user's current viewport center (if available)
-                      // Using collision detection to avoid overlapping
                       const viewportCenterX = state.viewport?.centerX;
                       const viewportCenterY = state.viewport?.centerY;
 
@@ -710,9 +735,9 @@ export function AIQuestionPanel({
                         isNewNote: true,
                       });
                     }}
-                    className="p-2 rounded-xl hover:bg-teal-100 hover:scale-110 transition-all text-gray-400 hover:text-teal-600 shadow-sm"
+                    className="p-1.5 rounded-lg text-gray-400 hover:bg-teal-50 hover:text-teal-600 transition-all"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3.5 h-3.5" />
                   </button>
 
                   <motion.button
@@ -720,8 +745,6 @@ export function AIQuestionPanel({
                       const wasAnswered = question.answered;
                       toggleQuestionAnswered(question.id);
                       if (!wasAnswered) {
-                        // If marking as answered, trigger the next question
-                        // Small delay to allow the UI to update first
                         setTimeout(() => askNextQuestion(), 500);
                       }
                     }}
@@ -736,24 +759,13 @@ export function AIQuestionPanel({
                         : "Mark as answered"
                     }
                     whileTap={{ scale: 0.9 }}
-                    initial={{ scale: 1, opacity: 1 }}
-                    animate={
+                    className={`p-1.5 rounded-lg transition-all ${
                       question.answered
-                        ? { scale: 1.05, opacity: 1 }
-                        : { scale: 1, opacity: 1 }
-                    }
-                    transition={{
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 24,
-                    }}
-                    className={`p-2 rounded-xl transition-all shadow-sm hover:scale-110 ${
-                      question.answered
-                        ? "text-green-600 bg-green-100"
+                        ? "text-green-600 bg-green-100/80"
                         : "text-gray-400 hover:bg-green-50 hover:text-green-600"
                     }`}
                   >
-                    <Check className="w-4 h-4" />
+                    <Check className="w-3.5 h-3.5" />
                   </motion.button>
                 </div>
               </motion.div>
@@ -762,8 +774,15 @@ export function AIQuestionPanel({
         </AnimatePresence>
 
         {error && (
-          <div className="p-4 bg-red-50 border-3 border-red-200 rounded-2xl shadow-md">
-            <p className="text-sm text-red-600 font-black">{error}</p>
+          <div
+            className="p-3 rounded-xl"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(254,242,242,0.9) 0%, rgba(254,226,226,0.7) 100%)",
+              border: "1px solid rgba(248, 113, 113, 0.3)",
+            }}
+          >
+            <p className="text-sm text-red-600 font-medium">{error}</p>
           </div>
         )}
 
@@ -772,14 +791,23 @@ export function AIQuestionPanel({
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="p-5 bg-gradient-to-br from-amber-50 to-orange-50 border-3 border-amber-300 rounded-2xl shadow-lg"
+            className="p-4 rounded-xl"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(255,251,235,0.9) 0%, rgba(254,243,199,0.7) 100%)",
+              border: "1px solid rgba(251, 191, 36, 0.3)",
+              boxShadow: "0 2px 8px rgba(251, 191, 36, 0.1)",
+            }}
           >
             <div className="flex items-start gap-3">
-              <div className="bg-amber-100 p-2 rounded-xl">
-                <Coffee className="w-5 h-5 text-amber-600" />
+              <div
+                className="p-2 rounded-lg"
+                style={{ background: "rgba(251, 191, 36, 0.15)" }}
+              >
+                <Coffee className="w-4 h-4 text-amber-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-bold text-amber-800 mb-2">
+                <p className="text-sm font-medium text-amber-800 mb-2">
                   {stuckNudge}
                 </p>
                 <button
@@ -787,7 +815,7 @@ export function AIQuestionPanel({
                     setStuckNudge(null);
                     resetStuckTimer();
                   }}
-                  className="text-xs text-amber-600 hover:text-amber-700 font-bold underline"
+                  className="text-xs text-amber-600 hover:text-amber-700 font-medium hover:underline"
                 >
                   Dismiss
                 </button>
@@ -797,23 +825,34 @@ export function AIQuestionPanel({
         )}
       </div>
 
-      <div className="p-5 border-t-3 border-blue-100 bg-gradient-to-br from-blue-50 to-teal-50">
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={askNextQuestion}
-            disabled={isLoading || stateRef.current.notes.length === 0}
-            className="fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg hover:shadow-teal"
-          >
-            <Sparkles className="w-5 h-5" />
-            <span className="font-black">
-              {isLoading ? "Thinking... 🤔" : "Ask Next Question"}
-            </span>
-          </button>
-        </div>
-        <p className="text-xs text-gray-500 mt-3 text-center font-bold">
+      {/* Footer */}
+      <div
+        className="p-4"
+        style={{
+          borderTop: "2px solid rgba(219, 234, 254, 0.6)",
+          background:
+            "linear-gradient(180deg, rgba(240,253,250,0.6) 0%, rgba(239,246,255,0.8) 100%)",
+        }}
+      >
+        <button
+          onClick={askNextQuestion}
+          disabled={isLoading || stateRef.current.notes.length === 0}
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-semibold text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          style={{
+            background: "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)",
+            boxShadow:
+              isLoading || stateRef.current.notes.length === 0
+                ? "none"
+                : "0 4px 12px rgba(20, 184, 166, 0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
+          }}
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>{isLoading ? "Thinking..." : "Ask Next Question"}</span>
+        </button>
+        <p className="text-xs text-gray-500 mt-2.5 text-center">
           {stateRef.current.notes.length === 0
-            ? "✏️ Add some notes to get started"
-            : "🔍 Use 'Delve Deeper' on any note to explore ideas"}
+            ? "Add some notes to get started"
+            : "Use 'Delve Deeper' on any note to explore ideas"}
         </p>
       </div>
     </div>
