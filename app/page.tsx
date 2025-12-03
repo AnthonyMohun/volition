@@ -91,9 +91,9 @@ export default function Home() {
           <img
             src="/logo.png"
             alt="Volition"
-            className="h-24 md:h-32 mx-auto mb-3 md:mb-4"
+            className="h-48 md:h-56 mx-auto mb-3 md:mb-4"
           />
-          <p className="text-gray-700 text-lg md:text-2xl font-bold px-4 max-w-md mx-auto">
+          <p className="text-gray-500 text-sm md:text-base font-medium px-4 mx-auto">
             Transform design challenges into clear, actionable concepts
           </p>
         </div>
