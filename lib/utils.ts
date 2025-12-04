@@ -215,3 +215,187 @@ export function findNonOverlappingPosition(
     y: notesMinY,
   };
 }
+
+// AI Concept Evaluation interface for iteration canvas
+export interface AIConceptEvaluationForCanvas {
+  conceptId: string;
+  overallScore: number;
+  criteria: {
+    problemFit: { score: number; feedback: string };
+    originality: { score: number; feedback: string };
+    feasibility: { score: number; feedback: string };
+  };
+  strengths: string[];
+  improvements: string[];
+  summary?: string;
+}
+
+// Build iteration canvas from final concepts with AI feedback as connected notes
+export function buildIterationCanvas(
+  concepts: StickyNote[],
+  aiEvaluations: AIConceptEvaluationForCanvas[],
+  hmwStatement: string
+): { notes: StickyNote[]; connections: NoteConnection[] } {
+  const notes: StickyNote[] = [];
+  const connections: NoteConnection[] = [];
+
+  // Layout constants - column layout for easy scanning
+  const CONCEPT_COLUMN_X = 800; // Center column for concepts
+  const STRENGTHS_COLUMN_X = 200; // Left column for strengths (green)
+  const IMPROVEMENTS_COLUMN_X = 1400; // Right column for improvements (amber)
+  const VERTICAL_SPACING = 280; // Space between notes vertically
+  const CONCEPT_VERTICAL_SPACING = 600; // Space between concept groups
+  const START_Y = 200;
+
+  // Colors
+  const STRENGTH_COLOR = "#bbf7d0"; // green-200
+  const IMPROVEMENT_COLOR = "#fef3c7"; // amber-100
+
+  concepts.forEach((concept, conceptIdx) => {
+    const aiEval = aiEvaluations.find((e) => e.conceptId === concept.id);
+    const baseY = START_Y + conceptIdx * CONCEPT_VERTICAL_SPACING;
+
+    // Create concept note (center column)
+    const conceptNote: StickyNote = {
+      ...concept,
+      id: `iter-concept-${concept.id}-${Date.now()}`,
+      x: CONCEPT_COLUMN_X,
+      y: baseY,
+      isConcept: true,
+      createdAt: Date.now(),
+    };
+    notes.push(conceptNote);
+
+    if (aiEval) {
+      // Calculate vertical offset to center feedback notes around concept
+      const maxFeedbackCount = Math.max(
+        aiEval.strengths.length,
+        aiEval.improvements.length
+      );
+      const feedbackOffset = ((maxFeedbackCount - 1) * VERTICAL_SPACING) / 2;
+
+      // Create strength notes (left column, green)
+      aiEval.strengths.forEach((strength, i) => {
+        const strengthNote: StickyNote = {
+          id: `iter-strength-${concept.id}-${i}-${Date.now()}`,
+          text: strength,
+          x: STRENGTHS_COLUMN_X,
+          y: baseY - feedbackOffset + i * VERTICAL_SPACING,
+          color: STRENGTH_COLOR,
+          isConcept: false,
+          sourceQuestion: "What's Working ✓",
+          createdAt: Date.now() + i,
+        };
+        notes.push(strengthNote);
+
+        // Connect concept to strength
+        connections.push({
+          id: `iter-conn-str-${concept.id}-${i}-${Date.now()}`,
+          fromNoteId: conceptNote.id,
+          toNoteId: strengthNote.id,
+          type: "supports",
+          createdAt: Date.now() + i,
+        });
+      });
+
+      // Create improvement notes (right column, amber)
+      aiEval.improvements.forEach((improvement, i) => {
+        const improvementNote: StickyNote = {
+          id: `iter-improve-${concept.id}-${i}-${Date.now()}`,
+          text: improvement,
+          x: IMPROVEMENTS_COLUMN_X,
+          y: baseY - feedbackOffset + i * VERTICAL_SPACING,
+          color: IMPROVEMENT_COLOR,
+          isConcept: false,
+          sourceQuestion: "Room to Grow →",
+          createdAt: Date.now() + i + 100,
+        };
+        notes.push(improvementNote);
+
+        // Connect concept to improvement
+        connections.push({
+          id: `iter-conn-imp-${concept.id}-${i}-${Date.now()}`,
+          fromNoteId: conceptNote.id,
+          toNoteId: improvementNote.id,
+          type: "relates",
+          createdAt: Date.now() + i + 100,
+        });
+      });
+    }
+  });
+
+  return { notes, connections };
+}
+
+// Generate HMW sub-questions from improvements for Action Plan mode
+export function generateActionPlanQuestions(
+  concepts: StickyNote[],
+  aiEvaluations: AIConceptEvaluationForCanvas[],
+  originalHmw: string
+): { conceptId: string; conceptText: string; hmwQuestions: string[] }[] {
+  return concepts.map((concept) => {
+    const aiEval = aiEvaluations.find((e) => e.conceptId === concept.id);
+    const hmwQuestions: string[] = [];
+
+    if (aiEval) {
+      // Transform each improvement into a HMW sub-question
+      aiEval.improvements.forEach((improvement) => {
+        // Parse the improvement and create a HMW question
+        const hmwQuestion = transformImprovementToHMW(improvement, concept.text);
+        hmwQuestions.push(hmwQuestion);
+      });
+
+      // Add questions based on low-scoring criteria
+      if (aiEval.criteria.problemFit.score <= 2) {
+        hmwQuestions.push(
+          `How might we make "${concept.text}" more directly address the original challenge?`
+        );
+      }
+      if (aiEval.criteria.originality.score <= 2) {
+        hmwQuestions.push(
+          `How might we make "${concept.text}" more unique or differentiated?`
+        );
+      }
+      if (aiEval.criteria.feasibility.score <= 2) {
+        hmwQuestions.push(
+          `How might we simplify "${concept.text}" to make it more achievable?`
+        );
+      }
+    }
+
+    return {
+      conceptId: concept.id,
+      conceptText: concept.text,
+      hmwQuestions,
+    };
+  });
+}
+
+// Helper to transform an improvement suggestion into a HMW question
+function transformImprovementToHMW(improvement: string, conceptText: string): string {
+  // Common patterns to transform
+  const lowerImprovement = improvement.toLowerCase();
+  
+  if (lowerImprovement.includes("add") || lowerImprovement.includes("include")) {
+    return `How might we ${improvement.toLowerCase()}?`;
+  }
+  if (lowerImprovement.includes("consider")) {
+    return improvement.replace(/consider/i, "How might we explore");
+  }
+  if (lowerImprovement.includes("need") || lowerImprovement.includes("should")) {
+    const cleaned = improvement
+      .replace(/needs? to/i, "")
+      .replace(/should/i, "")
+      .trim();
+    return `How might we ${cleaned.toLowerCase()}?`;
+  }
+  if (lowerImprovement.includes("more")) {
+    return `How might we make "${conceptText}" ${improvement.toLowerCase()}?`;
+  }
+  
+  // Default transformation
+  return `How might we address: ${improvement}`;
+}
+
+// Type for NoteConnection (import from types.ts in actual usage)
+import { NoteConnection } from "./types";

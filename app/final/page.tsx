@@ -6,6 +6,11 @@ import { useSession } from "@/lib/session-context";
 import { askAI } from "@/lib/ai-client";
 import { speak, stopSpeaking, isSpeechSynthesisSupported } from "@/lib/speech";
 import {
+  buildIterationCanvas,
+  generateActionPlanQuestions,
+  type AIConceptEvaluationForCanvas,
+} from "@/lib/utils";
+import {
   SELF_EVAL_CRITERIA,
   type ConceptSelfEvaluation,
   type StickyNote,
@@ -32,6 +37,9 @@ import {
   Target,
   Volume2,
   VolumeX,
+  Layout,
+  ListChecks,
+  X,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { pdf } from "@react-pdf/renderer";
@@ -64,7 +72,7 @@ interface AIConceptEvaluation {
 
 export default function FinalPage() {
   const router = useRouter();
-  const { state, resetSession } = useSession();
+  const { state, resetSession, initializeIterationCanvas } = useSession();
 
   // Which concept we're evaluating (0, 1, 2)
   const [currentConceptIndex, setCurrentConceptIndex] = useState(0);
@@ -97,6 +105,11 @@ export default function FinalPage() {
   const [isMuted, setIsMuted] = useState(false);
   // Prevent double-click/double-key processing
   const isProcessingRatingRef = useRef(false);
+  // Action Plan modal state
+  const [showActionPlanModal, setShowActionPlanModal] = useState(false);
+  const [actionPlanQuestions, setActionPlanQuestions] = useState<
+    { conceptId: string; conceptText: string; hmwQuestions: string[] }[]
+  >([]);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
   const selectedNotes = state.selectedConceptIds
@@ -876,6 +889,52 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
     }
   };
 
+  // Handle iteration canvas - brings concepts with AI feedback back to canvas
+  const handleIterateOnCanvas = () => {
+    // Convert AI evaluations to the format expected by buildIterationCanvas
+    const evalForCanvas: AIConceptEvaluationForCanvas[] = aiEvaluations.map(
+      (e) => ({
+        conceptId: e.conceptId,
+        overallScore: e.overallScore,
+        criteria: e.criteria,
+        strengths: e.strengths,
+        improvements: e.improvements,
+        summary: e.summary,
+      })
+    );
+
+    const { notes, connections } = buildIterationCanvas(
+      selectedNotes,
+      evalForCanvas,
+      state.hmwStatement
+    );
+
+    initializeIterationCanvas(notes, connections);
+    router.push("/canvas");
+  };
+
+  // Handle Action Plan - generates HMW sub-questions from improvements
+  const handleShowActionPlan = () => {
+    const evalForCanvas: AIConceptEvaluationForCanvas[] = aiEvaluations.map(
+      (e) => ({
+        conceptId: e.conceptId,
+        overallScore: e.overallScore,
+        criteria: e.criteria,
+        strengths: e.strengths,
+        improvements: e.improvements,
+        summary: e.summary,
+      })
+    );
+
+    const questions = generateActionPlanQuestions(
+      selectedNotes,
+      evalForCanvas,
+      state.hmwStatement
+    );
+    setActionPlanQuestions(questions);
+    setShowActionPlanModal(true);
+  };
+
   const calculateConceptScore = (
     conceptIndex: number,
     evals: ConceptSelfEvaluation[] = evaluations
@@ -1519,6 +1578,20 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           {/* Action Buttons */}
           <div className="flex justify-center gap-3 md:gap-4 flex-wrap">
             <button
+              onClick={handleIterateOnCanvas}
+              className="fun-button-primary flex items-center gap-2 touch-manipulation px-4 py-3 text-sm md:text-base"
+            >
+              <Layout className="w-4 h-4 md:w-5 md:h-5" />
+              Iterate on Canvas
+            </button>
+            <button
+              onClick={handleShowActionPlan}
+              className="fun-button-secondary flex items-center gap-2 touch-manipulation px-4 py-3 text-sm md:text-base"
+            >
+              <ListChecks className="w-4 h-4 md:w-5 md:h-5" />
+              Action Plan
+            </button>
+            <button
               onClick={handleExport}
               disabled={isGeneratingPDF}
               className="fun-button-secondary flex items-center gap-2 disabled:opacity-50 touch-manipulation px-4 py-3 text-sm md:text-base"
@@ -1550,10 +1623,10 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             </button>
             <button
               onClick={handleStartOver}
-              className="fun-button-primary flex items-center gap-2 touch-manipulation px-4 py-3 text-sm md:text-base"
+              className="fun-button-secondary flex items-center gap-2 touch-manipulation px-4 py-3 text-sm md:text-base"
             >
               <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
-              Start New Project
+              New Project
             </button>
           </div>
         </div>
@@ -1574,6 +1647,111 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
             Give Feedback
           </span>
         </button>
+
+        {/* Action Plan Modal */}
+        {showActionPlanModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+              {/* Modal Header */}
+              <div className="p-4 md:p-6 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-teal-50 to-blue-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center shadow-lg">
+                    <ListChecks className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg md:text-xl font-black text-gray-800">
+                      Action Plan
+                    </h2>
+                    <p className="text-xs md:text-sm text-gray-600 font-semibold">
+                      HMW questions to strengthen your concepts
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowActionPlanModal(false)}
+                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+                {actionPlanQuestions.map((item, idx) => (
+                  <div
+                    key={item.conceptId}
+                    className="fun-card p-4 md:p-5 border-2 border-gray-200"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg">💡</span>
+                      <h3 className="font-black text-gray-800">
+                        {item.conceptText}
+                      </h3>
+                    </div>
+                    <div className="space-y-2">
+                      {item.hmwQuestions.length > 0 ? (
+                        item.hmwQuestions.map((question, qIdx) => (
+                          <div
+                            key={qIdx}
+                            className="flex items-start gap-2 p-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200"
+                          >
+                            <span className="text-amber-500 font-bold text-sm flex-shrink-0">
+                              Q{qIdx + 1}
+                            </span>
+                            <p className="text-sm text-gray-700 font-semibold">
+                              {question}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500 italic">
+                          No specific action items - this concept is in good shape!
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Tip Card */}
+                <div className="bg-gradient-to-r from-blue-50 to-teal-50 rounded-2xl p-4 border border-blue-200">
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl">💡</span>
+                    <div>
+                      <p className="text-sm font-bold text-gray-800 mb-1">
+                        Pro Tip
+                      </p>
+                      <p className="text-xs md:text-sm text-gray-600">
+                        Use these questions for focused brainstorming sessions.
+                        Each question targets a specific area for improvement
+                        identified by the AI evaluation.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 md:p-6 border-t border-gray-100 flex justify-end gap-3">
+                <button
+                  onClick={() => setShowActionPlanModal(false)}
+                  className="fun-button-secondary px-4 py-2"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    setShowActionPlanModal(false);
+                    handleIterateOnCanvas();
+                  }}
+                  className="fun-button-primary flex items-center gap-2 px-4 py-2"
+                >
+                  <Layout className="w-4 h-4" />
+                  Open Canvas
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

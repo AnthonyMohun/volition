@@ -458,6 +458,7 @@ export async function suggestConceptExtras(
 ): Promise<{
   targetAudience: string;
   platforms: string[];
+  physicalFormats: string[];
   keyBenefits: string;
   mainFeatures: string;
 }> {
@@ -466,15 +467,15 @@ export async function suggestConceptExtras(
       [
         {
           role: "system",
-          content: `You suggest practical details for design concepts. Output ONLY valid JSON with these exact keys: targetAudience (string), platforms (array of strings from: "Virtual Reality", "Mobile", "Tablet", "Web", "Desktop"), keyBenefits (string), mainFeatures (string). Keep each field concise (under 30 words).`,
+          content: `You suggest practical details for design concepts. Output ONLY valid JSON with these exact keys: targetAudience (string), platforms (array of strings from: "Virtual Reality", "Mobile", "Tablet", "Web", "Desktop"), physicalFormats (array of strings from: "Product", "Service", "Space/Environment", "Wearable", "Print/Publication"), keyBenefits (string), mainFeatures (string). Choose platforms for digital solutions and/or physicalFormats for tangible/physical solutions. Keep each field concise (under 30 words).`,
         },
         {
           role: "user",
-          content: `Challenge: ${hmwStatement}\n\nConcept: "${conceptTitle}"\nDescription: ${conceptDescription}\n\nSuggest target audience, platforms, key benefits, and main features for this concept.`,
+          content: `Challenge: ${hmwStatement}\n\nConcept: "${conceptTitle}"\nDescription: ${conceptDescription}\n\nSuggest target audience, platforms (digital) and/or physical formats, key benefits, and main features for this concept.`,
         },
       ],
       0.6,
-      250
+      300
     );
 
     // Parse JSON response
@@ -483,6 +484,9 @@ export async function suggestConceptExtras(
     return {
       targetAudience: parsed.targetAudience || "",
       platforms: Array.isArray(parsed.platforms) ? parsed.platforms : [],
+      physicalFormats: Array.isArray(parsed.physicalFormats)
+        ? parsed.physicalFormats
+        : [],
       keyBenefits: parsed.keyBenefits || "",
       mainFeatures: parsed.mainFeatures || "",
     };
@@ -491,6 +495,7 @@ export async function suggestConceptExtras(
     return {
       targetAudience: "",
       platforms: [],
+      physicalFormats: [],
       keyBenefits: "",
       mainFeatures: "",
     };

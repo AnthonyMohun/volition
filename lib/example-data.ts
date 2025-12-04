@@ -41,12 +41,12 @@ function positionedNotes(rawNotes: Omit<StickyNote, "x" | "y">[]) {
 // Example data for "Try with an example" feature
 export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
   hmwStatement:
-    "How might we help dogs feel less alone when their owners are at work?",
+    "How might we help dogs feel less alone when their owners in college?",
   currentPhase: "canvas",
   notes: positionedNotes([
     {
       id: "note-1",
-      text: "Dogs often show signs of separation anxiety when left alone for extended periods",
+      text: "Dogs often show signs of separation anxiety when left alone during long college days",
       color: "#fef3c7", // yellow
       isConcept: false,
       createdAt: Date.now() - 10000,
@@ -58,7 +58,7 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
       isConcept: true,
       details:
         "Description: A small robot that moves around the house, dispenses treats at random intervals, and plays calming sounds or the owner's voice recordings. The robot can detect when the dog is nearby and engage with them through movement and sounds.\n\nExtras: Includes a companion app for owners to check in and manually trigger interactions.",
-      targetAudience: "Dog owners who work full-time",
+      targetAudience: "College students with dogs",
       platform: ["Mobile", "Web"],
       keyBenefits:
         "Reduces separation anxiety, provides mental stimulation, keeps dogs active",
@@ -79,8 +79,8 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
       color: "#bbf7d0", // green
       isConcept: true,
       details:
-        "Description: An app that connects dog owners in the same neighborhood to share pet-sitting duties. Users can browse profiles of nearby dogs, arrange playdates, and coordinate care schedules so dogs have company during work hours.\n\nExtras: Includes rating system and verified user profiles for safety.",
-      targetAudience: "Dog owners in urban areas",
+        "Description: An app that connects dog owners in the same neighborhood to share pet-sitting duties. Users can browse profiles of nearby dogs, arrange playdates, and coordinate care schedules so dogs have company during class hours.\n\nExtras: Includes rating system and verified user profiles for safety.",
+      targetAudience: "College students in dorms or apartments",
       platform: ["Mobile"],
       keyBenefits:
         "Socialization for dogs, cost-effective alternative to daycare, community building",
@@ -146,13 +146,6 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
       fromAI: true,
       answered: true,
       timestamp: Date.now() - 9500,
-    },
-    {
-      id: "q-4",
-      text: "How do different dog breeds respond to being alone?",
-      fromAI: true,
-      answered: false,
-      timestamp: Date.now() - 8500,
     },
   ] as AIQuestion[],
 };

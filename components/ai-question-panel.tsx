@@ -51,11 +51,15 @@ const STUCK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 interface AIQuestionPanelProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  exampleNextQuestionAvailable?: boolean;
+  onExampleNextQuestionUsed?: () => void;
 }
 
 export function AIQuestionPanel({
   isCollapsed = false,
   onToggleCollapse,
+  exampleNextQuestionAvailable = false,
+  onExampleNextQuestionUsed,
 }: AIQuestionPanelProps) {
   const {
     state,
@@ -234,52 +238,60 @@ export function AIQuestionPanel({
     setError(null);
 
     try {
-      const allNotes = stateRef.current.notes;
-      const concepts = stateRef.current.concepts.map((c) => ({
-        title: c.title,
-        description: c.description,
-      }));
+      let response: string;
 
-      const context = buildConversationContext(
-        stateRef.current.hmwStatement,
-        allNotes,
-        concepts
-      );
+      // For example sessions, use a forced question once
+      if (exampleNextQuestionAvailable) {
+        response = "What do dogs do when they are bored alone?";
+        onExampleNextQuestionUsed?.();
+      } else {
+        const allNotes = stateRef.current.notes;
+        const concepts = stateRef.current.concepts.map((c) => ({
+          title: c.title,
+          description: c.description,
+        }));
 
-      // Build conversation history
-      const messages: Array<{ role: MessageRole; content: string }> = [
-        { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
-        { role: "user", content: context },
-      ];
+        const context = buildConversationContext(
+          stateRef.current.hmwStatement,
+          allNotes,
+          concepts
+        );
 
-      // Add recent Q&A history for continuity
-      const recentQuestions = stateRef.current.questions.slice(-3);
-      recentQuestions.forEach((q) => {
-        const role: MessageRole = q.fromAI ? "assistant" : "user";
-        messages.push({
-          role,
-          content: q.text,
+        // Build conversation history
+        const messages: Array<{ role: MessageRole; content: string }> = [
+          { role: "system", content: SOCRATIC_SYSTEM_PROMPT },
+          { role: "user", content: context },
+        ];
+
+        // Add recent Q&A history for continuity
+        const recentQuestions = stateRef.current.questions.slice(-3);
+        recentQuestions.forEach((q) => {
+          const role: MessageRole = q.fromAI ? "assistant" : "user";
+          messages.push({
+            role,
+            content: q.text,
+          });
         });
-      });
 
-      // Simple instruction based on progress
-      let instruction =
-        "Ask ONE question to help them develop their ideas. Under 15 words.";
+        // Simple instruction based on progress
+        let instruction =
+          "Ask ONE question to help them develop their ideas. Under 15 words.";
 
-      if (allNotes.length === 0) {
-        instruction =
-          "They haven't written anything yet. Ask a simple question to get them started.";
-      } else if (allNotes.length >= 5) {
-        instruction =
-          "They have several ideas. Ask a question to help them pick or combine the best ones.";
+        if (allNotes.length === 0) {
+          instruction =
+            "They haven't written anything yet. Ask a simple question to get them started.";
+        } else if (allNotes.length >= 5) {
+          instruction =
+            "They have several ideas. Ask a question to help them pick or combine the best ones.";
+        }
+
+        messages.push({
+          role: "user" as const,
+          content: instruction,
+        });
+
+        response = await askAI(messages);
       }
-
-      messages.push({
-        role: "user" as const,
-        content: instruction,
-      });
-
-      const response = await askAI(messages);
 
       addQuestion({
         id: `q-${Date.now()}`,

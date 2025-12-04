@@ -44,6 +44,7 @@ export interface StickyNote {
   // Refine phase structured fields
   targetAudience?: string;
   platform?: string[];
+  physicalFormat?: string[];
   keyBenefits?: string;
   mainFeatures?: string;
 }

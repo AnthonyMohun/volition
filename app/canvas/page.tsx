@@ -103,6 +103,11 @@ export default function CanvasPage() {
 
   // Delve deeper state - tracks which note is currently being processed
   const [delvingNoteId, setDelvingNoteId] = useState<string | null>(null);
+  // Track if the forced example delve deeper question is available (one-time use)
+  const [exampleDelveAvailable, setExampleDelveAvailable] = useState(false);
+  // Track if the forced example next question is available (one-time use)
+  const [exampleNextQuestionAvailable, setExampleNextQuestionAvailable] =
+    useState(false);
 
   // Link mode state - for creating connections between notes
   const [linkingFromNoteId, setLinkingFromNoteId] = useState<string | null>(
@@ -201,6 +206,10 @@ export default function CanvasPage() {
       containerRef.current
     ) {
       handleFitToContent();
+      // Enable the one-time example delve deeper question
+      setExampleDelveAvailable(true);
+      // Enable the one-time example next question
+      setExampleNextQuestionAvailable(true);
       // Reset the flag to avoid triggering again
       clearExampleSessionFlag();
     }
@@ -661,18 +670,26 @@ export default function CanvasPage() {
       setDelvingNoteId(noteId);
 
       try {
-        const response = await askAI([
-          { role: "system", content: DELVE_DEEPER_SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: `The design challenge is: "${state.hmwStatement}"
+        let response: string;
+
+        // For example sessions, use a forced question once
+        if (exampleDelveAvailable) {
+          response = "What might make dogs not play with their toys?";
+          setExampleDelveAvailable(false);
+        } else {
+          response = await askAI([
+            { role: "system", content: DELVE_DEEPER_SYSTEM_PROMPT },
+            {
+              role: "user",
+              content: `The design challenge is: "${state.hmwStatement}"
 
 The student wrote this idea on their sticky note:
 "${noteText}"
 
 Ask ONE question about their specific idea to help them develop it further.`,
-          },
-        ]);
+            },
+          ]);
+        }
 
         addQuestion({
           id: `q-${Date.now()}`,
@@ -698,7 +715,13 @@ Ask ONE question about their specific idea to help them develop it further.`,
         setDelvingNoteId(null);
       }
     },
-    [state.hmwStatement, state.voiceOutputEnabled, addQuestion, showToast]
+    [
+      state.hmwStatement,
+      state.voiceOutputEnabled,
+      exampleDelveAvailable,
+      addQuestion,
+      showToast,
+    ]
   );
 
   // Link mode handlers - initiated from sticky note link button
@@ -932,6 +955,8 @@ Ask ONE question about their specific idea to help them develop it further.`,
       confirm("Start a new project? This will clear all your current work.")
     ) {
       resetSession();
+      setExampleDelveAvailable(false);
+      setExampleNextQuestionAvailable(false);
       router.push("/");
     }
   };
@@ -973,6 +998,10 @@ Ask ONE question about their specific idea to help them develop it further.`,
         <AIQuestionPanel
           isCollapsed={isAIPanelCollapsed}
           onToggleCollapse={() => setIsAIPanelCollapsed(!isAIPanelCollapsed)}
+          exampleNextQuestionAvailable={exampleNextQuestionAvailable}
+          onExampleNextQuestionUsed={() =>
+            setExampleNextQuestionAvailable(false)
+          }
         />
 
         {/* Main Canvas */}

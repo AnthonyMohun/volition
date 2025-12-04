@@ -67,7 +67,15 @@ export default function RefinePage() {
     "Web",
     "Desktop",
   ];
+  const PHYSICAL_FORMAT_OPTIONS = [
+    "Product",
+    "Service",
+    "Space/Environment",
+    "Wearable",
+    "Print/Publication",
+  ];
   const [platform, setPlatform] = useState<string[]>([]);
+  const [physicalFormat, setPhysicalFormat] = useState<string[]>([]);
   const [keyBenefits, setKeyBenefits] = useState("");
   const [mainFeatures, setMainFeatures] = useState("");
   const [showExtras, setShowExtras] = useState(false); // Closed by default
@@ -440,6 +448,8 @@ export default function RefinePage() {
       if (suggestions.targetAudience)
         setTargetAudience(suggestions.targetAudience);
       if (suggestions.platforms.length > 0) setPlatform(suggestions.platforms);
+      if (suggestions.physicalFormats.length > 0)
+        setPhysicalFormat(suggestions.physicalFormats);
       if (suggestions.keyBenefits) setKeyBenefits(suggestions.keyBenefits);
       if (suggestions.mainFeatures) setMainFeatures(suggestions.mainFeatures);
 
@@ -496,6 +506,7 @@ export default function RefinePage() {
     // Prefer structured fields if present
     setTargetAudience(note.targetAudience || "");
     setPlatform(note.platform || []);
+    setPhysicalFormat(note.physicalFormat || []);
     setKeyBenefits(note.keyBenefits || "");
     setMainFeatures(note.mainFeatures || "");
 
@@ -538,7 +549,9 @@ export default function RefinePage() {
     // Compose structured extras
     const structuredExtras = [
       targetAudience && `Target Audience: ${targetAudience}`,
-      platform.length > 0 && `Platform: ${platform.join(", ")}`,
+      platform.length > 0 && `Digital Platform: ${platform.join(", ")}`,
+      physicalFormat.length > 0 &&
+        `Physical Format: ${physicalFormat.join(", ")}`,
       keyBenefits && `Key Benefits: ${keyBenefits}`,
       mainFeatures && `Main Features: ${mainFeatures}`,
       editForm.extras && editForm.extras,
@@ -556,6 +569,11 @@ export default function RefinePage() {
     updateNote(editingId, {
       text: editForm.title,
       details: detailsText,
+      targetAudience,
+      platform,
+      physicalFormat,
+      keyBenefits,
+      mainFeatures,
     });
 
     setEditingId(null);
@@ -1098,7 +1116,7 @@ export default function RefinePage() {
                             </div>
                             <div>
                               <label className="text-xs font-semibold text-gray-500 mb-2 block">
-                                Platform
+                                Digital Platform
                               </label>
                               <div className="flex flex-wrap gap-3 md:gap-2">
                                 {PLATFORM_OPTIONS.map((option) => (
@@ -1119,6 +1137,40 @@ export default function RefinePage() {
                                         }
                                       }}
                                       className="accent-teal-500 w-5 h-5 md:w-4 md:h-4 rounded"
+                                    />
+                                    {option}
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-xs font-semibold text-gray-500 mb-2 block">
+                                Physical Format
+                              </label>
+                              <div className="flex flex-wrap gap-3 md:gap-2">
+                                {PHYSICAL_FORMAT_OPTIONS.map((option) => (
+                                  <label
+                                    key={option}
+                                    className="flex items-center gap-2 md:gap-1.5 text-sm font-medium text-gray-600 py-1 touch-manipulation cursor-pointer"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={physicalFormat.includes(option)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setPhysicalFormat([
+                                            ...physicalFormat,
+                                            option,
+                                          ]);
+                                        } else {
+                                          setPhysicalFormat(
+                                            physicalFormat.filter(
+                                              (p) => p !== option
+                                            )
+                                          );
+                                        }
+                                      }}
+                                      className="accent-orange-500 w-5 h-5 md:w-4 md:h-4 rounded"
                                     />
                                     {option}
                                   </label>
