@@ -1,0 +1,509 @@
+/* ============================================
+   Reveal.js Custom Theme for Volition
+   Claymorphism + Animated Gradients
+   ============================================ */
+
+/* Ensure reveal takes full viewport */
+.reveal-viewport,
+.reveal {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Base Reveal.js overrides */
+.reveal-viewport {
+  background: linear-gradient(
+    135deg,
+    #f0f9ff 0%,
+    #fef3c7 25%,
+    #dbeafe 50%,
+    #dcfce7 75%,
+    #f0f9ff 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Fullscreen hint */
+.fullscreen-hint {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-family: var(--font-rubik), system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.fullscreen-hint kbd {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin: 0 4px;
+  font-family: monospace;
+}
+
+/* Hide hint in fullscreen */
+:fullscreen .fullscreen-hint,
+:-webkit-full-screen .fullscreen-hint {
+  opacity: 0;
+}
+
+/* Slide container - white card with padding to show gradient */
+.slide-container {
+  background: linear-gradient(145deg, #ffffff 0%, #fefefe 100%);
+  border-radius: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 16px 16px 32px rgba(163, 177, 198, 0.35),
+    -16px -16px 32px rgba(255, 255, 255, 0.9),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.5),
+    inset -2px -2px 4px rgba(163, 177, 198, 0.1);
+  padding: 60px;
+  margin: 40px;
+  min-height: calc(100% - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Slide container inner content */
+.slide-container > div {
+  width: 100%;
+}
+
+/* Slide container */
+.reveal .slides {
+  text-align: center;
+}
+
+.reveal .slides > section,
+.reveal .slides > section > section {
+  padding: 0;
+  height: 100%;
+}
+
+/* Typography - BIGGER sizes */
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  font-family: var(--font-rubik), system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  color: #1a1a2e;
+  text-transform: none;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+}
+
+.reveal h1 {
+  font-size: 4.5em;
+  background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
+  background-size: 200% 200%;
+  animation: gradientFlow 3s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.reveal h2 {
+  font-size: 3.5em;
+  color: #1a1a2e;
+}
+
+.reveal h3 {
+  font-size: 2.25em;
+  color: #374151;
+}
+
+.reveal p,
+.reveal li {
+  font-family: var(--font-rubik), system-ui, -apple-system, sans-serif;
+  font-weight: 500;
+  color: #4b5563;
+  font-size: 1.5em;
+  line-height: 1.6;
+}
+
+@keyframes gradientFlow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Slide cards */
+.slide-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fefefe 100%);
+  border-radius: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 12px 12px 24px rgba(163, 177, 198, 0.4),
+    -12px -12px 24px rgba(255, 255, 255, 0.9),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 4px rgba(163, 177, 198, 0.1);
+  padding: 48px;
+  margin: 0 auto;
+  max-width: 90%;
+}
+
+/* Glass panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(163, 177, 198, 0.25);
+  border-radius: 24px;
+  padding: 32px;
+}
+
+/* Feature cards */
+.feature-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+  border-radius: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 8px 8px 16px rgba(163, 177, 198, 0.3),
+    -8px -8px 16px rgba(255, 255, 255, 0.9);
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Progress bar */
+.reveal .progress {
+  height: 6px;
+  background: rgba(163, 177, 198, 0.2);
+}
+
+.reveal .progress span {
+  background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
+  background-size: 200% 200%;
+  animation: gradientFlow 3s ease infinite;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Navigation controls */
+.reveal .controls {
+  color: #3b82f6;
+}
+
+.reveal .controls button {
+  color: #3b82f6;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.reveal .controls button:hover {
+  opacity: 1;
+  color: #14b8a6;
+}
+
+/* Slide number */
+.reveal .slide-number {
+  font-family: var(--font-rubik), system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #6b7280;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 8px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  right: 20px;
+  bottom: 20px;
+}
+
+/* Fragment animations */
+.reveal .fragment {
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reveal .fragment.fade-in-then-out,
+.reveal .fragment.fade-in {
+  opacity: 0;
+}
+
+.reveal .fragment.fade-in-then-out.visible,
+.reveal .fragment.fade-in.visible {
+  opacity: 1;
+}
+
+.reveal .fragment.fade-up {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.reveal .fragment.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal .fragment.fade-left {
+  opacity: 0;
+  transform: translateX(40px);
+}
+
+.reveal .fragment.fade-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal .fragment.fade-right {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+.reveal .fragment.fade-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal .fragment.grow {
+  opacity: 1;
+  transform: scale(0.8);
+}
+
+.reveal .fragment.grow.visible {
+  transform: scale(1);
+}
+
+/* Custom animations */
+.reveal .slide-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reveal .slide-up.visible,
+.reveal section.present .slide-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal .bounce-in {
+  opacity: 0;
+  transform: scale(0.3);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reveal .bounce-in.visible,
+.reveal section.present .bounce-in {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Emoji floating */
+.floating-emoji {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Logo styling */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.logo-container img {
+  height: 200px;
+  width: auto;
+  filter: drop-shadow(0 10px 20px rgba(59, 130, 246, 0.3));
+}
+
+/* Placeholder slides */
+.placeholder-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  border: 4px dashed rgba(163, 177, 198, 0.4);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.placeholder-slide h2 {
+  color: #9ca3af;
+}
+
+/* Grid layouts */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* Comparison table */
+.comparison-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 16px;
+  margin-bottom: 8px;
+}
+
+.comparison-row:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Icon containers */
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.icon-circle-blue {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #3b82f6;
+}
+
+.icon-circle-teal {
+  background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%);
+  color: #14b8a6;
+}
+
+.icon-circle-yellow {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #f59e0b;
+}
+
+.icon-circle-green {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #22c55e;
+}
+
+.icon-circle-purple {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  color: #8b5cf6;
+}
+
+/* Buttons */
+.reveal .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
+  background-size: 200% 200%;
+  animation: gradientFlow 3s ease infinite;
+  color: white;
+  border-radius: 20px;
+  padding: 16px 32px;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4),
+    0 4px 8px rgba(20, 184, 166, 0.3);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.reveal .btn-primary:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.5),
+    0 6px 12px rgba(20, 184, 166, 0.4);
+}
+
+/* Back to app link */
+.back-to-app {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.back-to-app:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive adjustments for 16:9 */
+@media (max-aspect-ratio: 16/9) {
+  .reveal h1 {
+    font-size: 2.5em;
+  }
+
+  .reveal h2 {
+    font-size: 2em;
+  }
+
+  .slide-card {
+    padding: 32px;
+  }
+}
+
+/* Hide controls on touch for cleaner look */
+@media (pointer: coarse) {
+  .reveal .controls {
+    display: none;
+  }
+}

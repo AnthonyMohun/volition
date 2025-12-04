@@ -1,0 +1,813 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Star,
+  Pencil,
+  Mic,
+  Image,
+  Sparkles,
+  Check,
+  MessageSquare,
+  Lightbulb,
+  Users,
+  Zap,
+  Target,
+  Brain,
+  ArrowRight,
+  ChevronRight,
+} from "lucide-react";
+
+// ============================================
+// ANIMATED STICKY NOTE
+// ============================================
+export function AnimatedStickyNote({ delay = 0 }: { delay?: number }) {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setStep((s) => (s < 4 ? s + 1 : 0)); // Loop animation
+      }, 1200);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [delay]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: delay / 1000 }}
+      className="flex flex-col items-center"
+    >
+      {/* Sticky note with badge */}
+      <div className="relative inline-block">
+        {/* Concept badge */}
+        <AnimatePresence>
+          {step >= 3 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              className="absolute -top-3 -right-3 z-10 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full p-2 shadow-lg"
+            >
+              <Star className="w-5 h-5 text-white fill-current" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div
+          className="w-64 p-6 rounded-3xl border-4 border-yellow-400 bg-yellow-100"
+          style={{
+            boxShadow:
+              "12px 12px 24px rgba(251, 191, 36, 0.4), -4px -4px 12px rgba(255, 255, 255, 0.6)",
+          }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between mb-3">
+            <motion.button
+              animate={step >= 3 ? { scale: [1, 1.2, 1] } : {}}
+              transition={{ duration: 0.3 }}
+              className={`p-2 rounded-xl ${
+                step >= 3
+                  ? "text-yellow-600 bg-yellow-200"
+                  : "text-gray-400 hover:bg-yellow-200/50"
+              }`}
+            >
+              <Star className={`w-5 h-5 ${step >= 3 ? "fill-current" : ""}`} />
+            </motion.button>
+            <div className="flex gap-2">
+              <motion.div
+                animate={step >= 1 ? { scale: [0, 1.2, 1] } : { scale: 0 }}
+                className="p-2 rounded-xl bg-yellow-200/50"
+              >
+                <Image className="w-4 h-4 text-gray-500" />
+              </motion.div>
+              <motion.div
+                animate={step >= 2 ? { scale: [0, 1.2, 1] } : { scale: 0 }}
+                className="p-2 rounded-xl bg-yellow-200/50"
+              >
+                <Pencil className="w-4 h-4 text-blue-500" />
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Text */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: step >= 0 ? 1 : 0 }}
+            className="text-lg text-gray-800 font-bold"
+          >
+            {step >= 0 && "My creative idea..."}
+          </motion.p>
+        </div>
+      </div>
+
+      {/* Labels */}
+      <div className="mt-6 space-y-2">
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: step >= 1 ? 1 : 0.3, x: step >= 1 ? 0 : -10 }}
+          className="flex items-center gap-3 text-sm"
+        >
+          <div
+            className={`w-3 h-3 rounded-full ${
+              step >= 1 ? "bg-green-500" : "bg-gray-300"
+            }`}
+          />
+          <span
+            className={
+              step >= 1 ? "text-gray-700 font-medium" : "text-gray-400"
+            }
+          >
+            Add images
+          </span>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: step >= 2 ? 1 : 0.3, x: step >= 2 ? 0 : -10 }}
+          className="flex items-center gap-3 text-sm"
+        >
+          <div
+            className={`w-3 h-3 rounded-full ${
+              step >= 2 ? "bg-green-500" : "bg-gray-300"
+            }`}
+          />
+          <span
+            className={
+              step >= 2 ? "text-gray-700 font-medium" : "text-gray-400"
+            }
+          >
+            Sketch your ideas
+          </span>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: step >= 3 ? 1 : 0.3, x: step >= 3 ? 0 : -10 }}
+          className="flex items-center gap-3 text-sm"
+        >
+          <div
+            className={`w-3 h-3 rounded-full ${
+              step >= 3 ? "bg-green-500" : "bg-gray-300"
+            }`}
+          />
+          <span
+            className={
+              step >= 3 ? "text-gray-700 font-medium" : "text-gray-400"
+            }
+          >
+            Mark as concept ⭐
+          </span>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// ANIMATED AI CHAT
+// ============================================
+export function AnimatedAIChat({ delay = 0 }: { delay?: number }) {
+  const [messages, setMessages] = useState<
+    { text: string; isAI: boolean; visible: boolean }[]
+  >([
+    {
+      text: "What assumptions are you making about your users?",
+      isAI: true,
+      visible: false,
+    },
+    {
+      text: "I'm assuming they have some technical knowledge...",
+      isAI: false,
+      visible: false,
+    },
+    {
+      text: "How might you verify that assumption? 🤔",
+      isAI: true,
+      visible: false,
+    },
+  ]);
+  const [cycle, setCycle] = useState(0);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      let index = 0;
+      const showMessages = () => {
+        if (index < 3) {
+          setMessages((prev) =>
+            prev.map((m, i) => (i === index ? { ...m, visible: true } : m))
+          );
+          index++;
+          setTimeout(showMessages, 1500);
+        } else {
+          // Reset after all messages shown
+          setTimeout(() => {
+            setMessages((prev) => prev.map((m) => ({ ...m, visible: false })));
+            index = 0;
+            setCycle((c) => c + 1);
+            setTimeout(showMessages, 500);
+          }, 3000);
+        }
+      };
+      showMessages();
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [delay]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: delay / 1000 }}
+      className="space-y-4 max-w-md"
+    >
+      {messages.map((msg, index) => (
+        <AnimatePresence key={`${index}-${cycle}`}>
+          {msg.visible && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              className={`p-4 rounded-2xl ${
+                msg.isAI
+                  ? "bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 mr-12"
+                  : "bg-gradient-to-br from-teal-50 to-green-50 border-2 border-teal-200 ml-12"
+              }`}
+            >
+              {msg.isAI && (
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-teal-500" />
+                  <span className="text-sm font-bold text-teal-600">
+                    Volition
+                  </span>
+                </div>
+              )}
+              <p className="text-base text-gray-700 font-medium">{msg.text}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      ))}
+    </motion.div>
+  );
+}
+
+// ============================================
+// ANIMATED VOICE INPUT
+// ============================================
+export function AnimatedVoiceInput({ delay = 0 }: { delay?: number }) {
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const fullText = "A mobile app for tracking sustainability habits...";
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const runAnimation = () => {
+      if (!isMounted) return;
+
+      setIsRecording(true);
+      setTranscript("");
+      let index = 0;
+
+      const typeInterval = setInterval(() => {
+        if (!isMounted) {
+          clearInterval(typeInterval);
+          return;
+        }
+        if (index < fullText.length) {
+          setTranscript(fullText.slice(0, index + 1));
+          index++;
+        } else {
+          clearInterval(typeInterval);
+          setTimeout(() => {
+            if (!isMounted) return;
+            setIsRecording(false);
+            // Restart animation after pause
+            setTimeout(() => {
+              if (isMounted) runAnimation();
+            }, 2000);
+          }, 500);
+        }
+      }, 60);
+    };
+
+    const timeout = setTimeout(runAnimation, delay);
+    return () => {
+      isMounted = false;
+      clearTimeout(timeout);
+    };
+  }, [delay]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: delay / 1000 }}
+      className="space-y-6"
+    >
+      {/* Mic button */}
+      <div className="flex items-center justify-center">
+        <motion.div
+          animate={
+            isRecording
+              ? {
+                  scale: [1, 1.1, 1],
+                  boxShadow: [
+                    "0 0 0 0 rgba(239, 68, 68, 0.4)",
+                    "0 0 0 30px rgba(239, 68, 68, 0)",
+                  ],
+                }
+              : {}
+          }
+          transition={{ duration: 1, repeat: isRecording ? Infinity : 0 }}
+          className={`p-6 rounded-3xl ${
+            isRecording
+              ? "bg-red-100 text-red-600"
+              : "bg-teal-100 text-teal-600"
+          }`}
+        >
+          <Mic className="w-12 h-12" />
+        </motion.div>
+      </div>
+
+      {/* Transcript */}
+      <div className="text-center">
+        <AnimatePresence>
+          {isRecording && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-sm text-red-500 font-bold mb-3"
+            >
+              🎤 Listening...
+            </motion.p>
+          )}
+        </AnimatePresence>
+        <div className="bg-white border-3 border-gray-200 rounded-2xl p-4 min-h-[80px]">
+          <p className="text-base text-gray-700 font-medium">
+            {transcript || (
+              <span className="text-gray-400">Hold spacebar to speak...</span>
+            )}
+          </p>
+        </div>
+      </div>
+
+      {/* Commands hint */}
+      <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4">
+        <p className="text-sm font-bold text-blue-700 mb-3">Voice Commands:</p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {["save note", "next question", "mark as concept"].map((cmd) => (
+            <span
+              key={cmd}
+              className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-xl text-sm font-medium"
+            >
+              "{cmd}"
+            </span>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// ANIMATED WORKFLOW
+// ============================================
+export function AnimatedWorkflow({
+  delay = 0,
+  size = "large",
+}: {
+  delay?: number;
+  size?: "small" | "large";
+}) {
+  const [activeStep, setActiveStep] = useState(-1);
+  const steps = [
+    { emoji: "💭", label: "Define", color: "blue" },
+    { emoji: "🎨", label: "Ideate", color: "teal" },
+    { emoji: "⭐", label: "Select", color: "yellow" },
+    { emoji: "✨", label: "Refine", color: "purple" },
+    { emoji: "🚀", label: "Export", color: "green" },
+  ];
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setActiveStep((s) => (s < steps.length - 1 ? s + 1 : -1)); // Loop
+      }, 800);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [delay]);
+
+  const iconSize = size === "large" ? "w-16 h-16" : "w-12 h-12";
+  const textSize = size === "large" ? "text-base" : "text-sm";
+  const emojiSize = size === "large" ? "text-2xl" : "text-xl";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: delay / 1000 }}
+    >
+      <div className="flex items-center justify-center gap-2">
+        {steps.map((step, index) => (
+          <div key={step.label} className="flex items-center">
+            <motion.div
+              animate={
+                index <= activeStep
+                  ? { scale: [0.8, 1.1, 1], opacity: 1 }
+                  : { scale: 0.8, opacity: 0.4 }
+              }
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center"
+            >
+              <div
+                className={`${iconSize} rounded-2xl flex items-center justify-center ${emojiSize} transition-all ${
+                  index <= activeStep
+                    ? index === activeStep
+                      ? "bg-gradient-to-br from-blue-400 to-teal-400 text-white shadow-lg ring-4 ring-blue-200"
+                      : "bg-gradient-to-br from-green-100 to-green-200 text-green-600 shadow-md"
+                    : "bg-gray-100 text-gray-400"
+                }`}
+              >
+                {index < activeStep ? (
+                  <Check className="w-6 h-6" />
+                ) : (
+                  step.emoji
+                )}
+              </div>
+              <span
+                className={`${textSize} font-bold mt-2 ${
+                  index <= activeStep
+                    ? index === activeStep
+                      ? "text-teal-700"
+                      : "text-green-600"
+                    : "text-gray-400"
+                }`}
+              >
+                {step.label}
+              </span>
+            </motion.div>
+            {index < steps.length - 1 && (
+              <motion.div
+                animate={
+                  index < activeStep
+                    ? { scaleX: 1, opacity: 1 }
+                    : { scaleX: 0, opacity: 0.3 }
+                }
+                transition={{ duration: 0.3 }}
+                className="w-12 h-1.5 mx-2 bg-gradient-to-r from-green-300 to-green-400 rounded-full origin-left"
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// ANIMATED COMPARISON CARDS
+// ============================================
+interface ComparisonItem {
+  label: string;
+  volition: boolean | string;
+  others: boolean | string;
+}
+
+export function AnimatedComparisonCard({ delay = 0 }: { delay?: number }) {
+  const [visibleIndex, setVisibleIndex] = useState(-1);
+
+  const comparisons: ComparisonItem[] = [
+    { label: "Socratic AI Guidance", volition: true, others: false },
+    { label: "Voice-First Input", volition: true, others: false },
+    { label: "Local-First Privacy", volition: true, others: false },
+    { label: "Design Education Focus", volition: true, others: false },
+    { label: "Stuck Detection", volition: true, others: false },
+  ];
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setVisibleIndex((i) => (i < comparisons.length - 1 ? i + 1 : -1));
+      }, 1000);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [delay]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: delay / 1000 }}
+      className="w-full max-w-2xl mx-auto"
+    >
+      {/* Header */}
+      <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="text-center">
+          <span className="text-sm font-bold text-gray-500">Feature</span>
+        </div>
+        <div className="text-center">
+          <span className="text-lg font-black text-teal-600">Volition</span>
+        </div>
+        <div className="text-center">
+          <span className="text-lg font-bold text-gray-400">Others</span>
+        </div>
+      </div>
+
+      {/* Comparison rows */}
+      <div className="space-y-3">
+        {comparisons.map((item, index) => (
+          <motion.div
+            key={item.label}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{
+              opacity: index <= visibleIndex ? 1 : 0.3,
+              x: index <= visibleIndex ? 0 : -20,
+            }}
+            className="grid grid-cols-3 gap-4 items-center p-3 rounded-2xl bg-white/50"
+          >
+            <span className="text-sm font-medium text-gray-700">
+              {item.label}
+            </span>
+            <div className="flex justify-center">
+              <motion.div
+                animate={index <= visibleIndex ? { scale: [0, 1.2, 1] } : {}}
+                className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"
+              >
+                <Check className="w-5 h-5 text-green-600" />
+              </motion.div>
+            </div>
+            <div className="flex justify-center">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400">—</span>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// ANIMATED PROCESS DIAGRAM
+// ============================================
+export function AnimatedProcessDiagram({ delay = 0 }: { delay?: number }) {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setStep((s) => (s < 4 ? s + 1 : 0));
+      }, 1500);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [delay]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: delay / 1000 }}
+      className="grid grid-cols-2 gap-12"
+    >
+      {/* Traditional Process */}
+      <div className="space-y-4">
+        <h3 className="text-xl font-black text-gray-400 text-center mb-6">
+          Traditional
+        </h3>
+        <div className="flex flex-col items-center space-y-3">
+          {["Research", "Define", "Ideate", "Prototype", "Test"].map(
+            (label, i) => (
+              <div key={label} className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                  <span className="text-gray-400 font-bold">{i + 1}</span>
+                </div>
+                <span className="text-gray-500 font-medium w-24">{label}</span>
+                {i < 4 && (
+                  <ChevronRight className="w-5 h-5 text-gray-300 rotate-90 absolute -bottom-4 left-1/2 -translate-x-1/2" />
+                )}
+              </div>
+            )
+          )}
+        </div>
+        <p className="text-sm text-gray-400 text-center mt-4">
+          Linear, step-by-step
+        </p>
+      </div>
+
+      {/* Socratic Process */}
+      <div className="space-y-4">
+        <h3 className="text-xl font-black text-teal-600 text-center mb-6">
+          Socratic
+        </h3>
+        <div className="relative">
+          {/* Central question */}
+          <motion.div
+            animate={{ scale: step === 0 ? [1, 1.1, 1] : 1 }}
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-teal-400 flex items-center justify-center mx-auto mb-4"
+          >
+            <MessageSquare className="w-8 h-8 text-white" />
+          </motion.div>
+
+          {/* Exploration branches */}
+          <div className="flex justify-center gap-4">
+            {[Lightbulb, Brain, Target].map((Icon, i) => (
+              <motion.div
+                key={i}
+                animate={{
+                  scale: step === i + 1 ? [1, 1.2, 1] : 1,
+                  opacity: step >= i + 1 ? 1 : 0.4,
+                }}
+                className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-100 to-green-100 flex items-center justify-center"
+              >
+                <Icon className="w-6 h-6 text-teal-600" />
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Deeper exploration */}
+          <motion.div
+            animate={{ opacity: step >= 4 ? 1 : 0.3, y: step >= 4 ? 0 : 10 }}
+            className="flex justify-center gap-2 mt-4"
+          >
+            {[1, 2, 3, 4, 5].map((_, i) => (
+              <div
+                key={i}
+                className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center"
+              >
+                <Sparkles className="w-4 h-4 text-green-500" />
+              </div>
+            ))}
+          </motion.div>
+        </div>
+        <p className="text-sm text-teal-600 text-center mt-4">
+          Guided exploration
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// ANIMATED SUCCESS JOURNEY
+// ============================================
+export function AnimatedSuccessJourney({ delay = 0 }: { delay?: number }) {
+  const [step, setStep] = useState(0);
+
+  const stages = [
+    { icon: Target, label: "Challenge", color: "blue" },
+    { icon: Lightbulb, label: "Ideas", color: "yellow" },
+    { icon: Star, label: "Concepts", color: "teal" },
+    { icon: Sparkles, label: "Refined", color: "purple" },
+    { icon: Check, label: "Success!", color: "green" },
+  ];
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setStep((s) => (s < stages.length - 1 ? s + 1 : 0));
+      }, 1200);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [delay]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: delay / 1000 }}
+      className="flex items-center justify-center gap-4"
+    >
+      {stages.map((stage, index) => {
+        const Icon = stage.icon;
+        const isActive = index <= step;
+        const isCurrent = index === step;
+
+        return (
+          <div key={stage.label} className="flex items-center">
+            <motion.div
+              animate={{
+                scale: isCurrent ? [1, 1.15, 1] : 1,
+                opacity: isActive ? 1 : 0.4,
+              }}
+              className="flex flex-col items-center"
+            >
+              <div
+                className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
+                  isActive
+                    ? isCurrent
+                      ? "bg-gradient-to-br from-teal-400 to-blue-500 shadow-lg"
+                      : "bg-gradient-to-br from-green-100 to-green-200"
+                    : "bg-gray-100"
+                }`}
+              >
+                <Icon
+                  className={`w-8 h-8 ${
+                    isActive
+                      ? isCurrent
+                        ? "text-white"
+                        : "text-green-600"
+                      : "text-gray-400"
+                  }`}
+                />
+              </div>
+              <span
+                className={`text-sm font-bold mt-2 ${
+                  isActive
+                    ? isCurrent
+                      ? "text-teal-600"
+                      : "text-green-600"
+                    : "text-gray-400"
+                }`}
+              >
+                {stage.label}
+              </span>
+            </motion.div>
+            {index < stages.length - 1 && (
+              <motion.div
+                animate={{
+                  scaleX: index < step ? 1 : 0,
+                  opacity: index < step ? 1 : 0.3,
+                }}
+                className="w-8 h-1 mx-2 bg-gradient-to-r from-green-400 to-teal-400 rounded-full origin-left"
+              />
+            )}
+          </div>
+        );
+      })}
+    </motion.div>
+  );
+}
+
+// ============================================
+// FLOATING EMOJI DECORATION
+// ============================================
+export function FloatingEmoji({
+  emoji,
+  className = "",
+  delay = 0,
+}: {
+  emoji: string;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.span
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        y: [0, -10, 0],
+      }}
+      transition={{
+        opacity: { delay: delay / 1000, duration: 0.3 },
+        scale: { delay: delay / 1000, duration: 0.3 },
+        y: {
+          delay: delay / 1000 + 0.3,
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+        },
+      }}
+      className={`text-4xl ${className}`}
+    >
+      {emoji}
+    </motion.span>
+  );
+}
+
+// ============================================
+// PERSONA CARD
+// ============================================
+export function PersonaCard({
+  emoji,
+  title,
+  description,
+  delay = 0,
+}: {
+  emoji: string;
+  title: string;
+  description: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: delay / 1000, type: "spring", damping: 20 }}
+      className="fun-card p-8 text-center"
+    >
+      <span className="text-6xl mb-4 block">{emoji}</span>
+      <h3 className="text-2xl font-black text-gray-800 mb-2">{title}</h3>
+      <p className="text-gray-600 font-medium">{description}</p>
+    </motion.div>
+  );
+}
