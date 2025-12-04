@@ -30,6 +30,8 @@ import {
   Zap,
   Info,
   Target,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { pdf } from "@react-pdf/renderer";
@@ -91,6 +93,10 @@ export default function FinalPage() {
   // TTS tracking
   const hasSpokenAIEvalIntroRef = useRef(false);
   const hasSpokenSelfAssessmentIntroRef = useRef(false);
+  // Mute state for TTS
+  const [isMuted, setIsMuted] = useState(false);
+  // Prevent double-click/double-key processing
+  const isProcessingRatingRef = useRef(false);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
   const selectedNotes = state.selectedConceptIds
@@ -133,32 +139,7 @@ export default function FinalPage() {
       // Number keys 1-5 for rating - auto-continue immediately
       if (e.key >= "1" && e.key <= "5") {
         const score = parseInt(e.key, 10);
-        // Set rating and advance in one go
-        setCurrentRating(score);
-        // Save rating to evaluations
-        setEvaluations((prev) => {
-          const updated = [...prev];
-          if (!updated[currentConceptIndex]) {
-            updated[currentConceptIndex] = {
-              conceptId: selectedNotes[currentConceptIndex]?.id || "",
-              ratings: [],
-            };
-          }
-          const existingIdx = updated[currentConceptIndex].ratings.findIndex(
-            (r) => r.criteriaId === currentCriteria?.id
-          );
-          if (existingIdx >= 0) {
-            updated[currentConceptIndex].ratings[existingIdx].score = score;
-          } else {
-            updated[currentConceptIndex].ratings.push({
-              criteriaId: currentCriteria?.id || "",
-              score,
-            });
-          }
-          return updated;
-        });
-        // Auto-advance after brief visual feedback
-        setTimeout(() => handleNext(), 250);
+        handleRatingSelect(score);
       }
     };
 
@@ -192,6 +173,9 @@ export default function FinalPage() {
     "strengths" | "improvements" | null
   >(null);
 
+  // Track last spoken AI eval index to avoid re-speaking
+  const lastSpokenAIEvalIndexRef = useRef<number>(-1);
+
   // Speak intro when first AI evaluation completes - summarize strengths and improvements
   useEffect(() => {
     if (
@@ -202,6 +186,7 @@ export default function FinalPage() {
       isSpeechSynthesisSupported()
     ) {
       hasSpokenAIEvalIntroRef.current = true;
+      lastSpokenAIEvalIndexRef.current = 0;
       const eval0 = aiEvaluations[0];
       const tier = scoreToGrowthTier(eval0.overallScore);
 
@@ -223,12 +208,62 @@ export default function FinalPage() {
     }
   }, [aiEvaluations]);
 
-  // Speak intro when self-assessment summary is shown
+  // Speak when navigating to a new concept (not the first one)
+  useEffect(() => {
+    // Only trigger if we have evaluations, this isn't the first concept, and we haven't spoken this one
+    if (
+      showAIEvaluation &&
+      !aiEvalComplete &&
+      aiEvaluations.length > 0 &&
+      currentAIEvalIndex !== lastSpokenAIEvalIndexRef.current &&
+      !aiEvaluations[currentAIEvalIndex]?.isLoading &&
+      aiEvaluations[currentAIEvalIndex]?.strengths?.length > 0 &&
+      isSpeechSynthesisSupported() &&
+      !isMuted
+    ) {
+      lastSpokenAIEvalIndexRef.current = currentAIEvalIndex;
+      const evalData = aiEvaluations[currentAIEvalIndex];
+      const tier = scoreToGrowthTier(evalData.overallScore);
+      const conceptNote = selectedNotes[currentAIEvalIndex];
+
+      // Build speech with strengths and improvements
+      const strengthsText = evalData.strengths.slice(0, 2).join(". ");
+      const improvementsText = evalData.improvements.slice(0, 1).join(". ");
+
+      // Speak with section highlighting
+      const speakWithHighlights = async () => {
+        // Stop any ongoing speech first
+        stopSpeaking();
+        setSpeakingSection("strengths");
+        await speak(
+          `Concept ${currentAIEvalIndex + 1}, ${
+            conceptNote?.text || ""
+          }, is at the ${
+            tier.label
+          } stage. What's working well: ${strengthsText}`
+        );
+        setSpeakingSection("improvements");
+        await speak(`Areas to grow: ${improvementsText}`);
+        setSpeakingSection(null);
+      };
+      speakWithHighlights();
+    }
+  }, [
+    currentAIEvalIndex,
+    aiEvaluations,
+    showAIEvaluation,
+    aiEvalComplete,
+    isMuted,
+    selectedNotes,
+  ]);
+
+  // Speak intro when final summary is shown (not the mini-celebration between concepts)
   useEffect(() => {
     if (
-      showCelebration &&
+      showSummary &&
       !hasSpokenSelfAssessmentIntroRef.current &&
-      isSpeechSynthesisSupported()
+      isSpeechSynthesisSupported() &&
+      !isMuted
     ) {
       hasSpokenSelfAssessmentIntroRef.current = true;
       // Calculate scores inline to avoid dependency on function defined later
@@ -254,7 +289,7 @@ export default function FinalPage() {
         );
       }
     }
-  }, [showCelebration, selectedNotes, evaluations]);
+  }, [showSummary, selectedNotes, evaluations, isMuted]);
 
   const generateAIEvaluations = async () => {
     const evaluationsToGenerate = selectedNotes.map((note) => ({
@@ -278,8 +313,8 @@ export default function FinalPage() {
       try {
         const hasVisualContent = note.image || note.drawing?.dataUrl;
 
-        // Growth-oriented evaluation prompt - focus on potential and encouragement
-        const prompt = `You are a supportive design thinking mentor helping a student develop their concept for a course project.
+        // Balanced evaluation prompt - honest but constructive
+        const prompt = `You are a design thinking mentor evaluating a student's concept for a course project. Your role is to provide honest, balanced feedback that helps students understand where their concept truly stands.
 
 Design Challenge: "${state.hmwStatement}"
 
@@ -288,38 +323,42 @@ Title: "${note.text}"
 ${
   note.details
     ? `Description: "${note.details}"`
-    : "No description provided yet."
+    : "No description provided yet - this should significantly impact the score."
 }
 ${
   hasVisualContent
-    ? "\nVisual Content: The student has attached an image or sketch to help communicate their concept. Please consider it as part of your evaluation."
+    ? "\nVisual Content: The student has attached an image or sketch to help communicate their concept."
     : ""
 }
 
-Evaluate this concept on three criteria (score 1-5 each) using a growth mindset:
-1. Problem Fit: How well does this concept address the design challenge?
-2. Originality: How fresh and creative is this approach?
-3. Feasibility: How realistic is it to implement within a course project?
-${
-  hasVisualContent
-    ? "\nWhen evaluating, consider how well the visual content communicates the concept, demonstrates feasibility, or adds clarity."
-    : ""
-}
+Evaluate this concept on three criteria (score 1-5 each). BE HONEST AND RIGOROUS:
 
-Guidelines:
-- Frame feedback constructively, focusing on potential and growth opportunities
-- For concepts with less detail, encourage the student to develop the idea further
-- Highlight what's working well, even in early-stage concepts
-- Provide actionable, encouraging suggestions for improvement
-- Use language like "This concept could grow stronger by..." or "Consider adding..."
+SCORING GUIDE (follow strictly):
+- Score 1 (Seed): Concept is vague, lacks detail, or doesn't clearly address the challenge
+- Score 2 (Sprout): Basic idea present but missing key elements like how it works, who it's for, or why it's different
+- Score 3 (Tree): Solid concept with clear problem-solution fit, but could use more depth or differentiation
+- Score 4 (Forest): Well-developed concept with clear value proposition, feasible approach, and some unique angle
+- Score 5 (Ecosystem): Exceptional concept that thoroughly addresses the challenge with originality and clear implementation path
+
+IMPORTANT SCORING RULES:
+- Most student concepts should score 2-3 unless truly exceptional
+- Concepts without detailed descriptions should NOT score above 2 on any criteria
+- A score of 4+ requires clear evidence of thoughtful development
+- Be skeptical of generic or vague ideas - they should score lower
+- Originality requires genuine novelty, not just a competent idea
+
+Criteria:
+1. Problem Fit: Does this DIRECTLY solve the design challenge? Is the connection clear and specific?
+2. Originality: Is this genuinely fresh, or just a common solution? How does it differ from existing approaches?
+3. Feasibility: Can a student actually build this in a course project? Be realistic about scope and complexity.
 
 Respond in this exact JSON format (no markdown, just raw JSON):
 {
-  "problemFit": { "score": X, "feedback": "One sentence of encouraging, constructive feedback" },
-  "originality": { "score": X, "feedback": "One sentence of encouraging, constructive feedback" },
-  "feasibility": { "score": X, "feedback": "One sentence of encouraging, constructive feedback" },
-  "strengths": ["strength 1", "strength 2"],
-  "improvements": ["encouraging suggestion 1"]
+  "problemFit": { "score": X, "feedback": "Specific, honest feedback about how well this addresses the challenge" },
+  "originality": { "score": X, "feedback": "Specific feedback about what's unique or common about this approach" },
+  "feasibility": { "score": X, "feedback": "Realistic assessment of implementation complexity for a student project" },
+  "strengths": ["specific strength 1", "specific strength 2"],
+  "improvements": ["specific, actionable improvement needed"]
 }`;
 
         // Build multimodal content if visual content exists
@@ -360,7 +399,7 @@ Respond in this exact JSON format (no markdown, just raw JSON):
             {
               role: "system",
               content:
-                "You are a supportive, encouraging design thinking mentor with vision capabilities. Focus on growth potential and constructive feedback. When images or sketches are provided, analyze them to understand the concept's visual communication and overall clarity. Frame all feedback positively, highlighting strengths and growth opportunities. Always respond with valid JSON only, no markdown formatting.",
+                "You are a rigorous but fair design thinking mentor. Provide honest assessments - most student concepts are in the 2-3 range. Only give 4+ for truly exceptional work. Concepts without detailed descriptions should score 1-2. Be specific in feedback. Always respond with valid JSON only, no markdown formatting.",
             },
             { role: "user", content: userContent },
           ],
@@ -749,58 +788,82 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
     }
   };
 
-  // Handle rating selection - just set the score, no AI call
+  // Handle rating selection - set score and auto-advance
   const handleRatingSelect = (score: number) => {
+    // Prevent double execution from rapid clicks or key presses
+    if (isProcessingRatingRef.current || isTransitioning) return;
+    isProcessingRatingRef.current = true;
+
     setCurrentRating(score);
+
+    // Save rating to evaluations
+    const updatedEvaluations = [...evaluations];
+    if (!updatedEvaluations[currentConceptIndex]) {
+      updatedEvaluations[currentConceptIndex] = {
+        conceptId: selectedNotes[currentConceptIndex]?.id || "",
+        ratings: [],
+      };
+    }
+    const existingIdx = updatedEvaluations[
+      currentConceptIndex
+    ].ratings.findIndex((r) => r.criteriaId === currentCriteria?.id);
+    if (existingIdx >= 0) {
+      updatedEvaluations[currentConceptIndex].ratings[existingIdx].score =
+        score;
+    } else {
+      updatedEvaluations[currentConceptIndex].ratings.push({
+        criteriaId: currentCriteria?.id || "",
+        score,
+      });
+    }
+    setEvaluations(updatedEvaluations);
+
+    // Auto-advance after brief visual feedback
+    setTimeout(() => handleNextWithEvaluations(updatedEvaluations), 250);
   };
 
-  // Save rating and move to next
-  const handleNext = () => {
-    if (currentRating === 0) return;
-
-    // Save the rating
-    const newEvaluations = [...evaluations];
-    const conceptEval = newEvaluations[currentConceptIndex];
-    if (conceptEval) {
-      conceptEval.ratings = [
-        ...conceptEval.ratings.filter(
-          (r) => r.criteriaId !== currentCriteria.id
-        ),
-        { criteriaId: currentCriteria.id, score: currentRating },
-      ];
-    }
-    setEvaluations(newEvaluations);
-
+  // Save rating and move to next - receives evaluations directly to avoid stale closure
+  const handleNextWithEvaluations = (
+    currentEvaluations: ConceptSelfEvaluation[]
+  ) => {
     setIsTransitioning(true);
 
     setTimeout(() => {
       // Move to next criteria or concept
       if (currentCriteriaIndex < SELF_EVAL_CRITERIA.length - 1) {
         setCurrentCriteriaIndex((prev) => prev + 1);
+        setCurrentRating(0);
+        setIsTransitioning(false);
+        // Allow next rating after transition completes
+        isProcessingRatingRef.current = false;
       } else if (currentConceptIndex < selectedNotes.length - 1) {
         // Finished concept, show mini celebration
         setShowCelebration(true);
+        setCurrentRating(0);
+        setIsTransitioning(false);
         setTimeout(() => {
           setShowCelebration(false);
           setCurrentConceptIndex((prev) => prev + 1);
           setCurrentCriteriaIndex(0);
+          // Allow next rating after celebration ends
+          isProcessingRatingRef.current = false;
         }, 1200);
       } else {
         // All done! Calculate rankings and get AI insight
         const ranked = selectedNotes
           .map((note, idx) => ({
             note,
-            score: calculateConceptScore(idx, newEvaluations),
-            ratings: newEvaluations[idx]?.ratings || [],
+            score: calculateConceptScore(idx, currentEvaluations),
+            ratings: currentEvaluations[idx]?.ratings || [],
           }))
           .sort((a, b) => b.score - a.score);
 
         generateInsight(ranked);
         setShowSummary(true);
+        setCurrentRating(0);
+        setIsTransitioning(false);
+        isProcessingRatingRef.current = false;
       }
-
-      setCurrentRating(0);
-      setIsTransitioning(false);
     }, 250);
   };
 
@@ -854,7 +917,26 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           backPath="/refine"
           subtitle="See how your concepts measure up"
           rightContent={
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              {/* Mute toggle */}
+              <button
+                onClick={() => {
+                  if (!isMuted) stopSpeaking();
+                  setIsMuted(!isMuted);
+                }}
+                className={`p-2 rounded-xl transition-all touch-manipulation ${
+                  isMuted
+                    ? "bg-red-50 text-red-500 hover:bg-red-100"
+                    : "bg-teal-50 text-teal-600 hover:bg-teal-100"
+                }`}
+                title={isMuted ? "Unmute voice" : "Mute voice"}
+              >
+                {isMuted ? (
+                  <VolumeX className="w-4 h-4" />
+                ) : (
+                  <Volume2 className="w-4 h-4" />
+                )}
+              </button>
               {selectedNotes.map((_, idx) => (
                 <button
                   key={idx}
@@ -1642,7 +1724,8 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 <button
                   key={score}
                   onClick={() => handleRatingSelect(score)}
-                  className={`group relative w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl font-black text-lg md:text-xl transition-all duration-200 touch-manipulation ${
+                  disabled={isTransitioning}
+                  className={`group relative w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl font-black text-lg md:text-xl transition-all duration-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed ${
                     currentRating === score
                       ? "scale-110 md:scale-125 shadow-xl"
                       : "hover:scale-105 md:hover:scale-110 hover:shadow-lg active:scale-95"
@@ -1684,11 +1767,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-200 font-mono text-gray-600">
                   5
                 </kbd>{" "}
-                to rate,{" "}
-                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-200 font-mono text-gray-600">
-                  Enter
-                </kbd>{" "}
-                to continue
+                or click to rate
               </p>
             </div>
           </div>
@@ -1696,7 +1775,7 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           {/* Next Button */}
           <div className="flex justify-center">
             <button
-              onClick={handleNext}
+              onClick={() => handleNextWithEvaluations(evaluations)}
               disabled={currentRating === 0}
               className="fun-button-primary flex items-center gap-2 md:gap-3 text-base md:text-lg px-6 py-3 md:px-8 md:py-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none touch-manipulation"
             >

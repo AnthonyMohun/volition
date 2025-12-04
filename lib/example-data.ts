@@ -41,92 +41,85 @@ function positionedNotes(rawNotes: Omit<StickyNote, "x" | "y">[]) {
 // Example data for "Try with an example" feature
 export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
   hmwStatement:
-    "How might we help college students manage stress during exam periods?",
+    "How might we help dogs feel less alone when their owners are at work?",
   currentPhase: "canvas",
   notes: positionedNotes([
     {
       id: "note-1",
-      text: "Students often feel overwhelmed with multiple exams happening at once",
+      text: "Dogs often show signs of separation anxiety when left alone for extended periods",
       color: "#fef3c7", // yellow
       isConcept: false,
       createdAt: Date.now() - 10000,
     },
     {
       id: "note-2",
-      text: "Study Planner with Pomodoro Timer",
+      text: "Interactive Treat-Dispensing Companion Robot",
       color: "#bfdbfe", // blue
       isConcept: true,
       details:
-        "Description: An app that uses the Pomodoro technique (25-minute focused sessions with 5-minute breaks) and automatically schedules study sessions based on exam dates and subject priorities.\n\nExtras: Includes MVP focus on timer and schedule features.",
-      targetAudience: "College students",
+        "Description: A small robot that moves around the house, dispenses treats at random intervals, and plays calming sounds or the owner's voice recordings. The robot can detect when the dog is nearby and engage with them through movement and sounds.\n\nExtras: Includes a companion app for owners to check in and manually trigger interactions.",
+      targetAudience: "Dog owners who work full-time",
       platform: ["Mobile", "Web"],
       keyBenefits:
-        "Reduces overwhelm, improves retention, helps students feel in control",
+        "Reduces separation anxiety, provides mental stimulation, keeps dogs active",
       mainFeatures:
-        "Pomodoro timer, calendar integration, progress dashboard, smart notifications",
-      // image removed to prevent issues with local URLs and AI evaluation
+        "Treat dispensing, voice playback, movement patterns, owner app integration",
       createdAt: Date.now() - 9000,
     },
     {
       id: "note-3",
-      text: "Peer support groups struggle to coordinate meeting times",
+      text: "Many owners feel guilty leaving their dogs home alone",
       color: "#fecaca", // red
       isConcept: false,
       createdAt: Date.now() - 8000,
     },
     {
       id: "note-4",
-      text: "Virtual Study Rooms with Accountability Partners",
+      text: "Doggy Daycare Matching App",
       color: "#bbf7d0", // green
       isConcept: true,
       details:
-        "Description: A platform that matches students studying for similar subjects and creates virtual study rooms. Features include shared study schedules, video call integration, and mutual check-ins to keep each other accountable.\n\nExtras: Integrates with Zoom or basic video functionality. Includes scheduling calendar and notification system for study session reminders.",
-      targetAudience: "College students",
-      platform: ["Web", "Desktop"],
+        "Description: An app that connects dog owners in the same neighborhood to share pet-sitting duties. Users can browse profiles of nearby dogs, arrange playdates, and coordinate care schedules so dogs have company during work hours.\n\nExtras: Includes rating system and verified user profiles for safety.",
+      targetAudience: "Dog owners in urban areas",
+      platform: ["Mobile"],
       keyBenefits:
-        "Reduces isolation, increases motivation, makes studying enjoyable",
+        "Socialization for dogs, cost-effective alternative to daycare, community building",
       mainFeatures:
-        "Study room matching, video calls, shared schedules, notifications",
+        "Location-based matching, scheduling, messaging, ratings and reviews",
       createdAt: Date.now() - 7000,
     },
     {
       id: "note-5",
-      text: "Students don't know effective study techniques for different subjects",
+      text: "Dogs need mental stimulation to prevent destructive behavior",
       color: "#fef3c7", // yellow
       isConcept: false,
       createdAt: Date.now() - 6000,
     },
     {
       id: "note-6",
-      text: "Mindfulness breaks are often forgotten during intense study sessions",
+      text: "Background noise and familiar sounds can help calm anxious dogs",
       color: "#fbcfe8", // pink
       isConcept: false,
       createdAt: Date.now() - 5000,
     },
     {
       id: "note-7",
-      text: "Mindful Study Break App",
+      text: "Video call system for dogs",
       color: "#dcfce7", // teal
-      isConcept: true,
-      details:
-        "Description: An app that integrates with study timers and automatically prompts students to take 2-5 minute mindfulness breaks. Offers guided meditations, breathing exercises, progressive muscle relaxation, and stress-relief visualizations tailored for exam stress.\n\nExtras: Partner with university counseling centers for content validation.",
-      targetAudience: "College students",
-      platform: ["Mobile", "Tablet"],
-      keyBenefits: "Prevents burnout, reduces anxiety, improves focus",
-      mainFeatures:
-        "Guided meditations, breathing exercises, customizable break intervals, offline mode",
+      isConcept: false,
+      details: "Basic idea - owners could video call their dogs during breaks",
       createdAt: Date.now() - 4000,
     },
     {
       id: "note-8",
-      text: "Library spaces are often too crowded during exam season",
+      text: "Dogs thrive on routine and predictability",
       color: "#bfdbfe", // blue
       isConcept: false,
       createdAt: Date.now() - 3000,
     },
     {
       id: "note-9",
-      text: "Students lose track of their materials across different courses",
+      text: "Some dogs respond well to puzzle toys that dispense food slowly",
       color: "#bbf7d0", // green
       isConcept: false,
       createdAt: Date.now() - 2000,
@@ -135,28 +128,28 @@ export const EXAMPLE_SESSION_DATA: Partial<SessionState> = {
   questions: [
     {
       id: "q-1",
-      text: "What are the main challenges college students face during exam periods?",
+      text: "What are the main signs of separation anxiety in dogs?",
       fromAI: true,
       answered: true,
       timestamp: Date.now() - 11000,
     },
     {
       id: "q-2",
-      text: "What tools or apps do students currently use to manage exam stress?",
+      text: "How long are dogs typically left alone during a workday?",
       fromAI: true,
       answered: true,
       timestamp: Date.now() - 10500,
     },
     {
       id: "q-3",
-      text: "What would make students feel more in control during exam season?",
+      text: "What currently helps dogs feel less anxious when owners leave?",
       fromAI: true,
       answered: true,
       timestamp: Date.now() - 9500,
     },
     {
       id: "q-4",
-      text: "How do students currently connect with peers for study support?",
+      text: "How do different dog breeds respond to being alone?",
       fromAI: true,
       answered: false,
       timestamp: Date.now() - 8500,

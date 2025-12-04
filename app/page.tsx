@@ -434,10 +434,25 @@ export default function Home() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="bg-gradient-to-br from-teal-50/80 to-blue-50/80 border-2 border-teal-200 rounded-2xl overflow-hidden"
+                    className="overflow-hidden"
+                    style={{
+                      background:
+                        "linear-gradient(145deg, #f0fdfa 0%, #eff6ff 100%)",
+                      borderRadius: "24px",
+                      border: "3px solid rgba(153, 246, 228, 0.6)",
+                      boxShadow:
+                        "8px 8px 16px rgba(163, 177, 198, 0.3), -8px -8px 16px rgba(255, 255, 255, 0.9), inset 2px 2px 4px rgba(255, 255, 255, 0.3), inset -2px -2px 4px rgba(163, 177, 198, 0.1)",
+                    }}
                   >
                     {/* Volition Builder Header */}
-                    <div className="px-4 py-3 bg-gradient-to-r from-teal-100/80 to-blue-100/80 border-b border-teal-200/50 flex items-center justify-between">
+                    <div
+                      className="px-4 py-3 flex items-center justify-between"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(204, 251, 241, 0.8) 0%, rgba(219, 234, 254, 0.8) 100%)",
+                        borderBottom: "2px solid rgba(153, 246, 228, 0.4)",
+                      }}
+                    >
                       <div className="flex items-center gap-2">
                         <div className="p-1.5 bg-white rounded-lg shadow-sm">
                           <Sparkles className="w-4 h-4 text-teal-600" />
@@ -482,7 +497,13 @@ export default function Home() {
                     </div>
 
                     {/* Conversation Area */}
-                    <div className="p-4 max-h-64 overflow-y-auto space-y-3">
+                    <div
+                      className="p-4 max-h-64 overflow-y-auto space-y-3"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, rgba(240, 253, 250, 0.5) 0%, rgba(239, 246, 255, 0.5) 100%)",
+                      }}
+                    >
                       {aiConversation.map((item, index) => (
                         <motion.div
                           key={index}
@@ -495,12 +516,30 @@ export default function Home() {
                           }`}
                         >
                           <div
-                            className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm font-medium ${
+                            className={`max-w-[85%] px-4 py-2.5 text-sm font-semibold ${
                               item.type === "user"
-                                ? "bg-teal-600 text-white rounded-br-md"
-                                : "bg-white text-gray-700 rounded-bl-md shadow-sm border border-gray-100"
+                                ? "text-white"
+                                : "text-gray-700"
                             }`}
-                            style={{ whiteSpace: "pre-wrap" }}
+                            style={{
+                              whiteSpace: "pre-wrap",
+                              borderRadius:
+                                item.type === "user"
+                                  ? "20px 20px 6px 20px"
+                                  : "20px 20px 20px 6px",
+                              background:
+                                item.type === "user"
+                                  ? "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)"
+                                  : "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
+                              boxShadow:
+                                item.type === "user"
+                                  ? "0 4px 12px rgba(20, 184, 166, 0.3), inset 0 1px 2px rgba(255,255,255,0.2)"
+                                  : "4px 4px 8px rgba(163, 177, 198, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9), inset 1px 1px 2px rgba(255, 255, 255, 0.3)",
+                              border:
+                                item.type === "user"
+                                  ? "none"
+                                  : "2px solid rgba(226, 232, 240, 0.6)",
+                            }}
                           >
                             {item.text}
                           </div>
@@ -508,9 +547,19 @@ export default function Home() {
                       ))}
                       {isAILoading && (
                         <div className="flex justify-start">
-                          <div className="bg-white px-4 py-2.5 rounded-2xl rounded-bl-md shadow-sm border border-gray-100 flex items-center gap-2">
+                          <div
+                            className="px-4 py-2.5 flex items-center gap-2"
+                            style={{
+                              borderRadius: "20px 20px 20px 6px",
+                              background:
+                                "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
+                              boxShadow:
+                                "4px 4px 8px rgba(163, 177, 198, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9)",
+                              border: "2px solid rgba(226, 232, 240, 0.6)",
+                            }}
+                          >
                             <Loader2 className="w-4 h-4 animate-spin text-teal-600" />
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-gray-500 font-semibold">
                               Thinking...
                             </span>
                           </div>
@@ -520,13 +569,27 @@ export default function Home() {
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-3 border-t border-teal-200/50 bg-white/50">
+                    <div
+                      className="p-4"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 253, 250, 0.7) 100%)",
+                        borderTop: "2px solid rgba(153, 246, 228, 0.3)",
+                      }}
+                    >
                       {generatedHMW ? (
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           <button
                             type="button"
                             onClick={handleUseGeneratedHMW}
-                            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-500 to-blue-500 text-white font-bold rounded-xl hover:shadow-lg transition-all"
+                            className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            style={{
+                              background:
+                                "linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0891b2 100%)",
+                              borderRadius: "16px",
+                              boxShadow:
+                                "0 6px 16px rgba(20, 184, 166, 0.4), inset 0 1px 2px rgba(255,255,255,0.2)",
+                            }}
                           >
                             <span>Use this challenge</span>
                             <ArrowRight className="w-4 h-4" />
@@ -534,7 +597,16 @@ export default function Home() {
                           <button
                             type="button"
                             onClick={resetAIBuilder}
-                            className="px-4 py-3 bg-gray-100 text-gray-600 font-semibold rounded-xl hover:bg-gray-200 transition-all"
+                            className="px-5 py-3.5 font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            style={{
+                              background:
+                                "linear-gradient(145deg, #ffffff 0%, #f3f4f6 100%)",
+                              borderRadius: "16px",
+                              border: "2px solid rgba(226, 232, 240, 0.8)",
+                              boxShadow:
+                                "4px 4px 8px rgba(163, 177, 198, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9)",
+                              color: "#4b5563",
+                            }}
                           >
                             Try again
                           </button>
@@ -552,7 +624,15 @@ export default function Home() {
                               }
                             }}
                             placeholder="Type or speak your answer..."
-                            className="flex-1 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 focus:border-teal-300 focus:ring-2 focus:ring-teal-100 transition-all text-sm font-medium"
+                            className="flex-1 px-4 py-3 text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:ring-teal-200 transition-all text-sm font-semibold"
+                            style={{
+                              background:
+                                "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
+                              borderRadius: "14px",
+                              border: "2px solid rgba(226, 232, 240, 0.8)",
+                              boxShadow:
+                                "inset 2px 2px 4px rgba(163, 177, 198, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.5)",
+                            }}
                             disabled={isAILoading}
                           />
                           <button
@@ -563,11 +643,17 @@ export default function Home() {
                                 : startVoiceInput
                             }
                             disabled={isAILoading}
-                            className={`px-3 py-2.5 rounded-xl transition-all ${
-                              isRecordingInput
-                                ? "bg-red-500 text-white hover:bg-red-600"
-                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                            }`}
+                            className="px-3.5 py-3 transition-all hover:scale-105 active:scale-95"
+                            style={{
+                              borderRadius: "14px",
+                              background: isRecordingInput
+                                ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                                : "linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 100%)",
+                              color: isRecordingInput ? "white" : "#4b5563",
+                              boxShadow: isRecordingInput
+                                ? "0 4px 12px rgba(239, 68, 68, 0.3)"
+                                : "3px 3px 6px rgba(163, 177, 198, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.9)",
+                            }}
                             title={
                               isRecordingInput
                                 ? "Stop recording"
@@ -589,7 +675,14 @@ export default function Home() {
                             type="button"
                             onClick={handleUserResponse}
                             disabled={!userInput.trim() || isAILoading}
-                            className="px-4 py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            className="px-4 py-3 text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            style={{
+                              borderRadius: "14px",
+                              background:
+                                "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)",
+                              boxShadow:
+                                "0 4px 12px rgba(20, 184, 166, 0.3), inset 0 1px 2px rgba(255,255,255,0.2)",
+                            }}
                           >
                             <Send className="w-4 h-4" />
                           </button>
