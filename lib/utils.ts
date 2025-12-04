@@ -341,7 +341,10 @@ export function generateActionPlanQuestions(
       // Transform each improvement into a HMW sub-question
       aiEval.improvements.forEach((improvement) => {
         // Parse the improvement and create a HMW question
-        const hmwQuestion = transformImprovementToHMW(improvement, concept.text);
+        const hmwQuestion = transformImprovementToHMW(
+          improvement,
+          concept.text
+        );
         hmwQuestions.push(hmwQuestion);
       });
 
@@ -372,17 +375,26 @@ export function generateActionPlanQuestions(
 }
 
 // Helper to transform an improvement suggestion into a HMW question
-function transformImprovementToHMW(improvement: string, conceptText: string): string {
+function transformImprovementToHMW(
+  improvement: string,
+  conceptText: string
+): string {
   // Common patterns to transform
   const lowerImprovement = improvement.toLowerCase();
-  
-  if (lowerImprovement.includes("add") || lowerImprovement.includes("include")) {
+
+  if (
+    lowerImprovement.includes("add") ||
+    lowerImprovement.includes("include")
+  ) {
     return `How might we ${improvement.toLowerCase()}?`;
   }
   if (lowerImprovement.includes("consider")) {
     return improvement.replace(/consider/i, "How might we explore");
   }
-  if (lowerImprovement.includes("need") || lowerImprovement.includes("should")) {
+  if (
+    lowerImprovement.includes("need") ||
+    lowerImprovement.includes("should")
+  ) {
     const cleaned = improvement
       .replace(/needs? to/i, "")
       .replace(/should/i, "")
@@ -392,7 +404,7 @@ function transformImprovementToHMW(improvement: string, conceptText: string): st
   if (lowerImprovement.includes("more")) {
     return `How might we make "${conceptText}" ${improvement.toLowerCase()}?`;
   }
-  
+
   // Default transformation
   return `How might we address: ${improvement}`;
 }

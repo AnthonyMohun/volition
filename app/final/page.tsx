@@ -1705,7 +1705,8 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                         ))
                       ) : (
                         <p className="text-sm text-gray-500 italic">
-                          No specific action items - this concept is in good shape!
+                          No specific action items - this concept is in good
+                          shape!
                         </p>
                       )}
                     </div>

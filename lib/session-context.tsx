@@ -57,7 +57,10 @@ interface SessionContextType {
   setLastSpokenText: (text: string) => void;
   setVoiceTranscript: (transcript: string) => void;
   // Initialize iteration canvas from final concepts with AI feedback
-  initializeIterationCanvas: (notes: StickyNote[], connections: NoteConnection[]) => void;
+  initializeIterationCanvas: (
+    notes: StickyNote[],
+    connections: NoteConnection[]
+  ) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -361,7 +364,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       }));
       setUndoStack([]);
       setRedoStack([]);
-      showToast("🎨 Iteration canvas created! Explore and expand your concepts.");
+      showToast(
+        "🎨 Iteration canvas created! Explore and expand your concepts."
+      );
     },
     [showToast]
   );
