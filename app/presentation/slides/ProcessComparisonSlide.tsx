@@ -18,7 +18,7 @@ export function ProcessComparisonSlide() {
         Traditional vs Socratic
       </h2>
       <p className="text-4xl text-gray-500 mb-16">
-        Guided exploration beats a rigid checklist
+        Checklist vs Question-driven discovery
       </p>
 
       {/* Comparison - animate as one */}
@@ -45,7 +45,19 @@ export function ProcessComparisonSlide() {
               </div>
             ))}
           </div>
-          <p className="text-lg text-gray-400 mt-8">Linear steps</p>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <div className="inline-flex items-center gap-3 text-gray-500">
+              <span className="px-3 py-1 rounded-full bg-gray-100 text-sm font-medium">
+                Linear
+              </span>
+              <span className="px-3 py-1 rounded-full bg-gray-100 text-sm font-medium">
+                Expert-led
+              </span>
+              <span className="px-3 py-1 rounded-full bg-gray-100 text-sm font-medium">
+                Late testing
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Socratic Process */}
@@ -82,12 +94,29 @@ export function ProcessComparisonSlide() {
             </div>
           </div>
           <p className="text-lg text-teal-600 mt-8">Guided exploration</p>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <div className="inline-flex items-center gap-3 text-teal-600">
+              <span className="px-3 py-1 rounded-full bg-teal-50 text-sm font-medium">
+                Iterative
+              </span>
+              <span className="px-3 py-1 rounded-full bg-teal-50 text-sm font-medium">
+                Collaborative
+              </span>
+              <span className="px-3 py-1 rounded-full bg-teal-50 text-sm font-medium">
+                Early validation
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <p className="fragment fade-up text-2xl text-gray-500 mt-14">
-        💡 Questions unlock deeper thinking than instructions alone
-      </p>
+      <div className="fragment fade-up text-2xl text-gray-500 mt-14 max-w-2xl text-center">
+        <p className="font-medium">💡 Questions &gt; Instructions</p>
+        <p className="mt-3 text-lg text-gray-500">
+          Socratic discovery reduces rework by surfacing assumptions early and
+          creating shared clarity.
+        </p>
+      </div>
     </div>
   );
 }
