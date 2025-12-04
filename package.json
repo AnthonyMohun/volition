@@ -7,6 +7,7 @@
     "dev:network": "next dev --hostname 0.0.0.0 --experimental-https",
     "build": "next build",
     "start": "next start",
+    "start:network": "next start --hostname 0.0.0.0 --port 3000",
     "lint": "eslint"
   },
   "dependencies": {
