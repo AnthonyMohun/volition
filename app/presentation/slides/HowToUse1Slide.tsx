@@ -30,21 +30,29 @@ export function HowToUse1Slide() {
         Capture and iterate — text, voice, images, and sketches
       </p>
 
-      {/* Two column grid with fixed widths */}
-      <div className="fragment fade-up grid grid-cols-2 gap-24 items-center">
-        {/* Left column - Animated sticky note */}
+      {/* Two column grid - left always visible, right has individual fragments */}
+      <div className="grid grid-cols-2 gap-24 items-start">
+        {/* Left column - Always visible preview */}
         <div className="flex justify-end">
           <AnimatedStickyNote delay={0} />
         </div>
 
-        {/* Right column - Features list */}
-        <div className="space-y-8">
-          {features.map((f) => (
-            <div key={f.title} className="flex items-center gap-6">
-              <span className="text-5xl">{f.emoji}</span>
-              <div>
-                <h4 className="font-bold text-2xl text-gray-800">{f.title}</h4>
-                <p className="text-xl text-gray-500">{f.desc}</p>
+        {/* Right column - Each feature is its own fragment */}
+        <div className="space-y-8 text-left">
+          {features.map((f, index) => (
+            <div
+              key={f.title}
+              className="fragment fade-up"
+              data-fragment-index={index}
+            >
+              <div className="flex items-center gap-6">
+                <span className="text-5xl">{f.emoji}</span>
+                <div>
+                  <h4 className="font-bold text-2xl text-gray-800">
+                    {f.title}
+                  </h4>
+                  <p className="text-xl text-gray-500">{f.desc}</p>
+                </div>
               </div>
             </div>
           ))}

@@ -507,3 +507,164 @@
     display: none;
   }
 }
+
+/* ============================================
+   Animated Component Styles
+   ============================================ */
+
+/* Sticky Note Animations */
+@keyframes badge-pop {
+  0%,
+  60% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes icon-pop-1 {
+  0%,
+  20% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  40%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes icon-pop-2 {
+  0%,
+  40% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  60%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.pres-anim-badge {
+  animation: badge-pop 5s ease-out infinite;
+}
+.pres-anim-icon-1 {
+  animation: icon-pop-1 5s ease-out infinite;
+}
+.pres-anim-icon-2 {
+  animation: icon-pop-2 5s ease-out infinite;
+}
+
+/* AI Chat Animations */
+@keyframes msg-slide-1 {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  10%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes msg-slide-2 {
+  0%,
+  20% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  30%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes msg-slide-3 {
+  0%,
+  40% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  50%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pres-anim-msg-1 {
+  animation: msg-slide-1 6s ease-out forwards;
+}
+.pres-anim-msg-2 {
+  animation: msg-slide-2 6s ease-out forwards;
+}
+.pres-anim-msg-3 {
+  animation: msg-slide-3 6s ease-out forwards;
+}
+
+/* Voice Input Animations */
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+@keyframes mic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+@keyframes typing-text {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+@keyframes cursor-blink {
+  0%,
+  100% {
+    border-right-color: #374151;
+  }
+  50% {
+    border-right-color: transparent;
+  }
+}
+
+.pres-anim-mic {
+  animation: pulse-ring 2s ease-out infinite, mic-pulse 2s ease-in-out infinite;
+}
+.pres-anim-typing {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing-text 3s steps(50) forwards;
+  border-right: 2px solid #374151;
+  animation: typing-text 3s steps(50) forwards, cursor-blink 0.7s infinite;
+}

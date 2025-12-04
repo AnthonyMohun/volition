@@ -4,9 +4,10 @@ import { AnimatedVoiceInput } from "@/lib/presentation-animations";
 
 export function HowToUse3Slide() {
   const features = [
-    { icon: "⌨️", text: "Hold spacebar to speak" },
-    { icon: "🎤", text: "Or tap the mic button" },
-    { icon: "🔊", text: "AI can speak answers aloud" },
+    { icon: "⌨️", title: "Hold Spacebar", desc: "Quick voice activation" },
+    { icon: "🎤", title: "Tap Mic Button", desc: "Or click to record" },
+    { icon: "🔊", title: "AI Speaks Back", desc: "Hear answers aloud" },
+    { icon: "💡", title: "Voice Commands", desc: "Navigate hands-free" },
   ];
 
   return (
@@ -17,25 +18,32 @@ export function HowToUse3Slide() {
         Hands-free ideation — speak naturally, capture instantly
       </p>
 
-      {/* Two column grid with fixed widths */}
-      <div className="fragment fade-up grid grid-cols-2 gap-24 items-center">
-        {/* Left column - Animated voice input */}
+      {/* Two column grid - left always visible, right has individual fragments */}
+      <div className="grid grid-cols-2 gap-24 items-start">
+        {/* Left column - Always visible voice input preview */}
         <div className="flex justify-end">
           <AnimatedVoiceInput delay={0} />
         </div>
 
-        {/* Right column - Instructions */}
-        <div className="space-y-10">
-          {features.map((f) => (
-            <div key={f.text} className="flex items-center gap-6">
-              <span className="text-5xl">{f.icon}</span>
-              <p className="text-2xl text-gray-600 font-medium">{f.text}</p>
+        {/* Right column - Each feature is its own fragment */}
+        <div className="space-y-8 text-left">
+          {features.map((f, index) => (
+            <div
+              key={f.title}
+              className="fragment fade-up"
+              data-fragment-index={index}
+            >
+              <div className="flex items-center gap-6">
+                <span className="text-5xl">{f.icon}</span>
+                <div>
+                  <h4 className="font-bold text-2xl text-gray-800">
+                    {f.title}
+                  </h4>
+                  <p className="text-xl text-gray-500">{f.desc}</p>
+                </div>
+              </div>
             </div>
           ))}
-
-          <p className="text-xl text-gray-500 pt-8 border-t border-gray-200">
-            💡 Great for brainstorming and accessibility
-          </p>
         </div>
       </div>
     </div>

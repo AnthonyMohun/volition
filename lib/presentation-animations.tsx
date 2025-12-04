@@ -20,43 +20,17 @@ import {
 } from "lucide-react";
 
 // ============================================
-// ANIMATED STICKY NOTE
+// STATIC STICKY NOTE (uses global CSS)
 // ============================================
 export function AnimatedStickyNote({ delay = 0 }: { delay?: number }) {
-  const [step, setStep] = useState(0);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const interval = setInterval(() => {
-        setStep((s) => (s < 4 ? s + 1 : 0)); // Loop animation
-      }, 1200);
-      return () => clearInterval(interval);
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [delay]);
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: delay / 1000 }}
-      className="flex flex-col items-center w-[300px]"
-    >
+    <div className="flex flex-col items-center w-[300px]">
       {/* Sticky note with badge */}
       <div className="relative inline-block">
         {/* Concept badge */}
-        <AnimatePresence>
-          {step >= 3 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
-              className="absolute -top-3 -right-3 z-10 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full p-2 shadow-lg"
-            >
-              <Star className="w-5 h-5 text-white fill-current" />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="pres-anim-badge absolute -top-3 -right-3 z-10 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full p-2 shadow-lg">
+          <Star className="w-5 h-5 text-white fill-current" />
+        </div>
 
         <div
           className="w-72 p-6 rounded-3xl border-4 border-yellow-400 bg-yellow-100"
@@ -67,311 +41,88 @@ export function AnimatedStickyNote({ delay = 0 }: { delay?: number }) {
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-3">
-            <motion.button
-              animate={step >= 3 ? { scale: [1, 1.2, 1] } : {}}
-              transition={{ duration: 0.3 }}
-              className={`p-2 rounded-xl ${
-                step >= 3
-                  ? "text-yellow-600 bg-yellow-200"
-                  : "text-gray-400 hover:bg-yellow-200/50"
-              }`}
-            >
-              <Star className={`w-5 h-5 ${step >= 3 ? "fill-current" : ""}`} />
-            </motion.button>
+            <button className="p-2 rounded-xl text-yellow-600 bg-yellow-200">
+              <Star className="w-5 h-5 fill-current" />
+            </button>
             <div className="flex gap-2">
-              <motion.div
-                animate={step >= 1 ? { scale: [0, 1.2, 1] } : { scale: 0 }}
-                className="p-2 rounded-xl bg-yellow-200/50"
-              >
+              <div className="pres-anim-icon-1 p-2 rounded-xl bg-yellow-200/50">
                 <Image className="w-4 h-4 text-gray-500" />
-              </motion.div>
-              <motion.div
-                animate={step >= 2 ? { scale: [0, 1.2, 1] } : { scale: 0 }}
-                className="p-2 rounded-xl bg-yellow-200/50"
-              >
+              </div>
+              <div className="pres-anim-icon-2 p-2 rounded-xl bg-yellow-200/50">
                 <Pencil className="w-4 h-4 text-blue-500" />
-              </motion.div>
+              </div>
             </div>
           </div>
 
           {/* Text */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: step >= 0 ? 1 : 0 }}
-            className="text-lg text-gray-800 font-bold"
-          >
-            {step >= 0 && "My creative idea..."}
-          </motion.p>
+          <p className="text-lg text-gray-800 font-bold">My creative idea...</p>
         </div>
       </div>
-
-      {/* Labels */}
-      <div className="mt-6 space-y-2">
-        <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: step >= 1 ? 1 : 0.3, x: step >= 1 ? 0 : -10 }}
-          className="flex items-center gap-3 text-sm"
-        >
-          <div
-            className={`w-3 h-3 rounded-full ${
-              step >= 1 ? "bg-green-500" : "bg-gray-300"
-            }`}
-          />
-          <span
-            className={
-              step >= 1 ? "text-gray-700 font-medium" : "text-gray-400"
-            }
-          >
-            Add images
-          </span>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: step >= 2 ? 1 : 0.3, x: step >= 2 ? 0 : -10 }}
-          className="flex items-center gap-3 text-sm"
-        >
-          <div
-            className={`w-3 h-3 rounded-full ${
-              step >= 2 ? "bg-green-500" : "bg-gray-300"
-            }`}
-          />
-          <span
-            className={
-              step >= 2 ? "text-gray-700 font-medium" : "text-gray-400"
-            }
-          >
-            Sketch your ideas
-          </span>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: step >= 3 ? 1 : 0.3, x: step >= 3 ? 0 : -10 }}
-          className="flex items-center gap-3 text-sm"
-        >
-          <div
-            className={`w-3 h-3 rounded-full ${
-              step >= 3 ? "bg-green-500" : "bg-gray-300"
-            }`}
-          />
-          <span
-            className={
-              step >= 3 ? "text-gray-700 font-medium" : "text-gray-400"
-            }
-          >
-            Mark as concept ⭐
-          </span>
-        </motion.div>
-      </div>
-    </motion.div>
+    </div>
   );
 }
 
 // ============================================
-// ANIMATED AI CHAT
+// STATIC AI CHAT (uses global CSS)
 // ============================================
 export function AnimatedAIChat({ delay = 0 }: { delay?: number }) {
-  const [messages, setMessages] = useState<
-    { text: string; isAI: boolean; visible: boolean }[]
-  >([
-    {
-      text: "What assumptions are you making about your users?",
-      isAI: true,
-      visible: false,
-    },
-    {
-      text: "I'm assuming they have some technical knowledge...",
-      isAI: false,
-      visible: false,
-    },
-    {
-      text: "How might you verify that assumption? 🤔",
-      isAI: true,
-      visible: false,
-    },
-  ]);
-  const [cycle, setCycle] = useState(0);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      let index = 0;
-      const showMessages = () => {
-        if (index < 3) {
-          setMessages((prev) =>
-            prev.map((m, i) => (i === index ? { ...m, visible: true } : m))
-          );
-          index++;
-          setTimeout(showMessages, 1500);
-        } else {
-          // Reset after all messages shown
-          setTimeout(() => {
-            setMessages((prev) => prev.map((m) => ({ ...m, visible: false })));
-            index = 0;
-            setCycle((c) => c + 1);
-            setTimeout(showMessages, 500);
-          }, 3000);
-        }
-      };
-      showMessages();
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [delay]);
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: delay / 1000 }}
-      className="space-y-6 w-[420px]"
-    >
-      {messages.map((msg, index) => (
-        <AnimatePresence key={`${index}-${cycle}`}>
-          {msg.visible && (
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className={`p-5 rounded-2xl ${
-                msg.isAI
-                  ? "bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 mr-8"
-                  : "bg-gradient-to-br from-teal-50 to-green-50 border-2 border-teal-200 ml-8"
-              }`}
-            >
-              {msg.isAI && (
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-5 h-5 text-teal-500" />
-                  <span className="text-base font-bold text-teal-600">
-                    Volition
-                  </span>
-                </div>
-              )}
-              <p className="text-lg text-gray-700 font-medium">{msg.text}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      ))}
-    </motion.div>
+    <div className="space-y-6 w-[420px]">
+      {/* Message 1 - AI */}
+      <div className="pres-anim-msg-1 p-5 rounded-2xl bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 mr-8">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-5 h-5 text-teal-500" />
+          <span className="text-base font-bold text-teal-600">Volition</span>
+        </div>
+        <p className="text-lg text-gray-700 font-medium">
+          What assumptions are you making about your users?
+        </p>
+      </div>
+
+      {/* Message 2 - User */}
+      <div className="pres-anim-msg-2 p-5 rounded-2xl bg-gradient-to-br from-teal-50 to-green-50 border-2 border-teal-200 ml-8">
+        <p className="text-lg text-gray-700 font-medium">
+          I'm assuming they have some technical knowledge...
+        </p>
+      </div>
+
+      {/* Message 3 - AI */}
+      <div className="pres-anim-msg-3 p-5 rounded-2xl bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 mr-8">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-5 h-5 text-teal-500" />
+          <span className="text-base font-bold text-teal-600">Volition</span>
+        </div>
+        <p className="text-lg text-gray-700 font-medium">
+          How might you verify that assumption? 🤔
+        </p>
+      </div>
+    </div>
   );
 }
 
 // ============================================
-// ANIMATED VOICE INPUT
+// STATIC VOICE INPUT (uses global CSS)
 // ============================================
 export function AnimatedVoiceInput({ delay = 0 }: { delay?: number }) {
-  const [isRecording, setIsRecording] = useState(false);
-  const [transcript, setTranscript] = useState("");
-  const fullText = "A mobile app for tracking sustainability habits...";
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const runAnimation = () => {
-      if (!isMounted) return;
-
-      setIsRecording(true);
-      setTranscript("");
-      let index = 0;
-
-      const typeInterval = setInterval(() => {
-        if (!isMounted) {
-          clearInterval(typeInterval);
-          return;
-        }
-        if (index < fullText.length) {
-          setTranscript(fullText.slice(0, index + 1));
-          index++;
-        } else {
-          clearInterval(typeInterval);
-          setTimeout(() => {
-            if (!isMounted) return;
-            setIsRecording(false);
-            // Restart animation after pause
-            setTimeout(() => {
-              if (isMounted) runAnimation();
-            }, 2000);
-          }, 500);
-        }
-      }, 60);
-    };
-
-    const timeout = setTimeout(runAnimation, delay);
-    return () => {
-      isMounted = false;
-      clearTimeout(timeout);
-    };
-  }, [delay]);
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: delay / 1000 }}
-      className="space-y-6 w-[320px]"
-    >
+    <div className="space-y-6 w-[320px]">
       {/* Mic button */}
       <div className="flex items-center justify-center">
-        <motion.div
-          animate={
-            isRecording
-              ? {
-                  scale: [1, 1.1, 1],
-                  boxShadow: [
-                    "0 0 0 0 rgba(239, 68, 68, 0.4)",
-                    "0 0 0 30px rgba(239, 68, 68, 0)",
-                  ],
-                }
-              : {}
-          }
-          transition={{ duration: 1, repeat: isRecording ? Infinity : 0 }}
-          className={`p-6 rounded-3xl ${
-            isRecording
-              ? "bg-red-100 text-red-600"
-              : "bg-teal-100 text-teal-600"
-          }`}
-        >
+        <div className="pres-anim-mic p-6 rounded-3xl bg-red-100 text-red-600">
           <Mic className="w-12 h-12" />
-        </motion.div>
+        </div>
       </div>
 
       {/* Transcript */}
       <div className="text-center">
-        <AnimatePresence>
-          {isRecording && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-base text-red-500 font-bold mb-3"
-            >
-              🎤 Listening...
-            </motion.p>
-          )}
-        </AnimatePresence>
+        <p className="text-base text-red-500 font-bold mb-3">🎤 Listening...</p>
         <div className="bg-white border-3 border-gray-200 rounded-2xl p-5 min-h-[100px]">
-          <p className="text-lg text-gray-700 font-medium">
-            {transcript || (
-              <span className="text-gray-400">Hold spacebar to speak...</span>
-            )}
+          <p className="text-lg text-gray-700 font-medium pres-anim-typing">
+            A mobile app for tracking sustainability habits...
           </p>
         </div>
       </div>
-
-      {/* Commands hint */}
-      <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
-        <p className="text-base font-bold text-blue-700 mb-3">
-          Voice Commands:
-        </p>
-        <div className="flex flex-wrap gap-2 justify-center">
-          {["save note", "next question", "mark as concept"].map((cmd) => (
-            <span
-              key={cmd}
-              className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-xl text-base font-medium"
-            >
-              "{cmd}"
-            </span>
-          ))}
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 }
 
