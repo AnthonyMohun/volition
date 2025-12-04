@@ -292,7 +292,10 @@ export const DrawingCanvas = forwardRef<
         }}
         onTouchStart={(e) => {
           // Mark as handled to prevent callout
-          (e.target as HTMLElement).style.webkitTouchCallout = "none";
+          (e.target as HTMLElement).style.setProperty(
+            "-webkit-touch-callout",
+            "none"
+          );
         }}
         style={{
           ...(height === "100%" ? { width: "100%" } : { width, height }),

@@ -10,9 +10,21 @@ import {
   ChevronDown,
   Mic,
   Pencil,
+  Sparkles,
+  Send,
+  Loader2,
+  Wand2,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  askRefineQuestion,
+  generateConceptDescription,
+  suggestConceptExtras,
+} from "@/lib/ai-client";
+import { speak, stopSpeaking, isSpeechSynthesisSupported } from "@/lib/speech";
 
 interface ConceptEditForm {
   title: string;
@@ -22,6 +34,12 @@ interface ConceptEditForm {
 
 // Type for which field is being recorded
 type RecordingField = "title" | "description" | "extras" | null;
+
+// Conversation item for AI scaffolding
+interface ConversationItem {
+  type: "ai" | "user";
+  text: string;
+}
 
 // Simplified: just title + description, with optional extras
 
@@ -58,6 +76,22 @@ export default function RefinePage() {
   const [guidedIndex, setGuidedIndex] = useState(0);
   const [recordingField, setRecordingField] = useState<RecordingField>(null);
   const recognitionRef = useRef<any>(null);
+
+  // AI Scaffolding state
+  const [showAIScaffold, setShowAIScaffold] = useState(true);
+  const [aiConversation, setAiConversation] = useState<ConversationItem[]>([]);
+  const [userInput, setUserInput] = useState("");
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [aiAnswers, setAiAnswers] = useState<
+    { question: string; answer: string }[]
+  >([]);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [isSuggestingExtras, setIsSuggestingExtras] = useState(false);
+  const conversationEndRef = useRef<HTMLDivElement>(null);
+  const [isRecordingAI, setIsRecordingAI] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const aiRecognitionRef = useRef<any>(null);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
 
@@ -142,6 +176,283 @@ export default function RefinePage() {
     };
   }, []);
 
+  // Scroll conversation to bottom
+  useEffect(() => {
+    conversationEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [aiConversation]);
+
+  // TTS helper for AI messages
+  const speakAIMessage = async (text: string) => {
+    if (isMuted) return;
+    if (isSpeechSynthesisSupported()) {
+      try {
+        await speak(text);
+      } catch (err) {
+        console.warn("TTS failed:", err);
+      }
+    }
+  };
+
+  // Toggle mute and stop any current speech
+  const toggleMute = () => {
+    if (!isMuted) {
+      stopSpeaking();
+    }
+    setIsMuted(!isMuted);
+  };
+
+  // Voice input handlers for AI conversation
+  const startAIVoiceInput = () => {
+    const SpeechRecognitionAPI =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      alert("Speech recognition is not supported in this browser");
+      return;
+    }
+
+    if (aiRecognitionRef.current) {
+      aiRecognitionRef.current.stop();
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: any) => {
+      let finalTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+      if (finalTranscript) {
+        setUserInput((prev) =>
+          prev ? prev + " " + finalTranscript : finalTranscript
+        );
+      }
+    };
+
+    recognition.onerror = () => setIsRecordingAI(false);
+    recognition.onend = () => setIsRecordingAI(false);
+
+    aiRecognitionRef.current = recognition;
+    recognition.start();
+    setIsRecordingAI(true);
+  };
+
+  const stopAIVoiceInput = () => {
+    if (aiRecognitionRef.current) {
+      aiRecognitionRef.current.stop();
+      aiRecognitionRef.current = null;
+    }
+    setIsRecordingAI(false);
+  };
+
+  // Start AI conversation when editing a new concept
+  const startAIScaffolding = async (note: (typeof conceptNotes)[0]) => {
+    setAiConversation([]);
+    setAiAnswers([]);
+    setQuestionIndex(0);
+    setIsAILoading(true);
+
+    try {
+      const question = await askRefineQuestion(note.text, note.text, [], 0);
+      setAiConversation([{ type: "ai", text: question }]);
+      speakAIMessage(question);
+    } catch (error) {
+      const fallbackMsg =
+        "What does this concept actually do? Describe it simply.";
+      setAiConversation([{ type: "ai", text: fallbackMsg }]);
+      speakAIMessage(fallbackMsg);
+    }
+    setIsAILoading(false);
+  };
+
+  const handleAIResponse = async () => {
+    if (!userInput.trim() || isAILoading) return;
+
+    const currentNote = selectedNotes[guidedIndex];
+    if (!currentNote) return;
+
+    const currentQuestion =
+      aiConversation[aiConversation.length - 1]?.text || "";
+    const newAnswers = [
+      ...aiAnswers,
+      { question: currentQuestion, answer: userInput.trim() },
+    ];
+    setAiAnswers(newAnswers);
+
+    setAiConversation((prev) => [
+      ...prev,
+      { type: "user", text: userInput.trim() },
+    ]);
+    setUserInput("");
+
+    const nextQuestionIdx = questionIndex + 1;
+
+    // After 3 questions, auto-generate description to reduce writing burden
+    if (nextQuestionIdx >= 3) {
+      // Auto-generate the description
+      setIsAILoading(true);
+      setQuestionIndex(nextQuestionIdx);
+      setAiConversation((prev) => [
+        ...prev,
+        {
+          type: "ai",
+          text: "✨ Let me write your description based on what you've told me...",
+        },
+      ]);
+      speakAIMessage(
+        "Let me write your description based on what you've told me."
+      );
+
+      try {
+        const description = await generateConceptDescription(
+          editForm.title || currentNote.text,
+          currentNote.text,
+          newAnswers
+        );
+
+        if (description) {
+          setEditForm((prev) => ({ ...prev, description }));
+          setAiConversation((prev) => [
+            ...prev,
+            {
+              type: "ai",
+              text: `Here's your description:\n\n"${description}"\n\nFeel free to edit it, or click 'Next' to continue!`,
+            },
+          ]);
+          speakAIMessage(
+            "Done! I've added the description. Feel free to edit it or move on."
+          );
+        } else {
+          setAiConversation((prev) => [
+            ...prev,
+            {
+              type: "ai",
+              text: "I couldn't generate a description. Try writing one based on our conversation!",
+            },
+          ]);
+        }
+      } catch (error) {
+        setAiConversation((prev) => [
+          ...prev,
+          {
+            type: "ai",
+            text: "Something went wrong. Try writing the description manually.",
+          },
+        ]);
+      }
+      setIsAILoading(false);
+    } else {
+      setIsAILoading(true);
+      setQuestionIndex(nextQuestionIdx);
+
+      try {
+        const question = await askRefineQuestion(
+          currentNote.text,
+          currentNote.text,
+          newAnswers,
+          nextQuestionIdx
+        );
+        setAiConversation((prev) => [...prev, { type: "ai", text: question }]);
+        speakAIMessage(question);
+      } catch (error) {
+        const fallbacks = [
+          "What does this concept actually do?",
+          "Who would benefit from this?",
+          "What makes this unique?",
+        ];
+        const fallbackMsg =
+          fallbacks[nextQuestionIdx] || "Tell me more about this idea.";
+        setAiConversation((prev) => [
+          ...prev,
+          { type: "ai", text: fallbackMsg },
+        ]);
+        speakAIMessage(fallbackMsg);
+      }
+      setIsAILoading(false);
+    }
+  };
+
+  const handleGenerateDescription = async () => {
+    const currentNote = selectedNotes[guidedIndex];
+    if (!currentNote || aiAnswers.length === 0) return;
+
+    setIsGeneratingDescription(true);
+    setAiConversation((prev) => [
+      ...prev,
+      { type: "ai", text: "📝 Writing your description..." },
+    ]);
+
+    try {
+      const description = await generateConceptDescription(
+        editForm.title || currentNote.text,
+        currentNote.text,
+        aiAnswers
+      );
+
+      if (description) {
+        setEditForm((prev) => ({ ...prev, description }));
+        setAiConversation((prev) => [
+          ...prev,
+          {
+            type: "ai",
+            text: `Here's your description:\n\n"${description}"\n\nFeel free to edit it in the form!`,
+          },
+        ]);
+      } else {
+        setAiConversation((prev) => [
+          ...prev,
+          {
+            type: "ai",
+            text: "I couldn't generate a description. Try writing one based on our conversation!",
+          },
+        ]);
+      }
+    } catch (error) {
+      setAiConversation((prev) => [
+        ...prev,
+        {
+          type: "ai",
+          text: "Something went wrong. Try writing the description manually.",
+        },
+      ]);
+    }
+    setIsGeneratingDescription(false);
+  };
+
+  // Handler to suggest extras using AI
+  const handleSuggestExtras = async () => {
+    const currentNote = selectedNotes[guidedIndex];
+    if (!currentNote || !editForm.description) return;
+
+    setIsSuggestingExtras(true);
+    try {
+      const suggestions = await suggestConceptExtras(
+        editForm.title || currentNote.text,
+        editForm.description,
+        state.hmwStatement
+      );
+
+      if (suggestions.targetAudience)
+        setTargetAudience(suggestions.targetAudience);
+      if (suggestions.platforms.length > 0) setPlatform(suggestions.platforms);
+      if (suggestions.keyBenefits) setKeyBenefits(suggestions.keyBenefits);
+      if (suggestions.mainFeatures) setMainFeatures(suggestions.mainFeatures);
+
+      // Speak confirmation
+      speakAIMessage(
+        "I've filled in some suggestions. Feel free to edit them!"
+      );
+    } catch (error) {
+      console.error("Suggest extras failed:", error);
+    }
+    setIsSuggestingExtras(false);
+  };
+
   useEffect(() => {
     if (!state.hmwStatement || conceptNotes.length < 2) {
       router.push("/canvas");
@@ -180,6 +491,7 @@ export default function RefinePage() {
     setEditingId(note.id);
     setShowExtras(false);
     setIsLoadingDescription(true);
+    setShowAIScaffold(true);
 
     // Prefer structured fields if present
     setTargetAudience(note.targetAudience || "");
@@ -199,6 +511,10 @@ export default function RefinePage() {
         description: descMatch ? descMatch[1].trim() : "",
         extras: extrasMatch ? extrasMatch[1].trim() : "",
       });
+      // If already has description, don't show AI scaffold
+      if (descMatch && descMatch[1].trim()) {
+        setShowAIScaffold(false);
+      }
       // Always keep extra notes section closed by default
     } else {
       setEditForm({
@@ -206,6 +522,12 @@ export default function RefinePage() {
         description: note.details || "",
         extras: "",
       });
+      // Start AI scaffolding for empty descriptions
+      if (!note.details) {
+        startAIScaffolding(note);
+      } else {
+        setShowAIScaffold(false);
+      }
     }
   };
 
@@ -497,6 +819,174 @@ export default function RefinePage() {
                       </div>
                       {/* Gradient skeleton for concept description loading */}
 
+                      {/* AI Scaffolding Panel */}
+                      <AnimatePresence>
+                        {showAIScaffold && aiConversation.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="bg-gradient-to-br from-teal-50/80 to-blue-50/80 border-2 border-teal-200 rounded-2xl overflow-hidden"
+                          >
+                            {/* Volition Header */}
+                            <div className="px-4 py-2.5 bg-gradient-to-r from-teal-100/80 to-blue-100/80 border-b border-teal-200/50 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-white rounded-lg shadow-sm">
+                                  <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                                </div>
+                                <span className="font-bold text-teal-800 text-xs">
+                                  Volition Description Helper
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={toggleMute}
+                                  className={`p-1.5 rounded-lg transition-all ${
+                                    isMuted
+                                      ? "text-red-500 bg-red-50 hover:bg-red-100"
+                                      : "text-teal-600 hover:bg-teal-100"
+                                  }`}
+                                  title={
+                                    isMuted ? "Unmute voice" : "Mute voice"
+                                  }
+                                >
+                                  {isMuted ? (
+                                    <VolumeX className="w-3.5 h-3.5" />
+                                  ) : (
+                                    <Volume2 className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setShowAIScaffold(false)}
+                                  className="text-xs font-semibold text-teal-600 hover:text-teal-800 px-2 py-1 hover:bg-teal-100 rounded-lg transition-all"
+                                >
+                                  Write manually
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Conversation */}
+                            <div className="p-3 max-h-48 overflow-y-auto space-y-2">
+                              {aiConversation.map((item, index) => (
+                                <motion.div
+                                  key={index}
+                                  initial={{ opacity: 0, y: 5 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className={`flex ${
+                                    item.type === "user"
+                                      ? "justify-end"
+                                      : "justify-start"
+                                  }`}
+                                >
+                                  <div
+                                    className={`max-w-[85%] px-3 py-2 rounded-xl text-xs font-medium ${
+                                      item.type === "user"
+                                        ? "bg-teal-600 text-white rounded-br-sm"
+                                        : "bg-white text-gray-700 rounded-bl-sm shadow-sm border border-gray-100"
+                                    }`}
+                                    style={{ whiteSpace: "pre-wrap" }}
+                                  >
+                                    {item.text}
+                                  </div>
+                                </motion.div>
+                              ))}
+                              {isAILoading && (
+                                <div className="flex justify-start">
+                                  <div className="bg-white px-3 py-2 rounded-xl rounded-bl-sm shadow-sm border border-gray-100 flex items-center gap-2">
+                                    <Loader2 className="w-3 h-3 animate-spin text-teal-600" />
+                                    <span className="text-xs text-gray-500">
+                                      Thinking...
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                              <div ref={conversationEndRef} />
+                            </div>
+
+                            {/* Input */}
+                            <div className="p-2.5 border-t border-teal-200/50 bg-white/50">
+                              {questionIndex >= 3 ? (
+                                <div className="flex gap-2 items-center justify-center">
+                                  <span className="text-xs text-gray-500 font-medium">
+                                    ✅ Description generated! Edit below or
+                                    click Next.
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowAIScaffold(false)}
+                                    className="px-3 py-2 bg-teal-100 text-teal-700 font-bold text-xs rounded-xl hover:bg-teal-200 transition-all"
+                                  >
+                                    Close helper
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={userInput}
+                                    onChange={(e) =>
+                                      setUserInput(e.target.value)
+                                    }
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleAIResponse();
+                                      }
+                                    }}
+                                    placeholder="Type or speak..."
+                                    className="flex-1 px-3 py-2 bg-white border-2 border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 focus:border-teal-300 focus:ring-2 focus:ring-teal-100 transition-all text-xs font-medium"
+                                    disabled={isAILoading}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={
+                                      isRecordingAI
+                                        ? stopAIVoiceInput
+                                        : startAIVoiceInput
+                                    }
+                                    disabled={isAILoading}
+                                    className={`px-2.5 py-2 rounded-xl transition-all ${
+                                      isRecordingAI
+                                        ? "bg-red-500 text-white hover:bg-red-600"
+                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                    }`}
+                                    title={
+                                      isRecordingAI
+                                        ? "Stop recording"
+                                        : "Voice input"
+                                    }
+                                  >
+                                    {isRecordingAI ? (
+                                      <motion.div
+                                        animate={{ scale: [1, 1.2, 1] }}
+                                        transition={{
+                                          repeat: Infinity,
+                                          duration: 1,
+                                        }}
+                                      >
+                                        <Mic className="w-3.5 h-3.5" />
+                                      </motion.div>
+                                    ) : (
+                                      <Mic className="w-3.5 h-3.5" />
+                                    )}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handleAIResponse}
+                                    disabled={!userInput.trim() || isAILoading}
+                                    className="px-3 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                  >
+                                    <Send className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                       {/* Description - combines problem + solution */}
                       <div>
                         <label className="text-xs font-bold text-gray-600 mb-2 block flex items-center gap-2 uppercase tracking-wide">
@@ -571,6 +1061,27 @@ export default function RefinePage() {
                               border: "1px solid rgba(226, 232, 240, 0.6)",
                             }}
                           >
+                            {/* AI Suggest Button */}
+                            <button
+                              type="button"
+                              onClick={handleSuggestExtras}
+                              disabled={
+                                isSuggestingExtras || !editForm.description
+                              }
+                              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-teal-50 to-blue-50 border-2 border-teal-200 hover:border-teal-300 rounded-xl text-teal-700 font-semibold text-xs transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isSuggestingExtras ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Sparkles className="w-3.5 h-3.5" />
+                              )}
+                              <span>
+                                {isSuggestingExtras
+                                  ? "Suggesting..."
+                                  : "Let Volition suggest details"}
+                              </span>
+                            </button>
+
                             <div>
                               <label className="text-xs font-semibold text-gray-500 mb-1 block">
                                 Target Audience

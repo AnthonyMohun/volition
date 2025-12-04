@@ -504,36 +504,38 @@ export function StickyNote({
         {/* Delve Deeper Button */}
         {onDelveDeeper && note.text && note.text.trim() && (
           <div className="mt-3 pt-3 border-t border-gray-200/60">
-            <button
-              onClick={() => onDelveDeeper(note.text)}
-              onPointerDown={(e) => e.stopPropagation()}
-              disabled={isDelvingDeeper}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
-              style={{
-                backgroundColor: isDelvingDeeper
-                  ? "#e5e7eb"
-                  : `${getAccentColor(note.color)}15`,
-                color: isDelvingDeeper
-                  ? "#9ca3af"
-                  : getDarkerAccentColor(note.color),
-                border: `2px solid ${
-                  isDelvingDeeper ? "#d1d5db" : getAccentColor(note.color)
-                }`,
-              }}
-              title="Ask AI to help you explore this idea deeper"
-            >
-              {isDelvingDeeper ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Thinking...</span>
-                </>
-              ) : (
-                <>
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Delve Deeper</span>
-                </>
-              )}
-            </button>
+            <div className="flex gap-2">
+              {/* Delve Deeper Button */}
+              <button
+                onClick={() => onDelveDeeper(note.text)}
+                onPointerDown={(e) => e.stopPropagation()}
+                disabled={isDelvingDeeper}
+                className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  backgroundColor: isDelvingDeeper
+                    ? "#e5e7eb"
+                    : `${getAccentColor(note.color)}15`,
+                  color: isDelvingDeeper
+                    ? "#9ca3af"
+                    : getDarkerAccentColor(note.color),
+                  border: `2px solid ${
+                    isDelvingDeeper ? "#d1d5db" : getAccentColor(note.color)
+                  }`,
+                }}
+                title="Ask AI to help you explore this idea deeper"
+              >
+                {isDelvingDeeper ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-3 h-3" />
+                    <span>Delve Deeper</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         )}
 
@@ -704,12 +706,13 @@ export function StickyNote({
                   🎤 Listening... speak your concept details
                 </p>
               )}
-              <div className="flex gap-3 mt-6">
+
+              <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => setShowDetailsModal(false)}
                   className="flex-1 px-5 py-3 border-3 border-gray-200 text-gray-600 rounded-2xl hover:bg-gray-50 transition-all text-sm font-black shadow-sm"
                 >
-                  Skip for now
+                  Cancel
                 </button>
                 <button
                   onClick={handleSaveDetails}

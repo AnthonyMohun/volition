@@ -222,7 +222,7 @@ function AnimatedAIChat({ delay = 0 }: { delay?: number }) {
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="w-3 h-3 text-teal-500" />
                   <span className="text-xs font-bold text-teal-600">
-                    Socratic Guide
+                    Volition
                   </span>
                 </div>
               )}
@@ -501,7 +501,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     },
     {
       id: "ai-chat",
-      title: "Socratic AI Guide 🤖",
+      title: "Volition Guide ✨",
       subtitle: "Thoughtful questions to deepen your thinking",
       icon: <MessageSquare className="w-6 h-6" />,
       content: (

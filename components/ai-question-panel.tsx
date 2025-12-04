@@ -15,7 +15,6 @@ import {
   MessageRole,
 } from "@/lib/ai-client";
 import {
-  Bot,
   Sparkles,
   Loader2,
   Check,
@@ -521,7 +520,7 @@ export function AIQuestionPanel({
       >
         {/* Clean, minimal header */}
         <div className="flex items-center justify-between">
-          {/* Bot Identity */}
+          {/* Volition Identity */}
           <div className="flex items-center gap-3">
             <div className="relative">
               <div
@@ -535,14 +534,12 @@ export function AIQuestionPanel({
                   `,
                 }}
               >
-                <Bot className="w-5 h-5 text-teal-600" />
+                <Sparkles className="w-5 h-5 text-teal-600" />
               </div>
               <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white"></span>
             </div>
             <div>
-              <h2 className="font-bold text-gray-800 text-sm">
-                Socratic Guide
-              </h2>
+              <h2 className="font-bold text-gray-800 text-sm">Volition</h2>
               <p className="text-xs text-gray-500 font-medium">
                 {isLoading
                   ? "Thinking..."

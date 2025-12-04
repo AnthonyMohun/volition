@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { askAI } from "@/lib/ai-client";
+import { speak, stopSpeaking, isSpeechSynthesisSupported } from "@/lib/speech";
 import {
   SELF_EVAL_CRITERIA,
   type ConceptSelfEvaluation,
@@ -87,6 +88,9 @@ export default function FinalPage() {
   const aiEvalStartedRef = useRef(false);
   const [criteriaExpanded, setCriteriaExpanded] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  // TTS tracking
+  const hasSpokenAIEvalIntroRef = useRef(false);
+  const hasSpokenSelfAssessmentIntroRef = useRef(false);
 
   const conceptNotes = state.notes.filter((n) => n.isConcept);
   const selectedNotes = state.selectedConceptIds
@@ -118,7 +122,7 @@ export default function FinalPage() {
     }
   }, [selectedNotes, evaluations.length]);
 
-  // Keyboard navigation for rating (1-5 keys and Enter)
+  // Keyboard navigation for rating (1-5 keys)
   useEffect(() => {
     // Only enable keyboard navigation during self-assessment (not AI eval or summary)
     if (showAIEvaluation && !aiEvalComplete) return;
@@ -126,14 +130,35 @@ export default function FinalPage() {
     if (showCelebration) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Number keys 1-5 for rating
+      // Number keys 1-5 for rating - auto-continue immediately
       if (e.key >= "1" && e.key <= "5") {
         const score = parseInt(e.key, 10);
-        handleRatingSelect(score);
-      }
-      // Enter key to proceed to next
-      if (e.key === "Enter" && currentRating > 0) {
-        handleNext();
+        // Set rating and advance in one go
+        setCurrentRating(score);
+        // Save rating to evaluations
+        setEvaluations((prev) => {
+          const updated = [...prev];
+          if (!updated[currentConceptIndex]) {
+            updated[currentConceptIndex] = {
+              conceptId: selectedNotes[currentConceptIndex]?.id || "",
+              ratings: [],
+            };
+          }
+          const existingIdx = updated[currentConceptIndex].ratings.findIndex(
+            (r) => r.criteriaId === currentCriteria?.id
+          );
+          if (existingIdx >= 0) {
+            updated[currentConceptIndex].ratings[existingIdx].score = score;
+          } else {
+            updated[currentConceptIndex].ratings.push({
+              criteriaId: currentCriteria?.id || "",
+              score,
+            });
+          }
+          return updated;
+        });
+        // Auto-advance after brief visual feedback
+        setTimeout(() => handleNext(), 250);
       }
     };
 
@@ -144,7 +169,9 @@ export default function FinalPage() {
     aiEvalComplete,
     showSummary,
     showCelebration,
-    currentRating,
+    currentConceptIndex,
+    currentCriteria,
+    selectedNotes,
   ]);
 
   // Generate AI evaluations for all concepts on load
@@ -159,6 +186,75 @@ export default function FinalPage() {
       generateAIEvaluations();
     }
   }, [selectedNotes.length]);
+
+  // Track which section is being spoken for highlight effect
+  const [speakingSection, setSpeakingSection] = useState<
+    "strengths" | "improvements" | null
+  >(null);
+
+  // Speak intro when first AI evaluation completes - summarize strengths and improvements
+  useEffect(() => {
+    if (
+      !hasSpokenAIEvalIntroRef.current &&
+      aiEvaluations.length > 0 &&
+      !aiEvaluations[0]?.isLoading &&
+      aiEvaluations[0]?.strengths?.length > 0 &&
+      isSpeechSynthesisSupported()
+    ) {
+      hasSpokenAIEvalIntroRef.current = true;
+      const eval0 = aiEvaluations[0];
+      const tier = scoreToGrowthTier(eval0.overallScore);
+
+      // Build speech with strengths and improvements
+      const strengthsText = eval0.strengths.slice(0, 2).join(". ");
+      const improvementsText = eval0.improvements.slice(0, 1).join(". ");
+
+      // Speak with section highlighting
+      const speakWithHighlights = async () => {
+        setSpeakingSection("strengths");
+        await speak(
+          `Here's your first concept at the ${tier.label} stage. What's working well: ${strengthsText}`
+        );
+        setSpeakingSection("improvements");
+        await speak(`Areas to grow: ${improvementsText}`);
+        setSpeakingSection(null);
+      };
+      speakWithHighlights();
+    }
+  }, [aiEvaluations]);
+
+  // Speak intro when self-assessment summary is shown
+  useEffect(() => {
+    if (
+      showCelebration &&
+      !hasSpokenSelfAssessmentIntroRef.current &&
+      isSpeechSynthesisSupported()
+    ) {
+      hasSpokenSelfAssessmentIntroRef.current = true;
+      // Calculate scores inline to avoid dependency on function defined later
+      const rankedConcepts = selectedNotes
+        .map((note, idx) => {
+          const conceptEval = evaluations[idx];
+          let score = 0;
+          if (conceptEval && conceptEval.ratings.length > 0) {
+            const total = conceptEval.ratings.reduce(
+              (sum, r) => sum + r.score,
+              0
+            );
+            score = Math.round((total / conceptEval.ratings.length) * 20);
+          }
+          return { note, score };
+        })
+        .sort((a, b) => b.score - a.score);
+
+      if (rankedConcepts.length > 0) {
+        const topConcept = rankedConcepts[0].note.text;
+        speak(
+          `Great job completing your self-assessment! Your top concept is: ${topConcept}`
+        );
+      }
+    }
+  }, [showCelebration, selectedNotes, evaluations]);
 
   const generateAIEvaluations = async () => {
     const evaluationsToGenerate = selectedNotes.map((note) => ({
@@ -887,7 +983,13 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                 {/* Strengths & Improvements - Side by Side */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Strengths Card */}
-                  <div className="fun-card p-4 md:p-5 border-3 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+                  <div
+                    className={`fun-card p-4 md:p-5 border-3 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden transition-all duration-300 ${
+                      speakingSection === "strengths"
+                        ? "border-green-500 ring-4 ring-green-300/50 shadow-lg shadow-green-200/50"
+                        : "border-green-300"
+                    }`}
+                  >
                     <div className="absolute top-0 right-0 w-24 h-24 bg-green-200/30 rounded-full -translate-y-8 translate-x-8" />
                     <div className="relative">
                       <div className="flex items-center gap-3 mb-3 md:mb-4">
@@ -917,7 +1019,13 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
                   </div>
 
                   {/* Improvements Card */}
-                  <div className="fun-card p-4 md:p-5 border-3 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 relative overflow-hidden">
+                  <div
+                    className={`fun-card p-4 md:p-5 border-3 bg-gradient-to-br from-amber-50 to-orange-50 relative overflow-hidden transition-all duration-300 ${
+                      speakingSection === "improvements"
+                        ? "border-amber-500 ring-4 ring-amber-300/50 shadow-lg shadow-amber-200/50"
+                        : "border-amber-300"
+                    }`}
+                  >
                     <div className="absolute top-0 right-0 w-24 h-24 bg-amber-200/30 rounded-full -translate-y-8 translate-x-8" />
                     <div className="relative">
                       <div className="flex items-center gap-3 mb-3 md:mb-4">

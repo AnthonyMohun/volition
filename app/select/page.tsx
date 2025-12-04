@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
 import { StickyNote } from "@/lib/types";
@@ -20,8 +20,14 @@ import {
   X,
   Rocket,
   Target,
+  RefreshCw,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { getSelectionGuidance } from "@/lib/ai-client";
+import { motion, AnimatePresence } from "framer-motion";
+import { speak, stopSpeaking, isSpeechSynthesisSupported } from "@/lib/speech";
 
 export default function SelectPage() {
   const router = useRouter();
@@ -36,6 +42,11 @@ export default function SelectPage() {
     { id: string; direction: "left" | "right" }[]
   >([]);
   const [showCompletionCard, setShowCompletionCard] = useState(false);
+
+  // AI Guidance state
+  const [aiGuidance, setAiGuidance] = useState<string>("");
+  const [isLoadingGuidance, setIsLoadingGuidance] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   // Drag state for top card
   const [dragState, setDragState] = useState({
@@ -60,6 +71,67 @@ export default function SelectPage() {
     (note) =>
       !selectedConcepts.includes(note.id) && !skippedConcepts.includes(note.id)
   );
+
+  // TTS helper for AI messages
+  const speakAIMessage = async (text: string) => {
+    if (isMuted) return;
+    if (isSpeechSynthesisSupported()) {
+      try {
+        await speak(text);
+      } catch (err) {
+        console.warn("TTS failed:", err);
+      }
+    }
+  };
+
+  // Toggle mute and stop any current speech
+  const toggleMute = () => {
+    if (!isMuted) {
+      stopSpeaking();
+    }
+    setIsMuted(!isMuted);
+  };
+
+  // Fetch AI guidance when selection changes
+  const fetchGuidance = useCallback(async () => {
+    if (conceptNotes.length < 2) return;
+
+    setIsLoadingGuidance(true);
+    try {
+      const concepts = conceptNotes.map((c) => ({
+        title: c.text,
+        text: c.text,
+        details: c.details,
+      }));
+      const guidance = await getSelectionGuidance(
+        state.hmwStatement,
+        concepts,
+        selectedConcepts.length
+      );
+      setAiGuidance(guidance);
+      speakAIMessage(guidance);
+    } catch (error) {
+      console.error("Failed to get guidance:", error);
+      const fallback =
+        "Consider which concept you're most excited to develop further.";
+      setAiGuidance(fallback);
+      speakAIMessage(fallback);
+    }
+    setIsLoadingGuidance(false);
+  }, [state.hmwStatement, conceptNotes, selectedConcepts.length]);
+
+  // Fetch guidance only on mount (not on every selection change to avoid double-loading)
+  const guidanceFetchedRef = useRef(false);
+  useEffect(() => {
+    if (
+      conceptNotes.length >= 2 &&
+      !showCompletionCard &&
+      !guidanceFetchedRef.current
+    ) {
+      guidanceFetchedRef.current = true;
+      fetchGuidance();
+    }
+  }, [conceptNotes.length, showCompletionCard, fetchGuidance]);
 
   // Show completion card when all concept cards have been swiped
   const allCardsReviewed =
@@ -348,6 +420,88 @@ export default function SelectPage() {
               "4px 0 16px rgba(163, 177, 198, 0.15), inset -1px 0 2px rgba(163, 177, 198, 0.08), inset 1px 0 2px rgba(255, 255, 255, 0.8)",
           }}
         >
+          {/* Volition Guidance section */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-teal-500" />
+                <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Volition Guidance
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={toggleMute}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    isMuted
+                      ? "text-red-500 bg-red-50 hover:bg-red-100"
+                      : "text-gray-400 hover:text-teal-600 hover:bg-teal-50"
+                  }`}
+                  title={isMuted ? "Unmute voice" : "Mute voice"}
+                >
+                  {isMuted ? (
+                    <VolumeX className="w-3.5 h-3.5" />
+                  ) : (
+                    <Volume2 className="w-3.5 h-3.5" />
+                  )}
+                </button>
+                <button
+                  onClick={fetchGuidance}
+                  disabled={isLoadingGuidance}
+                  className="p-1.5 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-all disabled:opacity-50"
+                  title="Get new tip"
+                >
+                  <RefreshCw
+                    className={`w-3.5 h-3.5 ${
+                      isLoadingGuidance ? "animate-spin" : ""
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={aiGuidance}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="p-4 rounded-xl"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(240,253,250,0.9) 0%, rgba(239,246,255,0.7) 100%)",
+                  border: "1px solid rgba(153, 246, 228, 0.4)",
+                  boxShadow:
+                    "0 2px 8px rgba(20, 184, 166, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
+                }}
+              >
+                {isLoadingGuidance ? (
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <div
+                      className="w-2 h-2 bg-teal-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <div
+                      className="w-2 h-2 bg-teal-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <div
+                      className="w-2 h-2 bg-teal-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-700 font-medium leading-relaxed">
+                    💡{" "}
+                    {aiGuidance ||
+                      "Review each concept and keep the ones that excite you most."}
+                  </p>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <div className="h-px bg-gradient-to-r from-transparent via-gray-200/60 to-transparent mb-6" />
+
           {/* Tips section */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
