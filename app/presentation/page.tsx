@@ -13,6 +13,7 @@ import {
   HowToUse1Slide,
   HowToUse2Slide,
   HowToUse3Slide,
+  HowItWorksSlide,
   HowToUse4Slide,
   DifferentiatorsSlide,
   ProcessComparisonSlide,
@@ -137,6 +138,11 @@ export default function PresentationPage() {
           <section data-transition="slide">
             <div className="slide-container">
               <HowToUse3Slide />
+            </div>
+          </section>
+          <section data-transition="slide">
+            <div className="slide-container">
+              <HowItWorksSlide />
             </div>
           </section>
           <section data-transition="slide">

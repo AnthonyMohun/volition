@@ -40,7 +40,7 @@ export function AnimatedStickyNote({ delay = 0 }: { delay?: number }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: delay / 1000 }}
-      className="flex flex-col items-center"
+      className="flex flex-col items-center w-[300px]"
     >
       {/* Sticky note with badge */}
       <div className="relative inline-block">
@@ -59,7 +59,7 @@ export function AnimatedStickyNote({ delay = 0 }: { delay?: number }) {
         </AnimatePresence>
 
         <div
-          className="w-64 p-6 rounded-3xl border-4 border-yellow-400 bg-yellow-100"
+          className="w-72 p-6 rounded-3xl border-4 border-yellow-400 bg-yellow-100"
           style={{
             boxShadow:
               "12px 12px 24px rgba(251, 191, 36, 0.4), -4px -4px 12px rgba(255, 255, 255, 0.6)",
@@ -221,7 +221,7 @@ export function AnimatedAIChat({ delay = 0 }: { delay?: number }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: delay / 1000 }}
-      className="space-y-4 max-w-md"
+      className="space-y-6 w-[420px]"
     >
       {messages.map((msg, index) => (
         <AnimatePresence key={`${index}-${cycle}`}>
@@ -230,21 +230,21 @@ export function AnimatedAIChat({ delay = 0 }: { delay?: number }) {
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className={`p-4 rounded-2xl ${
+              className={`p-5 rounded-2xl ${
                 msg.isAI
-                  ? "bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 mr-12"
-                  : "bg-gradient-to-br from-teal-50 to-green-50 border-2 border-teal-200 ml-12"
+                  ? "bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 mr-8"
+                  : "bg-gradient-to-br from-teal-50 to-green-50 border-2 border-teal-200 ml-8"
               }`}
             >
               {msg.isAI && (
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-4 h-4 text-teal-500" />
-                  <span className="text-sm font-bold text-teal-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-5 h-5 text-teal-500" />
+                  <span className="text-base font-bold text-teal-600">
                     Volition
                   </span>
                 </div>
               )}
-              <p className="text-base text-gray-700 font-medium">{msg.text}</p>
+              <p className="text-lg text-gray-700 font-medium">{msg.text}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -305,7 +305,7 @@ export function AnimatedVoiceInput({ delay = 0 }: { delay?: number }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: delay / 1000 }}
-      className="space-y-6"
+      className="space-y-6 w-[320px]"
     >
       {/* Mic button */}
       <div className="flex items-center justify-center">
@@ -340,14 +340,14 @@ export function AnimatedVoiceInput({ delay = 0 }: { delay?: number }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-sm text-red-500 font-bold mb-3"
+              className="text-base text-red-500 font-bold mb-3"
             >
               🎤 Listening...
             </motion.p>
           )}
         </AnimatePresence>
-        <div className="bg-white border-3 border-gray-200 rounded-2xl p-4 min-h-[80px]">
-          <p className="text-base text-gray-700 font-medium">
+        <div className="bg-white border-3 border-gray-200 rounded-2xl p-5 min-h-[100px]">
+          <p className="text-lg text-gray-700 font-medium">
             {transcript || (
               <span className="text-gray-400">Hold spacebar to speak...</span>
             )}
@@ -356,13 +356,15 @@ export function AnimatedVoiceInput({ delay = 0 }: { delay?: number }) {
       </div>
 
       {/* Commands hint */}
-      <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4">
-        <p className="text-sm font-bold text-blue-700 mb-3">Voice Commands:</p>
+      <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5">
+        <p className="text-base font-bold text-blue-700 mb-3">
+          Voice Commands:
+        </p>
         <div className="flex flex-wrap gap-2 justify-center">
           {["save note", "next question", "mark as concept"].map((cmd) => (
             <span
               key={cmd}
-              className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-xl text-sm font-medium"
+              className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-xl text-base font-medium"
             >
               "{cmd}"
             </span>

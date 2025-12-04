@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Volition Presentation",
   description:
-    "AI-Powered Design Thinking Through Socratic Questioning - Presentation",
+    "Socratic AI for clearer, faster idea development - Presentation",
 };
 
 export default function PresentationLayout({

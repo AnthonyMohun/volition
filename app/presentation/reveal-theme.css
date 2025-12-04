@@ -79,7 +79,7 @@
     -16px -16px 32px rgba(255, 255, 255, 0.9),
     inset 2px 2px 4px rgba(255, 255, 255, 0.5),
     inset -2px -2px 4px rgba(163, 177, 198, 0.1);
-  padding: 60px;
+  padding: 80px;
   margin: 40px;
   min-height: calc(100% - 80px);
   display: flex;
@@ -120,7 +120,7 @@
 }
 
 .reveal h1 {
-  font-size: 4.5em;
+  font-size: 5em;
   background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
   background-size: 200% 200%;
   animation: gradientFlow 3s ease infinite;
@@ -130,12 +130,12 @@
 }
 
 .reveal h2 {
-  font-size: 3.5em;
+  font-size: 4em;
   color: #1a1a2e;
 }
 
 .reveal h3 {
-  font-size: 2.25em;
+  font-size: 2.5em;
   color: #374151;
 }
 
@@ -144,7 +144,7 @@
   font-family: var(--font-rubik), system-ui, -apple-system, sans-serif;
   font-weight: 500;
   color: #4b5563;
-  font-size: 1.5em;
+  font-size: 1.75em;
   line-height: 1.6;
 }
 

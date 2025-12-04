@@ -20,22 +20,19 @@ export function WhoForSlide() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[600px] px-16">
-      <h2 className="text-6xl font-black text-gray-800 mb-8">Who is it for?</h2>
-
-      <p className="fragment fade-in text-3xl text-gray-600 mb-20">
+    <div className="flex flex-col items-center justify-center min-h-[600px] px-20">
+      {/* Static title and subtitle */}
+      <h2 className="text-6xl font-black text-gray-800 mb-6">Who is it for?</h2>
+      <p className="text-4xl text-gray-500 mb-16">
         Built for{" "}
-        <span className="font-black text-teal-600">design education</span>
+        <span className="font-black text-teal-600">design education</span> —
+        classroom and studio-ready
       </p>
 
-      {/* Persona cards */}
-      <div className="flex gap-20 mb-16">
-        {personas.map((persona, index) => (
-          <div
-            key={persona.title}
-            className="fragment fade-up text-center max-w-[320px]"
-            data-fragment-index={index}
-          >
+      {/* Persona cards - animate together */}
+      <div className="fragment fade-up flex gap-20 mb-16">
+        {personas.map((persona) => (
+          <div key={persona.title} className="text-center w-80">
             <span className="text-8xl block mb-8">{persona.emoji}</span>
             <h3 className="text-3xl font-black text-gray-800 mb-4">
               {persona.title}
@@ -48,10 +45,10 @@ export function WhoForSlide() {
       </div>
 
       {/* Context badges */}
-      <div className="fragment fade-in flex gap-12">
+      <div className="fragment fade-up flex gap-12">
         {["🏫 Classroom-ready", "🔒 Privacy-first", "💻 Works locally"].map(
           (badge) => (
-            <span key={badge} className="text-xl font-bold text-gray-500">
+            <span key={badge} className="text-2xl font-bold text-gray-500">
               {badge}
             </span>
           )

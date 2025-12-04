@@ -12,33 +12,30 @@ export function HowToUse2Slide() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[600px] px-16">
+    <div className="flex flex-col items-center justify-center min-h-[600px] px-20">
+      {/* Static title and subtitle */}
       <h2 className="text-6xl font-black text-gray-800 mb-6">AI Guide</h2>
-
-      <p className="fragment fade-in text-3xl text-gray-500 mb-20">
-        Thoughtful questions to deepen your thinking
+      <p className="text-3xl text-gray-500 mb-16">
+        Socratic prompts that deepen your thinking
       </p>
 
-      <div className="flex items-start gap-24">
-        {/* Animated chat */}
-        <div className="fragment fade-right">
+      {/* Two column grid with fixed widths */}
+      <div className="fragment fade-up grid grid-cols-2 gap-24 items-start">
+        {/* Left column - Animated chat */}
+        <div className="flex justify-end">
           <AnimatedAIChat delay={0} />
         </div>
 
-        {/* Interaction options */}
-        <div className="space-y-8">
+        {/* Right column - Interaction options */}
+        <div className="pt-4">
           <h3 className="text-2xl font-bold text-gray-600 mb-10">
             Interact with questions
           </h3>
 
-          <div className="grid grid-cols-2 gap-x-16 gap-y-10">
-            {actions.map((action, i) => (
-              <div
-                key={action.label}
-                className="fragment fade-up flex items-center gap-4"
-                data-fragment-index={i + 1}
-              >
-                <action.icon className={`w-9 h-9 ${action.color}`} />
+          <div className="grid grid-cols-2 gap-x-14 gap-y-8">
+            {actions.map((action) => (
+              <div key={action.label} className="flex items-center gap-4">
+                <action.icon className={`w-8 h-8 ${action.color}`} />
                 <span className="font-bold text-xl text-gray-700">
                   {action.label}
                 </span>
@@ -46,7 +43,7 @@ export function HowToUse2Slide() {
             ))}
           </div>
 
-          <p className="fragment fade-in text-xl text-gray-500 mt-10 pt-8 border-t border-gray-200">
+          <p className="text-xl text-gray-500 mt-10 pt-8 border-t border-gray-200">
             🧠 AI adapts based on your notes and progress
           </p>
         </div>

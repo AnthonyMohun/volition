@@ -2,16 +2,14 @@
 
 export function MappingSlide() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[600px]">
-      <div className="text-center">
-        <span className="text-8xl mb-8 block">🗺️</span>
-        <h2 className="text-5xl font-black text-gray-400 mb-6">
-          Mapping Exercise
-        </h2>
-        <p className="text-2xl text-gray-400 font-medium">
-          Interactive session content here
-        </p>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-[600px] px-20">
+      <span className="text-[10rem] mb-12">🗺️</span>
+      <h2 className="text-6xl font-black text-gray-800 mb-8">
+        Mapping Exercise
+      </h2>
+      <p className="text-4xl text-gray-500 font-medium max-w-4xl text-center">
+        Visualize how concepts connect across the canvas
+      </p>
     </div>
   );
 }
