@@ -1653,9 +1653,19 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
               {/* Modal Header */}
-              <div className="p-4 md:p-6 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-teal-50 to-blue-50">
+              <div
+                className="p-4 md:p-6 border-b flex items-center justify-between"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(97, 171, 196, 0.16) 0%, rgba(97, 171, 196, 0.1) 100%)",
+                  borderColor: "#61ABC4",
+                }}
+              >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center shadow-lg">
+                  <div
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shadow-lg text-white"
+                    style={{ backgroundColor: "#61ABC4" }}
+                  >
                     <ListChecks className="w-5 h-5 md:w-6 md:h-6 text-white" />
                   </div>
                   <div>

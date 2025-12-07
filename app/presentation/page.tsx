@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Reveal from "reveal.js";
 import "reveal.js/dist/reveal.css";
 import "./reveal-theme.css";
 
 import {
   CoverSlide,
+  CoverSlideCornerArt,
   MappingSlide,
   WhatIsSlide,
   WhoForSlide,
@@ -25,6 +26,7 @@ import {
 export default function PresentationPage() {
   const deckRef = useRef<HTMLDivElement>(null);
   const revealRef = useRef<Reveal.Api | null>(null);
+  const [isCoverSlide, setIsCoverSlide] = useState(true);
 
   useEffect(() => {
     if (!deckRef.current || revealRef.current) return;
@@ -85,6 +87,11 @@ export default function PresentationPage() {
 
     deck.initialize().then(() => {
       revealRef.current = deck;
+
+      // Listen for slide changes to show corner art only on cover slide
+      deck.on("slidechanged", (event) => {
+        setIsCoverSlide(event.indexh === 0 && event.indexv === 0);
+      });
     });
 
     return () => {
@@ -101,6 +108,9 @@ export default function PresentationPage() {
       <div className="fullscreen-hint">
         Press <kbd>F</kbd> for fullscreen
       </div>
+
+      {/* Corner art overlay */}
+      {isCoverSlide && <CoverSlideCornerArt />}
 
       {/* Reveal.js container */}
       <div className="reveal" ref={deckRef}>

@@ -13,16 +13,7 @@
 
 /* Base Reveal.js overrides */
 .reveal-viewport {
-  background: linear-gradient(
-    135deg,
-    #f0f9ff 0%,
-    #fef3c7 25%,
-    #dbeafe 50%,
-    #dcfce7 75%,
-    #f0f9ff 100%
-  );
-  background-size: 400% 400%;
-  animation: gradientShift 20s ease infinite;
+  background: linear-gradient(180deg, #f7fbff 0%, #d9eef9 70%, #cfe7f5 100%);
 }
 
 @keyframes gradientShift {
@@ -85,11 +76,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 /* Slide container inner content */
 .slide-container > div {
   width: 100%;
+  height: 100%;
 }
 
 /* Slide container */

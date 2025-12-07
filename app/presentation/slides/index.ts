@@ -1,5 +1,5 @@
 // Export all slides from a single index
-export { CoverSlide } from "./CoverSlide";
+export { CoverSlide, CoverSlideCornerArt } from "./CoverSlide";
 export { MappingSlide } from "./MappingSlide";
 export { WhatIsSlide } from "./WhatIsSlide";
 export { WhoForSlide } from "./WhoForSlide";

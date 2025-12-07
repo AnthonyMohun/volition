@@ -1086,7 +1086,11 @@ export default function RefinePage() {
                               disabled={
                                 isSuggestingExtras || !editForm.description
                               }
-                              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-teal-50 to-blue-50 border-2 border-teal-200 hover:border-teal-300 rounded-xl text-teal-700 font-semibold text-xs transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all hover:shadow-md hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+                              style={{
+                                backgroundColor: "#61ABC4",
+                                border: "2px solid #61ABC4",
+                              }}
                             >
                               {isSuggestingExtras ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
