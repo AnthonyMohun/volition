@@ -1179,7 +1179,10 @@ Ask ONE question about their specific idea to help them develop it further.`,
                   </p>
                   <button
                     onClick={handleAddNote}
-                    className="bg-gradient-to-br from-blue-500 to-teal-500 text-white px-6 py-3 rounded-2xl hover:from-blue-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-teal transform hover:scale-105 active:scale-95 font-bold flex items-center gap-2 mx-auto"
+                    className="brand-gradient text-white px-6 py-3 rounded-2xl transition-all shadow-lg transform hover:scale-105 active:scale-95 font-bold flex items-center gap-2 mx-auto"
+                    style={{
+                      boxShadow: "0 10px 22px rgba(57, 107, 178, 0.28)",
+                    }}
                   >
                     <Plus className="w-5 h-5" />
                     Create your first sticky note
@@ -1202,8 +1205,8 @@ Ask ONE question about their specific idea to help them develop it further.`,
                     "#fef3c7": "#fbbf24", // yellow
                     "#fecaca": "#f87171", // red
                     "#bbf7d0": "#34d399", // green
-                    "#bfdbfe": "#60a5fa", // blue
-                    "#dbeafe": "#3b82f6", // light blue
+                    "#bfdbfe": "#396bb2", // blue -> primary
+                    "#dbeafe": "#396bb2", // light blue -> primary
                     "#dcfce7": "#61ABC4", // accent teal
                   };
                   const displayColor = colorMap[color.toLowerCase()] || color;
@@ -1225,7 +1228,10 @@ Ask ONE question about their specific idea to help them develop it further.`,
                   );
                 })}
               </div>
-              <div className="border-l-3 border-blue-200 h-8 md:h-10 mx-1 md:mx-2" />
+              <div
+                className="border-l-3 h-8 md:h-10 mx-1 md:mx-2"
+                style={{ borderColor: "rgba(57, 107, 178, 0.25)" }}
+              />
               <div className="flex items-center gap-2 md:gap-3 ml-1 md:ml-2">
                 <button
                   onClick={undo}

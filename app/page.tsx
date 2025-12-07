@@ -327,10 +327,10 @@ export default function Home() {
                     className="flex items-center justify-between mb-4"
                   >
                     <label htmlFor="hmw" className="flex items-center gap-2">
-                      <span className="text-xl md:text-2xl">💭</span>
+                      <span className="text-xl md:text-2xl">✏️</span>
                       <div
                         className="text-sm md:text-base font-black uppercase tracking-wide"
-                        style={{ color: "#3166B2" }}
+                        style={{ color: "var(--color-primary)" }}
                       >
                         Your Design Challenge
                       </div>
@@ -412,7 +412,7 @@ export default function Home() {
                       id="hmw"
                       value={hmwInput}
                       onChange={(e) => setHmwInput(e.target.value)}
-                      placeholder="✏️ Frame your challenge as a 'How Might We' statement to begin..."
+                      placeholder="Frame your challenge as a 'How Might We' statement to begin..."
                       className="w-full px-4 md:px-6 py-4 md:py-5 bg-gradient-to-br from-white to-gray-50/50 border-3 border-blue-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-400 resize-none text-gray-800 placeholder:text-gray-400 transition-all text-base md:text-lg font-semibold shadow-sm hover:shadow-md touch-manipulation"
                       rows={3}
                       required
@@ -705,19 +705,18 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setShowAIBuilder(true)}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 md:py-2.5 text-white font-bold transition-all hover:shadow-lg active:scale-98 touch-manipulation rounded-2xl"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 md:py-2.5 font-bold transition-all active:scale-98 touch-manipulation rounded-2xl fun-button-secondary text-white"
                   style={{
                     background:
-                      "linear-gradient(135deg, #61ABC4 0%, #3166B2 100%)",
-                    backgroundSize: "200% 200%",
-                    animation: "gradientFlow 3s ease infinite",
+                      "linear-gradient(145deg, #7bc4db 0%, #4a9bb5 100%)",
+                    borderColor: "rgba(97, 171, 196, 0.4)",
                     boxShadow:
-                      "0 6px 12px rgba(97, 171, 196, 0.25), 0 2px 4px rgba(49, 102, 178, 0.15), inset 0 -1px 2px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.15)",
-                    textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+                      "0 8px 18px rgba(62, 133, 163, 0.25), inset 0 -1px 2px rgba(255,255,255,0.6)",
+                    color: "#ffffff",
                   }}
                 >
-                  <Sparkles className="w-4 h-4" />
-                  <span className="font-black">Build with AI Guidance</span>
+                  <span className="font-black">Begin with Ai Guidance</span>
+                  <span className="text-lg">✨</span>
                 </button>
                 <button
                   type="submit"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "@/lib/session-context";
-import { CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight } from "lucide-react";
 
 interface ProgressStep {
   id: string;
@@ -114,6 +114,12 @@ export function ProgressTracker({
 }: ProgressTrackerProps) {
   const { state } = useSession();
   const currentPhaseIndex = PHASE_ORDER.indexOf(state.currentPhase);
+  const brandGradient = "linear-gradient(135deg, #396bb2 0%, #61abc4 100%)";
+  const brandSoftGradient =
+    "linear-gradient(135deg, rgba(57, 107, 178, 0.14) 0%, rgba(97, 171, 196, 0.18) 100%)";
+  const brandBorder = "rgba(57, 107, 178, 0.25)";
+  const brandBorderStrong = "rgba(57, 107, 178, 0.4)";
+  const brandGlow = "0 8px 20px rgba(57, 107, 178, 0.16)";
 
   const getRandomMessage = (phase: string) => {
     const messages = ENCOURAGING_MESSAGES[phase] || [];
@@ -122,7 +128,10 @@ export function ProgressTracker({
 
   if (variant === "compact") {
     return (
-      <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-blue-200 shadow-sm">
+      <div
+        className="flex items-center gap-2 px-4 py-2 bg-white/85 backdrop-blur-sm rounded-2xl border-2 shadow-sm"
+        style={{ borderColor: brandBorder, boxShadow: brandGlow }}
+      >
         {PROGRESS_STEPS.map((step, index) => {
           const isComplete = index < currentPhaseIndex;
           const isCurrent = step.phase === state.currentPhase;
@@ -131,29 +140,37 @@ export function ProgressTracker({
           return (
             <div key={step.id} className="flex items-center">
               <div
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-xl transition-all ${
-                  isCurrent
-                    ? "bg-gradient-to-br from-blue-100 to-teal-100 border-2 border-blue-300"
-                    : isComplete
-                    ? "opacity-60"
-                    : "opacity-40"
-                }`}
+                className="flex items-center gap-1.5 px-2 py-1 rounded-xl transition-all border"
+                style={{
+                  background: isCurrent ? brandSoftGradient : undefined,
+                  borderColor: isCurrent ? brandBorderStrong : "transparent",
+                  boxShadow: isCurrent ? brandGlow : undefined,
+                  opacity: isCurrent ? 1 : isComplete ? 0.65 : 0.4,
+                }}
               >
                 <span className="text-sm">{step.emoji}</span>
                 {isComplete && (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                  <CheckCircle2
+                    className="w-3.5 h-3.5"
+                    style={{ color: "var(--color-secondary)" }}
+                  />
                 )}
                 {isCurrent && qualityResult?.met && (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-500" />
+                  <CheckCircle2
+                    className="w-3.5 h-3.5"
+                    style={{ color: "var(--color-secondary)" }}
+                  />
                 )}
               </div>
               {index < PROGRESS_STEPS.length - 1 && (
                 <ArrowRight
-                  className={`w-3 h-3 mx-1 ${
-                    index < currentPhaseIndex
-                      ? "text-green-400"
-                      : "text-gray-300"
-                  }`}
+                  className="w-3 h-3 mx-1"
+                  style={{
+                    color:
+                      index < currentPhaseIndex
+                        ? "var(--color-secondary)"
+                        : "#d1d5db",
+                  }}
                 />
               )}
             </div>
@@ -164,7 +181,10 @@ export function ProgressTracker({
   }
 
   return (
-    <div className="fun-card p-5 border-3 border-blue-200 bg-gradient-to-br from-white to-blue-50/50">
+    <div
+      className="fun-card p-5 border-3 brand-gradient-soft"
+      style={{ borderColor: brandBorder }}
+    >
       {/* Progress Steps */}
       <div className="flex items-center justify-between mb-4">
         {PROGRESS_STEPS.map((step, index) => {
@@ -176,13 +196,25 @@ export function ProgressTracker({
             <div key={step.id} className="flex items-center flex-1">
               <div className="flex flex-col items-center">
                 <div
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${
-                    isCurrent
-                      ? "bg-gradient-to-br from-blue-400 to-teal-400 text-white shadow-lg scale-110 ring-4 ring-blue-200"
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all"
+                  style={{
+                    background: isCurrent
+                      ? brandGradient
                       : isComplete
-                      ? "bg-gradient-to-br from-green-100 to-green-200 text-green-600 shadow-md"
-                      : "bg-gray-100 text-gray-400"
-                  }`}
+                      ? brandSoftGradient
+                      : "#f3f4f6",
+                    color: isCurrent
+                      ? "#ffffff"
+                      : isComplete
+                      ? "#2f5a93"
+                      : "#9ca3af",
+                    transform: isCurrent ? "scale(1.1)" : undefined,
+                    boxShadow: isCurrent
+                      ? "0 12px 26px rgba(57, 107, 178, 0.22), 0 0 0 4px rgba(97, 171, 196, 0.28)"
+                      : isComplete
+                      ? brandGlow
+                      : undefined,
+                  }}
                 >
                   {isComplete ? (
                     <CheckCircle2 className="w-6 h-6" />
@@ -193,9 +225,9 @@ export function ProgressTracker({
                 <span
                   className={`text-xs font-bold mt-2 text-center ${
                     isCurrent
-                      ? "text-teal-700"
+                      ? "text-[#2f5a93]"
                       : isComplete
-                      ? "text-green-600"
+                      ? "text-[#396bb2]"
                       : "text-gray-400"
                   }`}
                 >
@@ -215,11 +247,13 @@ export function ProgressTracker({
               </div>
               {index < PROGRESS_STEPS.length - 1 && (
                 <div
-                  className={`flex-1 h-1 mx-2 rounded-full transition-all ${
-                    index < currentPhaseIndex
-                      ? "bg-gradient-to-r from-green-300 to-green-400"
-                      : "bg-gray-200"
-                  }`}
+                  className="flex-1 h-1 mx-2 rounded-full transition-all"
+                  style={{
+                    background:
+                      index < currentPhaseIndex
+                        ? "linear-gradient(90deg, #61abc4 0%, #396bb2 100%)"
+                        : "#e5e7eb",
+                  }}
                 />
               )}
             </div>
@@ -229,8 +263,14 @@ export function ProgressTracker({
 
       {/* Encouragement Message */}
       {showEncouragement && (
-        <div className="mt-4 pt-4 border-t-2 border-blue-100">
-          <p className="text-sm text-teal-700 font-semibold text-center animate-pulse">
+        <div
+          className="mt-4 pt-4 border-t-2"
+          style={{ borderColor: brandBorder }}
+        >
+          <p
+            className="text-sm font-semibold text-center animate-pulse"
+            style={{ color: "#2f5a93" }}
+          >
             {getRandomMessage(state.currentPhase)}
           </p>
         </div>
@@ -242,6 +282,10 @@ export function ProgressTracker({
 // Quality summary for the current session
 export function QualitySummary() {
   const { state } = useSession();
+  const brandBorder = "rgba(57, 107, 178, 0.25)";
+  const brandGlow = "0 8px 20px rgba(57, 107, 178, 0.12)";
+  const brandSoftGradient =
+    "linear-gradient(135deg, rgba(57, 107, 178, 0.08) 0%, rgba(97, 171, 196, 0.12) 100%)";
 
   const conceptCount = state.notes.filter((n) => n.isConcept).length;
   const notesWithDetails = state.notes.filter(
@@ -278,7 +322,12 @@ export function QualitySummary() {
       {metrics.map((metric) => (
         <div
           key={metric.label}
-          className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-${metric.color}-50 border-2 border-${metric.color}-200`}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl border-2"
+          style={{
+            background: brandSoftGradient,
+            borderColor: brandBorder,
+            boxShadow: brandGlow,
+          }}
         >
           <span className="text-lg">{metric.emoji}</span>
           <div>
@@ -293,7 +342,10 @@ export function QualitySummary() {
             </div>
           </div>
           {metric.value >= metric.target && metric.target > 0 && (
-            <CheckCircle2 className="w-4 h-4 text-green-500" />
+            <CheckCircle2
+              className="w-4 h-4"
+              style={{ color: "var(--color-secondary)" }}
+            />
           )}
         </div>
       ))}

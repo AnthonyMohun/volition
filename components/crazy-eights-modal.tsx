@@ -325,7 +325,7 @@ export function CrazyEightsModal({ isOpen, onClose }: CrazyEightsModalProps) {
                 {/* HMW Input - Primary Focus */}
                 <div className="bg-gradient-to-br from-blue-50 to-teal-50 rounded-2xl p-5 border-2 border-blue-200/50">
                   <label className="text-sm font-black text-blue-700 mb-2 flex items-center gap-2">
-                    <span className="text-lg">💭</span> Your Design Challenge
+                    <span className="text-lg">✏️</span> Your Design Challenge
                   </label>
                   <textarea
                     value={hmwInput}

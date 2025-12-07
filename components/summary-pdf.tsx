@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   aiLabel: {
     fontSize: 10,
     fontWeight: "bold",
-    color: "#3b82f6",
+    color: "#396bb2",
     marginBottom: 8,
     textTransform: "uppercase",
   },
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   insightSection: {
-    backgroundColor: "#eff6ff",
+    backgroundColor: "#eef3ff",
     padding: 16,
     borderRadius: 8,
     marginTop: 16,
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   insightLabel: {
     fontSize: 10,
     fontWeight: "bold",
-    color: "#3b82f6",
+    color: "#396bb2",
     marginBottom: 8,
     textTransform: "uppercase",
   },

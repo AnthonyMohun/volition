@@ -256,8 +256,8 @@ export function StickyNote({
       "#fef3c7": "#fbbf24", // yellow
       "#fecaca": "#f87171", // red
       "#bbf7d0": "#34d399", // green
-      "#bfdbfe": "#60a5fa", // blue
-      "#dbeafe": "#3b82f6", // light blue
+      "#bfdbfe": "#396bb2", // blue -> primary
+      "#dbeafe": "#396bb2", // light blue -> primary
       "#dcfce7": "#61ABC4", // accent teal
     };
     return accentMap[color] || "#e5e7eb";
@@ -269,9 +269,9 @@ export function StickyNote({
       "#fef3c7": "rgba(251, 191, 36, 0.4)", // yellow
       "#fecaca": "rgba(248, 113, 113, 0.4)", // red
       "#bbf7d0": "rgba(52, 211, 153, 0.4)", // green
-      "#bfdbfe": "rgba(96, 165, 250, 0.4)", // blue
-      "#dbeafe": "rgba(59, 130, 246, 0.4)", // blue
-      "#dcfce7": "rgba(20, 184, 166, 0.4)", // teal
+      "#bfdbfe": "rgba(57, 107, 178, 0.4)", // blue -> primary
+      "#dbeafe": "rgba(57, 107, 178, 0.4)", // blue -> primary
+      "#dcfce7": "rgba(97, 171, 196, 0.4)", // teal -> secondary
     };
     return shadowMap[color] || "rgba(163, 177, 198, 0.3)";
   };
@@ -282,9 +282,9 @@ export function StickyNote({
       "#fef3c7": "#b45309", // yellow -> amber-700
       "#fecaca": "#b91c1c", // red -> red-700
       "#bbf7d0": "#047857", // green -> emerald-700
-      "#bfdbfe": "#1d4ed8", // blue -> blue-700
-      "#dbeafe": "#1e40af", // light blue -> blue-800
-      "#dcfce7": "#0f766e", // light teal -> teal-700
+      "#bfdbfe": "#2f5a93", // blue -> primary dark
+      "#dbeafe": "#2f5a93", // light blue -> primary dark
+      "#dcfce7": "#2f7a8e", // light teal -> secondary dark
     };
     return darkerMap[color] || "#374151";
   };

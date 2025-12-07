@@ -1604,24 +1604,6 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
               {isGeneratingPDF ? "Generating..." : "Download PDF"}
             </button>
             <button
-              onClick={() => {
-                setShowSummary(false);
-                setCurrentConceptIndex(0);
-                setCurrentCriteriaIndex(0);
-                setAiInsight(null);
-                setEvaluations(
-                  selectedNotes.map((note) => ({
-                    conceptId: note.id,
-                    ratings: [],
-                  }))
-                );
-              }}
-              className="fun-button-secondary flex items-center gap-2 touch-manipulation px-4 py-3 text-sm md:text-base"
-            >
-              <RefreshCw className="w-4 h-4 md:w-5 md:h-5" />
-              Re-evaluate
-            </button>
-            <button
               onClick={handleStartOver}
               className="fun-button-secondary flex items-center gap-2 touch-manipulation px-4 py-3 text-sm md:text-base"
             >

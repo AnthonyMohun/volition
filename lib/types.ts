@@ -195,7 +195,7 @@ export const SELF_EVAL_CRITERIA: SelfEvaluationCriteria[] = [
     description: "How well does this solve the real problem?",
     lowLabel: "Doesn't quite fit",
     highLabel: "Perfect match!",
-    color: "#14b8a6", // teal
+    color: "#61abc4", // secondary
   },
   {
     id: "user-love",
@@ -204,7 +204,7 @@ export const SELF_EVAL_CRITERIA: SelfEvaluationCriteria[] = [
     description: "Would users actually want this?",
     lowLabel: "Meh, maybe",
     highLabel: "They'd love it!",
-    color: "#3b82f6", // blue
+    color: "#396bb2", // primary
   },
   {
     id: "doability",
@@ -213,7 +213,7 @@ export const SELF_EVAL_CRITERIA: SelfEvaluationCriteria[] = [
     description: "Can this realistically be built?",
     lowLabel: "Super tricky",
     highLabel: "Totally doable!",
-    color: "#60a5fa", // blue
+    color: "#2f5a93", // primary dark
   },
   {
     id: "uniqueness",

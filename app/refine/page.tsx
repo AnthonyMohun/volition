@@ -725,9 +725,9 @@ export default function RefinePage() {
                     className="px-4 py-2.5 md:py-2 text-sm text-white rounded-xl transition-all font-bold touch-manipulation"
                     style={{
                       background:
-                        "linear-gradient(135deg, #3b82f6 0%, #61ABC4 100%)",
+                        "linear-gradient(135deg, #396BB2 0%, #61ABC4 100%)",
                       boxShadow:
-                        "0 2px 8px rgba(59, 130, 246, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)",
+                        "0 2px 8px rgba(57, 107, 178, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)",
                     }}
                   >
                     {guidedIndex < selectedNotes.length - 1
@@ -748,7 +748,10 @@ export default function RefinePage() {
                   <div key={note.id} className="relative z-10">
                     {/* Show attached image and/or sketch if available */}
                     {(note.image || note.drawing?.dataUrl) && (
-                      <div className="mb-6 p-4 rounded-2xl flex gap-4 bg-gradient-to-br from-blue-50/80 to-teal-50/60 border-2 border-blue-100">
+                      <div
+                        className="mb-6 p-4 rounded-2xl flex gap-4 border-2 brand-gradient-soft"
+                        style={{ borderColor: "rgba(57, 107, 178, 0.25)" }}
+                      >
                         {note.image && !note.drawing?.dataUrl && (
                           <img
                             src={note.image.dataUrl}
