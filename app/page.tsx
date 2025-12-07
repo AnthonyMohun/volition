@@ -288,45 +288,23 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen fun-gradient-bg flex items-center justify-center p-4 md:p-6 relative overflow-hidden">
-      {/* Floating decorative elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-10 text-5xl md:text-6xl opacity-20 float-animation">
-          ✨
-        </div>
-        <div
-          className="absolute top-40 right-20 text-4xl md:text-5xl opacity-20 float-animation"
-          style={{ animationDelay: "1s" }}
-        >
-          💡
-        </div>
-        <div
-          className="absolute bottom-32 left-1/4 text-4xl md:text-5xl opacity-20 float-animation"
-          style={{ animationDelay: "2s" }}
-        >
-          🎨
-        </div>
-        <div
-          className="absolute bottom-20 right-1/3 text-5xl md:text-6xl opacity-20 float-animation"
-          style={{ animationDelay: "0.5s" }}
-        >
-          🚀
-        </div>
-        <div
-          className="absolute top-1/3 right-10 text-4xl md:text-5xl opacity-20 float-animation"
-          style={{ animationDelay: "1.5s" }}
-        >
-          💫
-        </div>
-      </div>
+    <div className="min-h-screen volition-hero-bg flex items-center justify-center p-4 md:p-6 relative overflow-hidden">
+      <img
+        src="/corner-art.png"
+        alt=""
+        aria-hidden="true"
+        className="volition-corner-art"
+        loading="lazy"
+        decoding="async"
+      />
 
       <div className="max-w-3xl w-full relative z-10">
         {/* Hero Section */}
         <div className="text-center mb-8 md:mb-12">
           <img
-            src="/logo.png"
+            src="/logo-text.png"
             alt="Volition"
-            className="h-48 md:h-56 mx-auto mb-3 md:mb-4"
+            className="h-28 md:h-32 mx-auto mb-3 md:mb-4 drop-shadow-lg"
           />
           <p className="text-gray-500 text-sm md:text-base font-medium px-4 mx-auto">
             Transform design challenges into clear, actionable concepts

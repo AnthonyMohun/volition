@@ -189,6 +189,21 @@ body {
   animation: gradientFlow 8s ease infinite;
 }
 
+.volition-hero-bg {
+  background: linear-gradient(180deg, #f7fbff 0%, #d9eef9 70%, #cfe7f5 100%);
+}
+
+.volition-corner-art {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: clamp(180px, 32vw, 360px);
+  pointer-events: none;
+  user-select: none;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 32px rgba(27, 66, 120, 0.2));
+}
+
 .fun-gradient-text {
   background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
   background-size: 200% 200%;
