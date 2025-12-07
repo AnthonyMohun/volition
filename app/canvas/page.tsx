@@ -117,6 +117,8 @@ export default function CanvasPage() {
     x: number;
     y: number;
   } | null>(null);
+  const NOTE_WIDTH = 256;
+  const NOTE_HEIGHT = 200;
 
   const GRID_SIZE = 40;
   const CANVAS_WIDTH = 4000;
@@ -268,13 +270,64 @@ export default function CanvasPage() {
     [zoom, panX, panY]
   );
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  // Link helpers
+  const completeLinkTo = useCallback(
+    (targetNoteId: string) => {
+      if (!linkingFromNoteId) return;
 
-    container.addEventListener("wheel", handleWheel, { passive: false });
-    return () => container.removeEventListener("wheel", handleWheel);
-  }, [handleWheel]);
+      if (linkingFromNoteId === targetNoteId) {
+        setLinkingFromNoteId(null);
+        setLinkPreviewPos(null);
+        showToast("Link cancelled");
+        return;
+      }
+
+      const existingConnection = (state.connections || []).find(
+        (c) =>
+          (c.fromNoteId === linkingFromNoteId && c.toNoteId === targetNoteId) ||
+          (c.fromNoteId === targetNoteId && c.toNoteId === linkingFromNoteId)
+      );
+
+      if (existingConnection) {
+        showToast("These notes are already linked");
+      } else {
+        addConnection({
+          id: `conn-${Date.now()}`,
+          fromNoteId: linkingFromNoteId,
+          toNoteId: targetNoteId,
+          type: "relates",
+          createdAt: Date.now(),
+        });
+        showToast("Notes linked!");
+      }
+
+      setLinkingFromNoteId(null);
+      setLinkPreviewPos(null);
+    },
+    [linkingFromNoteId, state.connections, addConnection, showToast]
+  );
+
+  const handleStartLinking = useCallback(
+    (noteId: string) => {
+      if (linkingFromNoteId === noteId) {
+        setLinkingFromNoteId(null);
+        setLinkPreviewPos(null);
+        showToast("Link cancelled");
+        return;
+      }
+
+      setLinkingFromNoteId(noteId);
+      const source = state.notes.find((n) => n.id === noteId);
+      if (source) {
+        setLinkPreviewPos({
+          x: source.x + NOTE_WIDTH / 2,
+          y: source.y + NOTE_HEIGHT / 2,
+        });
+      }
+      showToast("Drag to another note to connect");
+    },
+    [linkingFromNoteId, state.notes, showToast]
+  );
 
   // Pan with mouse drag (left, middle, or shift+left)
   const handleMouseDown = useCallback(
@@ -301,23 +354,45 @@ export default function CanvasPage() {
     [isPanning, panStart]
   );
 
-  const handleMouseUp = useCallback(() => {
-    if (panTimeoutRef.current) {
-      clearTimeout(panTimeoutRef.current);
-      panTimeoutRef.current = null;
-    }
-    if (isPanning) {
-      setIsPanning(false);
-    }
-  }, [isPanning]);
+  const handleMouseUp = useCallback(
+    (e?: React.MouseEvent) => {
+      if (panTimeoutRef.current) {
+        clearTimeout(panTimeoutRef.current);
+        panTimeoutRef.current = null;
+      }
+      if (isPanning) {
+        setIsPanning(false);
+      }
 
-  // Touch gesture handlers for iPad
-  const getTouchDistance = (touch1: React.Touch, touch2: React.Touch) => {
-    return Math.sqrt(
-      Math.pow(touch2.clientX - touch1.clientX, 2) +
-        Math.pow(touch2.clientY - touch1.clientY, 2)
-    );
-  };
+      // If in linking mode and the pointer is released on empty canvas, cancel
+      if (linkingFromNoteId && e) {
+        const target = e.target as HTMLElement;
+        const onNote = target.closest("[data-note]");
+        if (!onNote) {
+          setLinkingFromNoteId(null);
+          setLinkPreviewPos(null);
+          showToast("Link cancelled");
+        }
+      }
+    },
+    [isPanning, linkingFromNoteId, showToast]
+  );
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, [handleWheel]);
+
+  const handleNotePointerUpForLink = useCallback(
+    (noteId: string, event: React.MouseEvent | React.PointerEvent) => {
+      if (!linkingFromNoteId) return;
+      event.stopPropagation();
+      completeLinkTo(noteId);
+    },
+    [linkingFromNoteId, completeLinkTo]
+  );
 
   const getTouchCenter = (touch1: React.Touch, touch2: React.Touch) => {
     return {
@@ -724,86 +799,6 @@ Ask ONE question about their specific idea to help them develop it further.`,
     ]
   );
 
-  // Link mode handlers - initiated from sticky note link button
-  const handleStartLinking = useCallback(
-    (noteId: string) => {
-      if (linkingFromNoteId === noteId) {
-        // Clicking same note cancels linking
-        setLinkingFromNoteId(null);
-        setLinkPreviewPos(null);
-        showToast("Link cancelled");
-      } else if (linkingFromNoteId) {
-        // Already linking from another note - create connection
-        const existingConnection = (state.connections || []).find(
-          (c) =>
-            (c.fromNoteId === linkingFromNoteId && c.toNoteId === noteId) ||
-            (c.fromNoteId === noteId && c.toNoteId === linkingFromNoteId)
-        );
-
-        if (existingConnection) {
-          showToast("These notes are already connected!");
-        } else {
-          addConnection({
-            id: `conn-${Date.now()}`,
-            fromNoteId: linkingFromNoteId,
-            toNoteId: noteId,
-            type: "relates",
-            createdAt: Date.now(),
-          });
-          showToast("🔗 Notes linked!");
-        }
-        setLinkingFromNoteId(null);
-        setLinkPreviewPos(null);
-      } else {
-        // Start linking from this note
-        setLinkingFromNoteId(noteId);
-        showToast("Now click another note's link button to connect");
-      }
-    },
-    [linkingFromNoteId, state.connections, addConnection, showToast]
-  );
-
-  const handleNoteClickForLink = useCallback(
-    (noteId: string, event: React.MouseEvent) => {
-      if (!linkingFromNoteId) return;
-
-      event.stopPropagation();
-
-      if (linkingFromNoteId === noteId) {
-        // Clicked same note - cancel
-        setLinkingFromNoteId(null);
-        setLinkPreviewPos(null);
-        showToast("Link cancelled");
-      } else {
-        // Create connection
-        // Check if connection already exists
-        const existingConnection = (state.connections || []).find(
-          (c) =>
-            (c.fromNoteId === linkingFromNoteId && c.toNoteId === noteId) ||
-            (c.fromNoteId === noteId && c.toNoteId === linkingFromNoteId)
-        );
-
-        if (existingConnection) {
-          showToast("These notes are already connected!");
-        } else {
-          addConnection({
-            id: `conn-${Date.now()}`,
-            fromNoteId: linkingFromNoteId,
-            toNoteId: noteId,
-            type: "relates",
-            createdAt: Date.now(),
-          });
-          showToast("🔗 Notes linked!");
-        }
-
-        // Reset linking state
-        setLinkingFromNoteId(null);
-        setLinkPreviewPos(null);
-      }
-    },
-    [linkingFromNoteId, state.connections, addConnection, showToast]
-  );
-
   // Update link preview position when mouse moves while linking
   const handleCanvasMouseMoveForLink = useCallback(
     (e: React.MouseEvent) => {
@@ -1149,7 +1144,7 @@ Ask ONE question about their specific idea to help them develop it further.`,
                   <div
                     key={note.id}
                     style={{ position: "absolute", left: note.x, top: note.y }}
-                    onClick={(e) => handleNoteClickForLink(note.id, e)}
+                    onMouseUp={(e) => handleNotePointerUpForLink(note.id, e)}
                     className={`${
                       linkingFromNoteId
                         ? linkingFromNoteId === note.id

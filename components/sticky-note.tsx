@@ -329,7 +329,7 @@ export function StickyNote({
         onMouseEnter={() => setIsNoteHovered(true)}
         onMouseLeave={() => setIsNoteHovered(false)}
         className={cn(
-          "w-56 md:w-64 p-4 md:p-5 rounded-2xl transition-all cursor-move relative no-select overflow-visible backdrop-blur-xl border",
+          "group w-56 md:w-64 p-4 md:p-5 rounded-2xl transition-all cursor-move relative no-select overflow-visible backdrop-blur-xl border",
           isDragging && "opacity-60 scale-95",
           !isDragging && "hover:-translate-y-1 hover:scale-[1.01]"
         )}
@@ -587,45 +587,68 @@ export function StickyNote({
           </div>
         )}
 
-        {/* Link Button Footer - visible on hover only when NOT in linking mode */}
+        {/* Proximity link dots - subtle until hovered/active; drag from any edge */}
         {onStartLinking && (
-          <AnimatePresence>
-            {(isNoteHovered || isLinkingFrom) && !isLinkingMode && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.15 }}
-                className="mt-3 pt-3 border-t border-gray-200/60 flex justify-center overflow-hidden"
-              >
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onStartLinking(note.id);
-                  }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center transition-all relative",
-                    isLinkingFrom
-                      ? "bg-blue-500 text-white shadow-lg scale-110"
-                      : "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
-                  )}
-                  title={
-                    isLinkingFrom
-                      ? "Click another note to link"
-                      : "Link to another note"
-                  }
-                >
-                  <Link2 className="w-4 h-4" />
-                  {connectionCount > 0 && !isLinkingFrom && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                      {connectionCount}
-                    </span>
-                  )}
-                </button>
-              </motion.div>
+          <div className="pointer-events-none absolute inset-0 -m-4">
+            {[
+              {
+                key: "top",
+                style: { top: -12, left: "50%", transform: "translateX(-50%)" },
+              },
+              {
+                key: "right",
+                style: {
+                  right: -12,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                },
+              },
+              {
+                key: "bottom",
+                style: {
+                  bottom: -12,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                },
+              },
+              {
+                key: "left",
+                style: { left: -12, top: "50%", transform: "translateY(-50%)" },
+              },
+            ].map((pos) => (
+              <button
+                key={pos.key}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  onStartLinking(note.id);
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className={cn(
+                  "absolute w-5 h-5 rounded-full border pointer-events-auto transition-all duration-150",
+                  isLinkingFrom
+                    ? "bg-blue-500/20 border-blue-400/30 shadow-blue-300/30 opacity-80 scale-100"
+                    : "bg-slate-200/70 border-slate-300/70 shadow-none opacity-0 group-hover:opacity-70 hover:opacity-100 hover:bg-blue-500 hover:border-blue-500 hover:shadow-md"
+                )}
+                style={pos.style as React.CSSProperties}
+                title={
+                  isLinkingFrom
+                    ? "Drag to another note to link"
+                    : "Press and drag to link"
+                }
+                aria-label={
+                  isLinkingFrom
+                    ? "Drag to another note to link"
+                    : "Press and drag to link"
+                }
+              />
+            ))}
+
+            {connectionCount > 0 && !isLinkingFrom && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md">
+                {connectionCount}
+              </span>
             )}
-          </AnimatePresence>
+          </div>
         )}
 
         {/* Hidden file input */}
