@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { StickyNote as StickyNoteType, DrawingData } from "@/lib/types";
+import { StickyNote as StickyNoteType } from "@/lib/types";
 import {
   Trash2,
   Image as ImageIcon,
@@ -10,9 +10,7 @@ import {
   X,
   FileText,
   Pencil,
-  Type,
   Mic,
-  MicOff,
   Maximize2,
   Minimize2,
   Eye,
@@ -250,44 +248,79 @@ export function StickyNote({
     return colorMap[color] || "#ffffff";
   };
 
-  // Get accent color for borders and highlights
-  const getAccentColor = (color: string) => {
-    const accentMap: Record<string, string> = {
-      "#fef3c7": "#fbbf24", // yellow
-      "#fecaca": "#f87171", // red
-      "#bbf7d0": "#34d399", // green
-      "#bfdbfe": "#396bb2", // blue -> primary
-      "#dbeafe": "#396bb2", // light blue -> primary
-      "#dcfce7": "#61ABC4", // accent teal
-    };
-    return accentMap[color] || "#e5e7eb";
+  // Soft gradient palette per sticky to match the site's glassy aesthetic
+  const NOTE_PALETTE: Record<
+    string,
+    {
+      surfaceFrom: string;
+      surfaceTo: string;
+      border: string;
+      glow: string;
+      text: string;
+      badge: string;
+    }
+  > = {
+    "#fef3c7": {
+      surfaceFrom: "#fff8e7",
+      surfaceTo: "#ffeccd",
+      border: "#f0c36b",
+      glow: "rgba(240, 195, 107, 0.35)",
+      text: "#7b5a17",
+      badge: "#f8d57c",
+    },
+    "#fecaca": {
+      surfaceFrom: "#ffe7e1",
+      surfaceTo: "#ffd7d1",
+      border: "#f29b9b",
+      glow: "rgba(242, 155, 155, 0.35)",
+      text: "#7f2f2f",
+      badge: "#ffc7bf",
+    },
+    "#bbf7d0": {
+      surfaceFrom: "#e7fff2",
+      surfaceTo: "#d6f6e8",
+      border: "#5bc59d",
+      glow: "rgba(91, 197, 157, 0.32)",
+      text: "#0f5037",
+      badge: "#c0f0dd",
+    },
+    "#bfdbfe": {
+      surfaceFrom: "#e4edff",
+      surfaceTo: "#d6e6ff",
+      border: "#5b8fd5",
+      glow: "rgba(73, 126, 195, 0.34)",
+      text: "#1e3f73",
+      badge: "#c8dcff",
+    },
+    "#dbeafe": {
+      surfaceFrom: "#e9eefe",
+      surfaceTo: "#dae6ff",
+      border: "#8ea2f5",
+      glow: "rgba(142, 162, 245, 0.32)",
+      text: "#2f3f7a",
+      badge: "#d5ddff",
+    },
+    "#dcfce7": {
+      surfaceFrom: "#e7faf4",
+      surfaceTo: "#d5f2ec",
+      border: "#61abc4",
+      glow: "rgba(97, 171, 196, 0.34)",
+      text: "#1f4a5a",
+      badge: "#cdebf0",
+    },
   };
 
-  // Get shadow color for depth
-  const getShadowColor = (color: string) => {
-    const shadowMap: Record<string, string> = {
-      "#fef3c7": "rgba(251, 191, 36, 0.4)", // yellow
-      "#fecaca": "rgba(248, 113, 113, 0.4)", // red
-      "#bbf7d0": "rgba(52, 211, 153, 0.4)", // green
-      "#bfdbfe": "rgba(57, 107, 178, 0.4)", // blue -> primary
-      "#dbeafe": "rgba(57, 107, 178, 0.4)", // blue -> primary
-      "#dcfce7": "rgba(97, 171, 196, 0.4)", // teal -> secondary
+  const getNotePalette = (color: string) =>
+    NOTE_PALETTE[color] || {
+      surfaceFrom: "#f4f7fb",
+      surfaceTo: "#e8eef9",
+      border: "#d2d9e8",
+      glow: "rgba(120, 144, 180, 0.28)",
+      text: "#1f2937",
+      badge: "#e2e8f0",
     };
-    return shadowMap[color] || "rgba(163, 177, 198, 0.3)";
-  };
 
-  // Get darker accent color for text (better readability)
-  const getDarkerAccentColor = (color: string) => {
-    const darkerMap: Record<string, string> = {
-      "#fef3c7": "#b45309", // yellow -> amber-700
-      "#fecaca": "#b91c1c", // red -> red-700
-      "#bbf7d0": "#047857", // green -> emerald-700
-      "#bfdbfe": "#2f5a93", // blue -> primary dark
-      "#dbeafe": "#2f5a93", // light blue -> primary dark
-      "#dcfce7": "#2f7a8e", // light teal -> secondary dark
-    };
-    return darkerMap[color] || "#374151";
-  };
+  const palette = getNotePalette(note.color);
 
   return (
     <>
@@ -296,31 +329,32 @@ export function StickyNote({
         onMouseEnter={() => setIsNoteHovered(true)}
         onMouseLeave={() => setIsNoteHovered(false)}
         className={cn(
-          "w-56 md:w-64 p-4 md:p-5 rounded-3xl transition-all cursor-move relative no-select",
+          "w-56 md:w-64 p-4 md:p-5 rounded-2xl transition-all cursor-move relative no-select overflow-hidden backdrop-blur-xl border",
           isDragging && "opacity-60 scale-95",
-          note.isConcept &&
-            "ring-4 ring-yellow-400/40 ring-offset-4 ring-offset-white/50 scale-105",
-          !note.isConcept && "hover:-translate-y-2 hover:scale-102"
+          !isDragging && "hover:-translate-y-1 hover:scale-[1.01]"
         )}
         style={{
-          backgroundColor: getFunColor(note.color),
-          borderWidth: "3px",
-          borderStyle: "solid",
-          borderColor: getAccentColor(note.color),
+          backgroundImage: `radial-gradient(circle at 18% 16%, rgba(255,255,255,0.9) 0%, transparent 32%), radial-gradient(circle at 82% 8%, rgba(255,255,255,0.6) 0%, transparent 28%), linear-gradient(145deg, ${palette.surfaceFrom} 0%, ${palette.surfaceTo} 100%)`,
+          borderColor: palette.border,
+          borderWidth: "1.5px",
           boxShadow: note.isConcept
-            ? `12px 12px 24px ${getShadowColor(
-                note.color
-              )}, -4px -4px 12px rgba(255, 255, 255, 0.8), inset 2px 2px 4px rgba(255, 255, 255, 0.5), inset -2px -2px 4px ${getShadowColor(
-                note.color
-              )}`
-            : `8px 8px 16px ${getShadowColor(
-                note.color
-              )}, -2px -2px 8px rgba(255, 255, 255, 0.6), inset 1px 1px 2px rgba(255, 255, 255, 0.3)`,
+            ? `0 18px 38px -22px ${palette.glow}, 0 12px 24px -18px rgba(25, 57, 94, 0.2), 0 0 0 6px ${palette.border}33`
+            : `0 16px 32px -24px ${palette.glow}, 0 8px 18px -18px rgba(25, 57, 94, 0.18)`,
+          color: palette.text,
+          WebkitBackdropFilter: "blur(12px)",
+          backdropFilter: "blur(12px)",
+          isolation: "isolate",
         }}
       >
         {/* Concept star badge */}
         {note.isConcept && (
-          <div className="absolute -top-3 -right-3 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full p-2 shadow-lg animate-pulse">
+          <div
+            className="absolute -top-3 -right-3 rounded-full p-2 shadow-lg animate-pulse"
+            style={{
+              backgroundImage: `linear-gradient(135deg, ${palette.badge} 0%, ${palette.border} 100%)`,
+              boxShadow: `0 12px 20px -12px ${palette.glow}`,
+            }}
+          >
             <Star className="w-5 h-5 text-white fill-current drop-shadow-md" />
           </div>
         )}
@@ -330,10 +364,10 @@ export function StickyNote({
             onClick={toggleConcept}
             onPointerDown={(e) => e.stopPropagation()}
             className={cn(
-              "p-2 md:p-2 rounded-xl hover:scale-110 transition-all shadow-sm touch-target-sm",
+              "p-2 md:p-2 rounded-xl transition-all touch-target-sm border",
               note.isConcept
-                ? "text-yellow-600 bg-yellow-100/80"
-                : "text-gray-400 hover:text-yellow-500 hover:bg-white/50"
+                ? "text-amber-600 bg-white/80 border-white/60 shadow-sm"
+                : "text-gray-400 hover:text-amber-500 bg-white/50 border-white/60 hover:shadow-sm"
             )}
             title={note.isConcept ? "Remove from concepts" : "Mark as concept"}
           >
@@ -348,7 +382,7 @@ export function StickyNote({
             <button
               onClick={() => fileInputRef.current?.click()}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-gray-500 hover:text-gray-700 shadow-sm touch-target-sm"
+              className="p-2 rounded-xl border border-white/70 bg-white/60 hover:bg-white/80 hover:scale-105 transition-all text-gray-500 hover:text-gray-700 shadow-sm touch-target-sm"
               title="Attach image"
             >
               <ImageIcon className="w-4 h-4" />
@@ -357,7 +391,7 @@ export function StickyNote({
               onClick={handleOpenDrawing}
               onPointerDown={(e) => e.stopPropagation()}
               className={cn(
-                "p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all shadow-sm touch-target-sm",
+                "p-2 rounded-xl border border-white/70 bg-white/60 hover:bg-white/80 hover:scale-105 transition-all shadow-sm touch-target-sm",
                 note.drawing
                   ? "text-blue-500 hover:text-blue-700"
                   : "text-gray-500 hover:text-gray-700"
@@ -373,7 +407,7 @@ export function StickyNote({
                   setDetailsText(note.details || "");
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
-                className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-cyan-500 hover:text-cyan-700 shadow-sm touch-target-sm"
+                className="p-2 rounded-xl border border-white/70 bg-white/60 hover:bg-white/80 hover:scale-105 transition-all text-cyan-500 hover:text-cyan-700 shadow-sm touch-target-sm"
                 title="Edit concept details"
               >
                 <FileText className="w-4 h-4" />
@@ -382,7 +416,7 @@ export function StickyNote({
             <button
               onClick={onDelete}
               onPointerDown={(e) => e.stopPropagation()}
-              className="p-2 rounded-xl hover:bg-red-100 hover:scale-110 text-red-400 hover:text-red-600 transition-all shadow-sm touch-target-sm"
+              className="p-2 rounded-xl border border-white/70 bg-white/60 hover:bg-red-50 hover:scale-105 text-red-400 hover:text-red-600 transition-all shadow-sm touch-target-sm"
               title="Delete note"
             >
               <Trash2 className="w-4 h-4" />
@@ -445,13 +479,13 @@ export function StickyNote({
           <div
             className="mb-3 p-2.5 rounded-xl"
             style={{
-              backgroundColor: `${getAccentColor(note.color)}15`,
-              border: `2px solid ${getAccentColor(note.color)}`,
+              backgroundColor: `${palette.border}1a`,
+              border: `1.5px solid ${palette.border}`,
             }}
           >
             <p
               className="text-sm font-bold leading-relaxed"
-              style={{ color: getDarkerAccentColor(note.color) }}
+              style={{ color: palette.text }}
             >
               {note.sourceQuestion}
             </p>
@@ -472,7 +506,11 @@ export function StickyNote({
                 }
               }}
               placeholder="Type your idea here..."
-              className="w-full p-3 border-2 border-gray-300 rounded-xl text-sm resize-none bg-white/70 text-gray-800 focus:border-teal-400 focus:ring-4 focus:ring-teal-200 focus:bg-white transition-all placeholder:text-gray-400 font-semibold shadow-inner"
+              className="w-full p-3 border rounded-xl text-sm resize-none bg-white/75 text-gray-900 focus:ring-4 focus:ring-blue-100 focus:border-transparent transition-all placeholder:text-gray-400 font-semibold shadow-sm"
+              style={{
+                borderColor: `${palette.border}80`,
+                boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.65)",
+              }}
               rows={3}
               autoFocus
               onBlur={handleTextSave}
@@ -487,7 +525,8 @@ export function StickyNote({
           </div>
         ) : (
           <p
-            className="text-sm text-gray-800 whitespace-pre-wrap break-words cursor-text leading-relaxed font-semibold"
+            className="text-sm whitespace-pre-wrap break-words cursor-text leading-relaxed font-semibold"
+            style={{ color: palette.text }}
             onClick={() => {
               setEditText(note.text);
               setIsEditing(true);
@@ -512,15 +551,17 @@ export function StickyNote({
                 disabled={isDelvingDeeper}
                 className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
                 style={{
+                  backgroundImage: isDelvingDeeper
+                    ? "none"
+                    : `linear-gradient(135deg, ${palette.surfaceFrom} 0%, ${palette.surfaceTo} 100%)`,
                   backgroundColor: isDelvingDeeper
-                    ? "#e5e7eb"
-                    : `${getAccentColor(note.color)}15`,
-                  color: isDelvingDeeper
-                    ? "#9ca3af"
-                    : getDarkerAccentColor(note.color),
-                  border: `2px solid ${
-                    isDelvingDeeper ? "#d1d5db" : getAccentColor(note.color)
-                  }`,
+                    ? "#f3f4f6"
+                    : "rgba(255,255,255,0.92)",
+                  color: isDelvingDeeper ? "#9ca3af" : palette.text,
+                  border: `1.5px solid ${palette.border}`,
+                  boxShadow: isDelvingDeeper
+                    ? "none"
+                    : `0 12px 24px -18px ${palette.glow}`,
                 }}
                 title="Ask AI to help you explore this idea deeper"
               >
