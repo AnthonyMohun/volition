@@ -316,77 +316,88 @@ export default function Home() {
 
           <form onSubmit={handleSubmit} className="relative z-10">
             <div className="mb-5 md:mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <label htmlFor="hmw" className="flex items-center gap-2">
-                  <span className="text-xl md:text-2xl">💭</span>
-                  <div
-                    className="text-sm md:text-base font-black uppercase tracking-wide"
-                    style={{ color: "#3166B2" }}
+              {/* Header and Quick Start - Only visible when AI Builder is NOT showing */}
+              <AnimatePresence mode="wait">
+                {!showAIBuilder && (
+                  <motion.div
+                    key="header"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="flex items-center justify-between mb-4"
                   >
-                    Your Design Challenge
-                  </div>
-                </label>
-                {/* Quick Actions Dropdown */}
-                <div className="relative" ref={menuRef}>
-                  <button
-                    type="button"
-                    onClick={() => setShowMenu(!showMenu)}
-                    className="flex items-center gap-1.5 px-3 py-2.5 md:py-2 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full transition-all touch-manipulation"
-                  >
-                    <HelpCircle className="w-4 h-4" />
-                    <span className="hidden sm:inline">Quick Start</span>
-                    <ChevronDown
-                      className={`w-3 h-3 transition-transform ${
-                        showMenu ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  {showMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20">
+                    <label htmlFor="hmw" className="flex items-center gap-2">
+                      <span className="text-xl md:text-2xl">💭</span>
+                      <div
+                        className="text-sm md:text-base font-black uppercase tracking-wide"
+                        style={{ color: "#3166B2" }}
+                      >
+                        Your Design Challenge
+                      </div>
+                    </label>
+                    {/* Quick Actions Dropdown */}
+                    <div className="relative" ref={menuRef}>
                       <button
                         type="button"
-                        onClick={() => {
-                          setShowOnboarding(true);
-                          setShowMenu(false);
-                        }}
-                        className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                        onClick={() => setShowMenu(!showMenu)}
+                        className="flex items-center gap-1.5 px-3 py-2.5 md:py-2 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full transition-all touch-manipulation"
                       >
-                        <span>💡</span> How it works
+                        <HelpCircle className="w-4 h-4" />
+                        <span className="hidden sm:inline">Quick Start</span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${
+                            showMenu ? "rotate-180" : ""
+                          }`}
+                        />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleTryExample();
-                          setShowMenu(false);
-                        }}
-                        className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
-                      >
-                        <span>▶️</span> Try Example
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowHelper(true);
-                          setShowMenu(false);
-                        }}
-                        className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
-                      >
-                        <span>🛠️</span> HMW Builder
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowCrazyEights(true);
-                          setShowMenu(false);
-                        }}
-                        className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
-                      >
-                        <span>⚡</span> Crazy Eights
-                      </button>
+                      {showMenu && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowOnboarding(true);
+                              setShowMenu(false);
+                            }}
+                            className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                          >
+                            <span>💡</span> How it works
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleTryExample();
+                              setShowMenu(false);
+                            }}
+                            className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                          >
+                            <span>▶️</span> Try Example
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowHelper(true);
+                              setShowMenu(false);
+                            }}
+                            className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                          >
+                            <span>🛠️</span> HMW Builder
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowCrazyEights(true);
+                              setShowMenu(false);
+                            }}
+                            className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                          >
+                            <span>⚡</span> Crazy Eights
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* AI Builder Toggle */}
               <AnimatePresence mode="wait">
@@ -413,34 +424,26 @@ export default function Home() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="overflow-hidden"
+                    className="overflow-hidden rounded-2xl border-3 border-blue-100"
                     style={{
                       background:
-                        "linear-gradient(145deg, #ffffff 0%, #fefefe 100%)",
-                      borderRadius: "32px",
-                      border: "3px solid rgba(97, 171, 196, 0.4)",
-                      boxShadow:
-                        "12px 12px 24px rgba(97, 171, 196, 0.25), -12px -12px 24px rgba(255, 255, 255, 0.9), inset 2px 2px 4px rgba(255, 255, 255, 0.3), inset -2px -2px 4px rgba(97, 171, 196, 0.05)",
+                        "linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 249, 255, 0.5) 100%)",
                     }}
                   >
-                    {/* Volition Builder Header */}
+                    {/* Volition Challenge Builder Header */}
                     <div
-                      className="px-4 py-3 flex items-center justify-between"
+                      className="px-4 md:px-6 py-4 flex items-center justify-between"
                       style={{
-                        background:
-                          "linear-gradient(145deg, rgba(240, 249, 255, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%)",
-                        borderBottom: "2px solid rgba(97, 171, 196, 0.2)",
+                        borderBottom: "2px solid rgba(59, 130, 246, 0.15)",
                       }}
                     >
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-white rounded-lg shadow-sm">
-                          <Sparkles
-                            className="w-4 h-4"
-                            style={{ color: "#61ABC4" }}
-                          />
-                        </div>
+                      <div className="flex items-center gap-3">
+                        <Sparkles
+                          className="w-5 h-5 md:w-6 md:h-6"
+                          style={{ color: "#61ABC4" }}
+                        />
                         <span
-                          className="font-bold text-sm"
+                          className="font-bold text-sm md:text-base"
                           style={{ color: "#61ABC4" }}
                         >
                           Volition Challenge Builder
@@ -450,7 +453,7 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={toggleMute}
-                          className={`p-1.5 rounded-lg transition-all hover:scale-105 ${
+                          className={`p-2 rounded-lg transition-all hover:scale-105 ${
                             isMuted
                               ? "text-red-500 bg-red-50 hover:bg-red-100"
                               : ""
@@ -460,10 +463,7 @@ export default function Home() {
                               ? {}
                               : {
                                   color: "#61ABC4",
-                                  background:
-                                    "linear-gradient(145deg, #ffffff, #f8fafc)",
-                                  boxShadow:
-                                    "2px 2px 4px rgba(97, 171, 196, 0.15), -2px -2px 4px rgba(255, 255, 255, 0.9)",
+                                  background: "rgba(97, 171, 196, 0.1)",
                                 }
                           }
                           title={isMuted ? "Unmute voice" : "Mute voice"}
@@ -477,13 +477,10 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={resetAIBuilder}
-                          className="p-1.5 rounded-lg transition-all hover:scale-105"
+                          className="p-2 rounded-lg transition-all hover:scale-105"
                           style={{
                             color: "#61ABC4",
-                            background:
-                              "linear-gradient(145deg, #ffffff, #f8fafc)",
-                            boxShadow:
-                              "2px 2px 4px rgba(97, 171, 196, 0.15), -2px -2px 4px rgba(255, 255, 255, 0.9)",
+                            background: "rgba(97, 171, 196, 0.1)",
                           }}
                           title="Start over"
                         >
@@ -492,26 +489,25 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={() => setShowAIBuilder(false)}
-                          className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all hover:scale-105"
+                          className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg transition-all hover:scale-105"
                           style={{
                             color: "#61ABC4",
-                            background:
-                              "linear-gradient(145deg, #ffffff, #f8fafc)",
-                            boxShadow:
-                              "2px 2px 4px rgba(97, 171, 196, 0.15), -2px -2px 4px rgba(255, 255, 255, 0.9)",
+                            background: "rgba(97, 171, 196, 0.1)",
                           }}
+                          title="Back to manual entry"
                         >
-                          Write manually
+                          <ArrowRight className="w-3 h-3 rotate-180" />
+                          <span className="hidden sm:inline">Back</span>
                         </button>
                       </div>
                     </div>
 
                     {/* Conversation Area */}
                     <div
-                      className="p-4 max-h-64 overflow-y-auto space-y-3"
+                      className="p-4 md:p-6 max-h-64 overflow-y-auto space-y-3"
                       style={{
                         background:
-                          "linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(240, 249, 255, 0.5) 100%)",
+                          "linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 249, 255, 0.3) 100%)",
                       }}
                     >
                       {aiConversation.map((item, index) => (
@@ -583,12 +579,8 @@ export default function Home() {
 
                     {/* Input Area */}
                     <div
-                      className="p-4"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 255, 0.7) 100%)",
-                        borderTop: "2px solid rgba(97, 171, 196, 0.2)",
-                      }}
+                      className="p-4 md:p-6 border-t-3"
+                      style={{ borderColor: "rgba(97, 171, 196, 0.2)" }}
                     >
                       {generatedHMW ? (
                         <div className="flex gap-3">
