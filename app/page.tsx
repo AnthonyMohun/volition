@@ -304,11 +304,8 @@ export default function Home() {
           <img
             src="/logo-text.png"
             alt="Volition"
-            className="h-28 md:h-32 mx-auto mb-3 md:mb-4 drop-shadow-lg"
+            className="h-32 md:h-36 mx-auto mb-3 md:mb-4 drop-shadow-lg"
           />
-          <p className="text-gray-500 text-sm md:text-base font-medium px-4 mx-auto">
-            Transform design challenges into clear, actionable concepts
-          </p>
         </div>
 
         {/* Main Card */}
