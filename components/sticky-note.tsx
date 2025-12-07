@@ -258,7 +258,7 @@ export function StickyNote({
       "#bbf7d0": "#34d399", // green
       "#bfdbfe": "#60a5fa", // blue
       "#dbeafe": "#3b82f6", // light blue
-      "#dcfce7": "#14b8a6", // light teal
+      "#dcfce7": "#61ABC4", // accent teal
     };
     return accentMap[color] || "#e5e7eb";
   };
@@ -373,7 +373,7 @@ export function StickyNote({
                   setDetailsText(note.details || "");
                 }}
                 onPointerDown={(e) => e.stopPropagation()}
-                className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-teal-500 hover:text-teal-700 shadow-sm touch-target-sm"
+                className="p-2 rounded-xl hover:bg-white/60 hover:scale-110 transition-all text-cyan-500 hover:text-cyan-700 shadow-sm touch-target-sm"
                 title="Edit concept details"
               >
                 <FileText className="w-4 h-4" />

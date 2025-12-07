@@ -1204,7 +1204,7 @@ Ask ONE question about their specific idea to help them develop it further.`,
                     "#bbf7d0": "#34d399", // green
                     "#bfdbfe": "#60a5fa", // blue
                     "#dbeafe": "#3b82f6", // light blue
-                    "#dcfce7": "#14b8a6", // light teal
+                    "#dcfce7": "#61ABC4", // accent teal
                   };
                   const displayColor = colorMap[color.toLowerCase()] || color;
 

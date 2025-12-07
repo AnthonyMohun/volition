@@ -89,11 +89,8 @@ export function AnimatedAIChat({ delay = 0 }: { delay?: number }) {
       {/* Message 3 - AI */}
       <div className="pres-anim-msg-3 p-5 rounded-2xl bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 mr-8">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-5 h-5 text-teal-500" />
-          <span className="text-base font-bold text-teal-600">Volition</span>
-        </div>
-        <p className="text-lg text-gray-700 font-medium">
-          How might you verify that assumption? 🤔
+          <Sparkles className="w-5 h-5" style={{ color: "#61ABC4" }} />
+          <span className="text-base font-bold" style={{ color: "#61ABC4" }}>Volition</span>
         </p>
       </div>
     </div>
@@ -265,7 +262,7 @@ export function AnimatedComparisonCard({ delay = 0 }: { delay?: number }) {
           <span className="text-sm font-bold text-gray-500">Feature</span>
         </div>
         <div className="text-center">
-          <span className="text-lg font-black text-teal-600">Volition</span>
+          <span className="text-lg font-black" style={{ color: "#61ABC4" }}>Volition</span>
         </div>
         <div className="text-center">
           <span className="text-lg font-bold text-gray-400">Others</span>
@@ -357,14 +354,14 @@ export function AnimatedProcessDiagram({ delay = 0 }: { delay?: number }) {
 
       {/* Socratic Process */}
       <div className="space-y-4">
-        <h3 className="text-xl font-black text-teal-600 text-center mb-6">
+        <h3 className="text-xl font-black text-center mb-6" style={{ color: "#61ABC4" }}>
           Socratic
         </h3>
         <div className="relative">
           {/* Central question */}
           <motion.div
             animate={{ scale: step === 0 ? [1, 1.1, 1] : 1 }}
-            className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-teal-400 flex items-center justify-center mx-auto mb-4"
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center mx-auto mb-4"
           >
             <MessageSquare className="w-8 h-8 text-white" />
           </motion.div>
@@ -380,7 +377,7 @@ export function AnimatedProcessDiagram({ delay = 0 }: { delay?: number }) {
                 }}
                 className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-100 to-green-100 flex items-center justify-center"
               >
-                <Icon className="w-6 h-6 text-teal-600" />
+                <Icon className="w-6 h-6" style={{ color: "#61ABC4" }} />
               </motion.div>
             ))}
           </div>
@@ -400,7 +397,7 @@ export function AnimatedProcessDiagram({ delay = 0 }: { delay?: number }) {
             ))}
           </motion.div>
         </div>
-        <p className="text-sm text-teal-600 text-center mt-4">
+        <p className="text-sm text-center mt-4" style={{ color: "#61ABC4" }}>
           Guided exploration
         </p>
       </div>
@@ -490,7 +487,7 @@ export function AnimatedSuccessJourney({ delay = 0 }: { delay?: number }) {
                   scaleX: index < step ? 1 : 0,
                   opacity: index < step ? 1 : 0.3,
                 }}
-                className="w-8 h-1 mx-2 bg-gradient-to-r from-green-400 to-teal-400 rounded-full origin-left"
+                className="w-8 h-1 mx-2 bg-gradient-to-r from-green-400 to-cyan-400 rounded-full origin-left"
               />
             )}
           </div>

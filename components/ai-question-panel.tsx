@@ -546,7 +546,7 @@ export function AIQuestionPanel({
                   `,
                 }}
               >
-                <Sparkles className="w-5 h-5 text-teal-600" />
+                <Sparkles className="w-5 h-5" style={{ color: "#61ABC4" }} />
               </div>
               <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white"></span>
             </div>
@@ -622,7 +622,10 @@ export function AIQuestionPanel({
               border: "1px solid rgba(186, 230, 253, 0.5)",
             }}
           >
-            <Loader2 className="w-5 h-5 animate-spin text-teal-600" />
+            <Loader2
+              className="w-5 h-5 animate-spin"
+              style={{ color: "#61ABC4" }}
+            />
             <span className="text-sm font-semibold text-gray-600">
               Thinking...
             </span>
@@ -639,7 +642,7 @@ export function AIQuestionPanel({
                 boxShadow: "0 2px 8px rgba(20, 184, 166, 0.15)",
               }}
             >
-              <Sparkles className="w-7 h-7 text-teal-500" />
+              <Sparkles className="w-7 h-7" style={{ color: "#61ABC4" }} />
             </div>
             <p className="font-bold text-gray-700 text-sm mb-1">
               Ready to help!

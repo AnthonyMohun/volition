@@ -725,7 +725,7 @@ export default function RefinePage() {
                     className="px-4 py-2.5 md:py-2 text-sm text-white rounded-xl transition-all font-bold touch-manipulation"
                     style={{
                       background:
-                        "linear-gradient(135deg, #3b82f6 0%, #14b8a6 100%)",
+                        "linear-gradient(135deg, #3b82f6 0%, #61ABC4 100%)",
                       boxShadow:
                         "0 2px 8px rgba(59, 130, 246, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)",
                     }}

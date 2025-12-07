@@ -28,7 +28,7 @@ const TIER_SYMBOLS: Record<string, { symbol: string; color: string }> = {
   seed: { symbol: "●", color: "#a3e635" },
   sprout: { symbol: "●●", color: "#4ade80" },
   tree: { symbol: "●●●", color: "#2dd4bf" },
-  forest: { symbol: "●●●●", color: "#14b8a6" },
+  forest: { symbol: "●●●●", color: "#61ABC4" },
 };
 
 // Define styles

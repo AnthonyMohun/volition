@@ -23,7 +23,7 @@ export function VoiceCommandsHelp({
         }`}
       >
         <div className="flex items-center gap-2 mb-2">
-          <HelpCircle className="w-5 h-5 text-teal-600" />
+          <HelpCircle className="w-5 h-5" style={{ color: "#61ABC4" }} />
           <p className="font-bold text-gray-700">🎤 Voice Commands</p>
         </div>
         <p className={`text-xs text-gray-500 mb-2 ${compact ? "hidden" : ""}`}>
@@ -36,25 +36,25 @@ export function VoiceCommandsHelp({
           }`}
         >
           <li className="flex items-start gap-2">
-            <span className="text-teal-500">•</span>
+            <span style={{ color: "#61ABC4" }}>•</span>
             <span>
               <strong>Next question</strong> — Ask AI
             </span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-teal-500">•</span>
+            <span style={{ color: "#61ABC4" }}>•</span>
             <span>
               <strong>Delve deeper</strong> — Explore idea
             </span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-teal-500">•</span>
+            <span style={{ color: "#61ABC4" }}>•</span>
             <span>
               <strong>Mark as concept</strong> — Promote
             </span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-teal-500">•</span>
+            <span style={{ color: "#61ABC4" }}>•</span>
             <span>
               <strong>Delete that</strong> — Remove last note
             </span>

@@ -316,13 +316,15 @@ export default function Home() {
 
           <form onSubmit={handleSubmit} className="relative z-10">
             <div className="mb-5 md:mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <label
-                  htmlFor="hmw"
-                  className="text-xs md:text-sm font-black text-gray-800 uppercase tracking-wide flex items-center gap-2"
-                >
-                  <span className="text-base md:text-lg">💭</span>
-                  Your Design Challenge
+              <div className="flex items-center justify-between mb-4">
+                <label htmlFor="hmw" className="flex items-center gap-2">
+                  <span className="text-xl md:text-2xl">💭</span>
+                  <div
+                    className="text-sm md:text-base font-black uppercase tracking-wide"
+                    style={{ color: "#3166B2" }}
+                  >
+                    Your Design Challenge
+                  </div>
                 </label>
                 {/* Quick Actions Dropdown */}
                 <div className="relative" ref={menuRef}>
@@ -371,6 +373,16 @@ export default function Home() {
                       >
                         <span>🛠️</span> HMW Builder
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCrazyEights(true);
+                          setShowMenu(false);
+                        }}
+                        className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                      >
+                        <span>⚡</span> Crazy Eights
+                      </button>
                     </div>
                   )}
                 </div>
@@ -394,14 +406,6 @@ export default function Home() {
                       rows={3}
                       required
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowAIBuilder(true)}
-                      className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-50 to-blue-50 border-2 border-teal-200 hover:border-teal-300 rounded-xl text-teal-700 font-semibold text-sm transition-all hover:shadow-md"
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      <span>Need help? Let Volition guide you</span>
-                    </button>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -412,11 +416,11 @@ export default function Home() {
                     className="overflow-hidden"
                     style={{
                       background:
-                        "linear-gradient(145deg, #f0fdfa 0%, #eff6ff 100%)",
-                      borderRadius: "24px",
-                      border: "3px solid rgba(153, 246, 228, 0.6)",
+                        "linear-gradient(145deg, #ffffff 0%, #fefefe 100%)",
+                      borderRadius: "32px",
+                      border: "3px solid rgba(97, 171, 196, 0.4)",
                       boxShadow:
-                        "8px 8px 16px rgba(163, 177, 198, 0.3), -8px -8px 16px rgba(255, 255, 255, 0.9), inset 2px 2px 4px rgba(255, 255, 255, 0.3), inset -2px -2px 4px rgba(163, 177, 198, 0.1)",
+                        "12px 12px 24px rgba(97, 171, 196, 0.25), -12px -12px 24px rgba(255, 255, 255, 0.9), inset 2px 2px 4px rgba(255, 255, 255, 0.3), inset -2px -2px 4px rgba(97, 171, 196, 0.05)",
                     }}
                   >
                     {/* Volition Builder Header */}
@@ -424,15 +428,21 @@ export default function Home() {
                       className="px-4 py-3 flex items-center justify-between"
                       style={{
                         background:
-                          "linear-gradient(135deg, rgba(204, 251, 241, 0.8) 0%, rgba(219, 234, 254, 0.8) 100%)",
-                        borderBottom: "2px solid rgba(153, 246, 228, 0.4)",
+                          "linear-gradient(145deg, rgba(240, 249, 255, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%)",
+                        borderBottom: "2px solid rgba(97, 171, 196, 0.2)",
                       }}
                     >
                       <div className="flex items-center gap-2">
                         <div className="p-1.5 bg-white rounded-lg shadow-sm">
-                          <Sparkles className="w-4 h-4 text-teal-600" />
+                          <Sparkles
+                            className="w-4 h-4"
+                            style={{ color: "#61ABC4" }}
+                          />
                         </div>
-                        <span className="font-bold text-teal-800 text-sm">
+                        <span
+                          className="font-bold text-sm"
+                          style={{ color: "#61ABC4" }}
+                        >
                           Volition Challenge Builder
                         </span>
                       </div>
@@ -440,11 +450,22 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={toggleMute}
-                          className={`p-1.5 rounded-lg transition-all ${
+                          className={`p-1.5 rounded-lg transition-all hover:scale-105 ${
                             isMuted
                               ? "text-red-500 bg-red-50 hover:bg-red-100"
-                              : "text-teal-600 hover:bg-teal-100"
+                              : ""
                           }`}
+                          style={
+                            isMuted
+                              ? {}
+                              : {
+                                  color: "#61ABC4",
+                                  background:
+                                    "linear-gradient(145deg, #ffffff, #f8fafc)",
+                                  boxShadow:
+                                    "2px 2px 4px rgba(97, 171, 196, 0.15), -2px -2px 4px rgba(255, 255, 255, 0.9)",
+                                }
+                          }
                           title={isMuted ? "Unmute voice" : "Mute voice"}
                         >
                           {isMuted ? (
@@ -456,7 +477,14 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={resetAIBuilder}
-                          className="p-1.5 text-teal-600 hover:bg-teal-100 rounded-lg transition-all"
+                          className="p-1.5 rounded-lg transition-all hover:scale-105"
+                          style={{
+                            color: "#61ABC4",
+                            background:
+                              "linear-gradient(145deg, #ffffff, #f8fafc)",
+                            boxShadow:
+                              "2px 2px 4px rgba(97, 171, 196, 0.15), -2px -2px 4px rgba(255, 255, 255, 0.9)",
+                          }}
                           title="Start over"
                         >
                           <RotateCcw className="w-4 h-4" />
@@ -464,7 +492,14 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={() => setShowAIBuilder(false)}
-                          className="text-xs font-semibold text-teal-600 hover:text-teal-800 px-2 py-1 hover:bg-teal-100 rounded-lg transition-all"
+                          className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all hover:scale-105"
+                          style={{
+                            color: "#61ABC4",
+                            background:
+                              "linear-gradient(145deg, #ffffff, #f8fafc)",
+                            boxShadow:
+                              "2px 2px 4px rgba(97, 171, 196, 0.15), -2px -2px 4px rgba(255, 255, 255, 0.9)",
+                          }}
                         >
                           Write manually
                         </button>
@@ -476,7 +511,7 @@ export default function Home() {
                       className="p-4 max-h-64 overflow-y-auto space-y-3"
                       style={{
                         background:
-                          "linear-gradient(180deg, rgba(240, 253, 250, 0.5) 0%, rgba(239, 246, 255, 0.5) 100%)",
+                          "linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(240, 249, 255, 0.5) 100%)",
                       }}
                     >
                       {aiConversation.map((item, index) => (
@@ -491,7 +526,7 @@ export default function Home() {
                           }`}
                         >
                           <div
-                            className={`max-w-[85%] px-4 py-2.5 text-sm font-semibold ${
+                            className={`max-w-[85%] px-4 py-2.5 text-sm font-bold ${
                               item.type === "user"
                                 ? "text-white"
                                 : "text-gray-700"
@@ -504,11 +539,11 @@ export default function Home() {
                                   : "20px 20px 20px 6px",
                               background:
                                 item.type === "user"
-                                  ? "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)"
+                                  ? "linear-gradient(135deg, #61ABC4 0%, #4a9bb5 100%)"
                                   : "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
                               boxShadow:
                                 item.type === "user"
-                                  ? "0 4px 12px rgba(20, 184, 166, 0.3), inset 0 1px 2px rgba(255,255,255,0.2)"
+                                  ? "0 6px 16px rgba(97, 171, 196, 0.4), inset 0 1px 2px rgba(255,255,255,0.2)"
                                   : "4px 4px 8px rgba(163, 177, 198, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9), inset 1px 1px 2px rgba(255, 255, 255, 0.3)",
                               border:
                                 item.type === "user"
@@ -533,8 +568,11 @@ export default function Home() {
                               border: "2px solid rgba(226, 232, 240, 0.6)",
                             }}
                           >
-                            <Loader2 className="w-4 h-4 animate-spin text-teal-600" />
-                            <span className="text-sm text-gray-500 font-semibold">
+                            <Loader2
+                              className="w-4 h-4 animate-spin"
+                              style={{ color: "#61ABC4" }}
+                            />
+                            <span className="text-sm text-gray-500 font-bold">
                               Thinking...
                             </span>
                           </div>
@@ -548,8 +586,8 @@ export default function Home() {
                       className="p-4"
                       style={{
                         background:
-                          "linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 253, 250, 0.7) 100%)",
-                        borderTop: "2px solid rgba(153, 246, 228, 0.3)",
+                          "linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 255, 0.7) 100%)",
+                        borderTop: "2px solid rgba(97, 171, 196, 0.2)",
                       }}
                     >
                       {generatedHMW ? (
@@ -557,13 +595,16 @@ export default function Home() {
                           <button
                             type="button"
                             onClick={handleUseGeneratedHMW}
-                            className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 text-white font-bold transition-all hover:scale-105 active:scale-95"
                             style={{
                               background:
-                                "linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0891b2 100%)",
-                              borderRadius: "16px",
+                                "linear-gradient(135deg, #61ABC4 0%, #4a9bb5 50%, #5eb8d0 100%)",
+                              backgroundSize: "200% 200%",
+                              animation: "gradientFlow 3s ease infinite",
+                              borderRadius: "20px",
                               boxShadow:
-                                "0 6px 16px rgba(20, 184, 166, 0.4), inset 0 1px 2px rgba(255,255,255,0.2)",
+                                "0 8px 16px rgba(97, 171, 196, 0.4), 0 4px 8px rgba(74, 155, 181, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.2)",
+                              textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
                             }}
                           >
                             <span>Use this challenge</span>
@@ -572,14 +613,14 @@ export default function Home() {
                           <button
                             type="button"
                             onClick={resetAIBuilder}
-                            className="px-5 py-3.5 font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="px-5 py-3.5 font-bold transition-all hover:scale-105 active:scale-95"
                             style={{
                               background:
-                                "linear-gradient(145deg, #ffffff 0%, #f3f4f6 100%)",
-                              borderRadius: "16px",
-                              border: "2px solid rgba(226, 232, 240, 0.8)",
+                                "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
+                              borderRadius: "20px",
+                              border: "3px solid rgba(229, 231, 235, 0.8)",
                               boxShadow:
-                                "4px 4px 8px rgba(163, 177, 198, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9)",
+                                "6px 6px 12px rgba(163, 177, 198, 0.3), -6px -6px 12px rgba(255, 255, 255, 0.9), inset 1px 1px 2px rgba(255, 255, 255, 0.2)",
                               color: "#4b5563",
                             }}
                           >
@@ -599,11 +640,11 @@ export default function Home() {
                               }
                             }}
                             placeholder="Type or speak your answer..."
-                            className="flex-1 px-4 py-3 text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:ring-teal-200 transition-all text-sm font-semibold"
+                            className="flex-1 px-4 py-3 text-gray-800 placeholder:text-gray-400 transition-all text-sm font-semibold focus:ring-2 focus:ring-blue-200"
                             style={{
                               background:
                                 "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
-                              borderRadius: "14px",
+                              borderRadius: "16px",
                               border: "2px solid rgba(226, 232, 240, 0.8)",
                               boxShadow:
                                 "inset 2px 2px 4px rgba(163, 177, 198, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.5)",
@@ -618,15 +659,14 @@ export default function Home() {
                                 : startVoiceInput
                             }
                             disabled={isAILoading}
-                            className="px-3.5 py-3 transition-all hover:scale-105 active:scale-95"
+                            className="px-3.5 py-3 transition-all hover:scale-105 active:scale-95 rounded-xl"
                             style={{
-                              borderRadius: "14px",
                               background: isRecordingInput
                                 ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
                                 : "linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 100%)",
                               color: isRecordingInput ? "white" : "#4b5563",
                               boxShadow: isRecordingInput
-                                ? "0 4px 12px rgba(239, 68, 68, 0.3)"
+                                ? "0 4px 12px rgba(239, 68, 68, 0.4), inset 0 1px 2px rgba(255,255,255,0.1)"
                                 : "3px 3px 6px rgba(163, 177, 198, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.9)",
                             }}
                             title={
@@ -650,13 +690,12 @@ export default function Home() {
                             type="button"
                             onClick={handleUserResponse}
                             disabled={!userInput.trim() || isAILoading}
-                            className="px-4 py-3 text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            className="px-4 py-3 text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 rounded-xl"
                             style={{
-                              borderRadius: "14px",
                               background:
-                                "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)",
+                                "linear-gradient(135deg, #61ABC4 0%, #4a9bb5 100%)",
                               boxShadow:
-                                "0 4px 12px rgba(20, 184, 166, 0.3), inset 0 1px 2px rgba(255,255,255,0.2)",
+                                "0 6px 16px rgba(97, 171, 196, 0.4), inset 0 1px 2px rgba(255,255,255,0.2)",
                             }}
                           >
                             <Send className="w-4 h-4" />
@@ -670,19 +709,28 @@ export default function Home() {
             </div>
 
             {!showAIBuilder && (
-              <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setShowCrazyEights(true)}
-                  className="fun-button-secondary flex items-center justify-center gap-2 py-3 md:py-2.5 touch-manipulation"
+                  onClick={() => setShowAIBuilder(true)}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 md:py-2.5 text-white font-bold transition-all hover:shadow-lg active:scale-98 touch-manipulation rounded-2xl"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #61ABC4 0%, #3166B2 100%)",
+                    backgroundSize: "200% 200%",
+                    animation: "gradientFlow 3s ease infinite",
+                    boxShadow:
+                      "0 6px 12px rgba(97, 171, 196, 0.25), 0 2px 4px rgba(49, 102, 178, 0.15), inset 0 -1px 2px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.15)",
+                    textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+                  }}
                 >
-                  <span className="text-lg">⚡</span>
-                  <span className="font-black">Crazy Eights</span>
+                  <Sparkles className="w-4 h-4" />
+                  <span className="font-black">Build with AI Guidance</span>
                 </button>
                 <button
                   type="submit"
                   disabled={!hmwInput.trim()}
-                  className="fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed px-8 md:px-12 py-3 md:py-2.5 touch-manipulation"
+                  className="flex-1 fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed py-3 md:py-2.5 touch-manipulation"
                 >
                   <span className="font-black">Begin Exploration</span>
                   <span className="text-xl">🚀</span>

@@ -220,8 +220,11 @@ function AnimatedAIChat({ delay = 0 }: { delay?: number }) {
             >
               {msg.isAI && (
                 <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="w-3 h-3 text-teal-500" />
-                  <span className="text-xs font-bold text-teal-600">
+                  <Sparkles className="w-3 h-3" style={{ color: "#61ABC4" }} />
+                  <span
+                    className="text-xs font-bold"
+                    style={{ color: "#61ABC4" }}
+                  >
                     Volition
                   </span>
                 </div>
@@ -284,10 +287,9 @@ function AnimatedVoiceInput({ delay = 0 }: { delay?: number }) {
           }
           transition={{ duration: 1, repeat: isRecording ? Infinity : 0 }}
           className={`p-4 rounded-2xl ${
-            isRecording
-              ? "bg-red-100 text-red-600"
-              : "bg-teal-100 text-teal-600"
+            isRecording ? "bg-red-100 text-red-600" : "text-white"
           }`}
+          style={isRecording ? {} : { backgroundColor: "#61ABC4" }}
         >
           <Mic className="w-8 h-8" />
         </motion.div>
@@ -394,10 +396,11 @@ function AnimatedWorkflow({ delay = 0 }: { delay?: number }) {
                 className={`text-xs font-bold mt-1 ${
                   index <= activeStep
                     ? index === activeStep
-                      ? "text-teal-700"
+                      ? "text-white"
                       : "text-green-600"
                     : "text-gray-400"
                 }`}
+                style={index === activeStep ? { color: "#61ABC4" } : {}}
               >
                 {step.label}
               </span>

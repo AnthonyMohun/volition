@@ -8,7 +8,7 @@
   --foreground-secondary: #6b7280;
   --border: #e2e8f0;
   --accent-purple: #3b82f6;
-  --accent-pink: #14b8a6;
+  --accent-pink: #61abc4;
   --accent-blue: #60a5fa;
   --accent-yellow: #fbbf24;
   --accent-green: #34d399;
@@ -76,7 +76,7 @@ body {
 }
 
 .fun-button-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #61abc4 50%, #fb923c 100%);
   background-size: 200% 200%;
   animation: gradientFlow 3s ease infinite;
   color: white;
@@ -169,7 +169,7 @@ body {
   background: linear-gradient(
     135deg,
     #3b82f6 0%,
-    #14b8a6 25%,
+    #61abc4 25%,
     #fb923c 50%,
     #fbbf24 75%,
     #34d399 100%
@@ -205,7 +205,7 @@ body {
 }
 
 .fun-gradient-text {
-  background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #61abc4 50%, #fb923c 100%);
   background-size: 200% 200%;
   animation: gradientFlow 3s ease infinite;
   -webkit-background-clip: text;
@@ -215,7 +215,7 @@ body {
 
 .fun-gradient-icon {
   color: transparent;
-  background: linear-gradient(135deg, #3b82f6 0%, #14b8a6 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #61abc4 50%, #fb923c 100%);
   background-size: 200% 200%;
   animation: gradientFlow 3s ease infinite;
   -webkit-background-clip: text;
@@ -234,7 +234,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #3b82f6, #14b8a6);
+  background: linear-gradient(135deg, #3b82f6, #61abc4);
   border-radius: 10px;
   border: 3px solid transparent;
   background-clip: padding-box;

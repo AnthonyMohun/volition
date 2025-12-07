@@ -165,7 +165,7 @@ export const GROWTH_TIERS: Record<GrowthTier, GrowthTierInfo> = {
     emoji: "🌲",
     label: "Forest",
     description: "Ready to present",
-    color: "#14b8a6", // teal-500
+    color: "#61ABC4", // accent teal
     encouragement:
       "Excellent! Your concept is well-developed and ready to present!",
   },
