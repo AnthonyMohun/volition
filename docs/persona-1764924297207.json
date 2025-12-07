@@ -1,0 +1,22 @@
+{
+  "name": "Alex Johnson",
+  "role": "Second-Year Interaction Design Student",
+  "quote": "I need to turn my scattered ideas into something meaningful fast.",
+  "bio": "Alex is a passionate design student who thrives on creativity but struggles with time management and self-doubt under pressure. They are eager to impress their tutor and peers with innovative concepts.",
+  "age": "20",
+  "location": "Dublin, Ireland",
+  "education": "BA, Interaction Design (2nd Year)",
+  "goals": [
+    "Develop compelling concepts for presentations",
+    "Overcome creative blocks",
+    "Impress professors and peers"
+  ],
+  "frustrations": [
+    "Last-minute creative blocks",
+    "Difficulty organising scattered ideas",
+    "Pressure to stand out in a competitive field"
+  ],
+  "personality": ["Creative", "Ambitious", "Resilient"],
+  "techSkills": ["Prototyping tools", "Presentation software"],
+  "avatar": "https://images.unsplash.com/photo-1508341591423-4347099e1f19?w=400&h=400&fit=crop"
+}

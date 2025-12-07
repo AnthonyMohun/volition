@@ -1,0 +1,72 @@
+{
+  "userStory": {
+    "role": "Second-Year Interaction Design Student",
+    "goal": "develop compelling concepts for a presentation",
+    "benefit": "I can present confidently and impress my peers and professors",
+    "motivations": "Wants to excel in their field but struggles with creative blocks under pressure.",
+    "scenario": "It is the night before a concept presentation, and I only have superficial ideas. I discover Volition and decide to give it a try."
+  },
+  "phases": [
+    {
+      "id": "1",
+      "name": "Traditional Framework",
+      "actions": "Tries to brainstorm ideas using sticky notes and sketching but feels stuck. Searches for inspiration online but gets overwhelmed.",
+      "touchpoints": "Notebook, Google Search, Pinterest",
+      "emotions": "Frustrated, anxious",
+      "painPoints": "Ideas feel superficial, time is running out",
+      "quotes": "Why can’t I come up with anything good?",
+      "opportunities": "HMW provide a structured way to generate ideas quickly?",
+      "emotionEmoji": "😰",
+      "emotionScore": -3
+    },
+    {
+      "id": "2",
+      "name": "Discovery",
+      "actions": "Finds Volition through a classmate’s recommendation. Reads about its AI-powered brainstorming features and decides to try it.",
+      "touchpoints": "WhatsApp, Volition Website",
+      "emotions": "Skeptical, curious",
+      "painPoints": "Unsure if the app will actually help",
+      "quotes": "This sounds too good to be true, but I have no other options.",
+      "opportunities": "HMW build trust quickly for first-time users?",
+      "emotionEmoji": "🤔",
+      "emotionScore": -1
+    },
+    {
+      "id": "3",
+      "name": "Exploration",
+      "actions": "Logs into Volition, explores the AI brainstorming tool, and starts generating ideas. Uses the app’s templates to structure concepts.",
+      "touchpoints": "Volition App, Tablet",
+      "emotions": "Hopeful, engaged",
+      "painPoints": "Learning curve for new tools",
+      "quotes": "This is actually helping me think in new ways!",
+      "opportunities": "HMW make onboarding seamless and intuitive?",
+      "emotionEmoji": "🙂",
+      "emotionScore": 1
+    },
+    {
+      "id": "4",
+      "name": "Creation",
+      "actions": "Develops three strong concepts using Volition’s AI suggestions. Refines them with the app’s feedback and visual tools.",
+      "touchpoints": "Volition App, Sketchbook",
+      "emotions": "Focused, inspired",
+      "painPoints": "Balancing creativity with time constraints",
+      "quotes": "I can’t believe I came up with this in just a few hours!",
+      "opportunities": "HMW provide time management tips within the app?",
+      "emotionEmoji": "😃",
+      "emotionScore": 2
+    },
+    {
+      "id": "5",
+      "name": "Presentation",
+      "actions": "Presents polished concepts to the class. Receives positive feedback and feels proud of the work.",
+      "touchpoints": "Classroom, Projector",
+      "emotions": "Confident, accomplished",
+      "painPoints": "Nervous about public speaking",
+      "quotes": "I’m so glad I found Volition. This wouldn’t have been possible without it.",
+      "opportunities": "HMW integrate presentation tips or practice tools?",
+      "emotionEmoji": "🥳",
+      "emotionScore": 3
+    }
+  ],
+  "exportedAt": "2025-12-05T00:25:23.748Z"
+}
