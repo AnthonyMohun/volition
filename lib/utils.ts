@@ -239,21 +239,28 @@ export function buildIterationCanvas(
   const notes: StickyNote[] = [];
   const connections: NoteConnection[] = [];
 
-  // Layout constants - column layout for easy scanning
-  const CONCEPT_COLUMN_X = 800; // Center column for concepts
-  const STRENGTHS_COLUMN_X = 200; // Left column for strengths (green)
-  const IMPROVEMENTS_COLUMN_X = 1400; // Right column for improvements (amber)
-  const VERTICAL_SPACING = 280; // Space between notes vertically
-  const CONCEPT_VERTICAL_SPACING = 600; // Space between concept groups
-  const START_Y = 200;
+  // Layout constants - centered cluster with generous spacing
+  const CANVAS_CENTER_X = 2000;
+  const CANVAS_CENTER_Y = 1500;
+  const COLUMN_OFFSET = 600;
+  const CONCEPT_COLUMN_X = CANVAS_CENTER_X; // Center column for concepts
+  const STRENGTHS_COLUMN_X = CANVAS_CENTER_X - COLUMN_OFFSET; // Left column for strengths (green)
+  const IMPROVEMENTS_COLUMN_X = CANVAS_CENTER_X + COLUMN_OFFSET; // Right column for improvements (amber)
+  const VERTICAL_SPACING = 320; // Space between notes vertically
+  const CONCEPT_VERTICAL_SPACING = 740; // Space between concept groups
 
   // Colors
   const STRENGTH_COLOR = "#bbf7d0"; // green-200
   const IMPROVEMENT_COLOR = "#fef3c7"; // amber-100
 
+  // Center the column stack vertically so imported notes aren't pinned to the top
+  const totalConceptHeight =
+    concepts.length > 0 ? (concepts.length - 1) * CONCEPT_VERTICAL_SPACING : 0;
+  const startY = CANVAS_CENTER_Y - totalConceptHeight / 2;
+
   concepts.forEach((concept, conceptIdx) => {
     const aiEval = aiEvaluations.find((e) => e.conceptId === concept.id);
-    const baseY = START_Y + conceptIdx * CONCEPT_VERTICAL_SPACING;
+    const baseY = startY + conceptIdx * CONCEPT_VERTICAL_SPACING;
 
     // Create concept note (center column)
     const conceptNote: StickyNote = {

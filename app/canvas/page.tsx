@@ -1048,6 +1048,11 @@ Ask ONE question about their specific idea to help them develop it further.`,
             style={{
               width: CANVAS_WIDTH,
               height: CANVAS_HEIGHT,
+              backgroundColor: "rgba(249, 250, 251, 0.7)",
+              backgroundImage:
+                "radial-gradient(rgba(57, 107, 178, 0.22) 1.5px, transparent 1.5px)",
+              backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
+              backgroundPosition: "0 0",
               transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,
               transformOrigin: "0 0",
             }}
@@ -1206,8 +1211,8 @@ Ask ONE question about their specific idea to help them develop it further.`,
                     "#fecaca": "#f87171", // red
                     "#bbf7d0": "#34d399", // green
                     "#bfdbfe": "#396bb2", // blue -> primary
-                    "#dbeafe": "#396bb2", // light blue -> primary
-                    "#dcfce7": "#61ABC4", // accent teal
+                    "#dbeafe": "#7d6bff", // lavender
+                    "#dcfce7": "#2eb7b0", // accent teal
                   };
                   const displayColor = colorMap[color.toLowerCase()] || color;
 

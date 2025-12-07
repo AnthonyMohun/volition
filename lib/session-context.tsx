@@ -353,14 +353,46 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   // Initialize iteration canvas - clear existing canvas data and populate with new notes/connections
   const initializeIterationCanvas = useCallback(
     (notes: StickyNote[], connections: NoteConnection[]) => {
+      // Compute a viewport centered on the new note cluster for smoother re-entry to the canvas
+      const NOTE_WIDTH = 256;
+      const NOTE_HEIGHT = 200;
+
+      const bounds = notes.reduce(
+        (acc, note) => {
+          acc.minX = Math.min(acc.minX, note.x);
+          acc.minY = Math.min(acc.minY, note.y);
+          acc.maxX = Math.max(acc.maxX, note.x + NOTE_WIDTH);
+          acc.maxY = Math.max(acc.maxY, note.y + NOTE_HEIGHT);
+          return acc;
+        },
+        {
+          minX: Number.POSITIVE_INFINITY,
+          minY: Number.POSITIVE_INFINITY,
+          maxX: Number.NEGATIVE_INFINITY,
+          maxY: Number.NEGATIVE_INFINITY,
+        }
+      );
+
+      const hasNotes = notes.length > 0 && Number.isFinite(bounds.minX);
+      const centerX = hasNotes ? (bounds.minX + bounds.maxX) / 2 : 800;
+      const centerY = hasNotes ? (bounds.minY + bounds.maxY) / 2 : 400;
+
       setState((prev) => ({
         ...prev,
         notes: notes,
         connections: connections,
+        questions: [],
         currentPhase: "canvas",
         selectedConceptIds: [], // Clear selections for fresh iteration
-        // Reset viewport to fit new content - will be adjusted by fitToContent on canvas load
-        viewport: { centerX: 800, centerY: 400, zoom: 0.8 },
+        // Reset viewport near the new content cluster
+        viewport: {
+          centerX: centerX,
+          centerY: centerY,
+          zoom: 0.9,
+        },
+        voiceTranscript: "",
+        lastSpokenText: "",
+        voiceMode: false,
       }));
       setUndoStack([]);
       setRedoStack([]);

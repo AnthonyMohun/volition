@@ -261,52 +261,52 @@ export function StickyNote({
     }
   > = {
     "#fef3c7": {
-      surfaceFrom: "#fff8e7",
-      surfaceTo: "#ffeccd",
-      border: "#f0c36b",
-      glow: "rgba(240, 195, 107, 0.35)",
-      text: "#7b5a17",
-      badge: "#f8d57c",
+      surfaceFrom: "#fff3ce",
+      surfaceTo: "#ffd88a",
+      border: "#f4b740",
+      glow: "rgba(244, 183, 64, 0.35)",
+      text: "#7a4a00",
+      badge: "#f8c76a",
     },
     "#fecaca": {
-      surfaceFrom: "#ffe7e1",
-      surfaceTo: "#ffd7d1",
-      border: "#f29b9b",
-      glow: "rgba(242, 155, 155, 0.35)",
-      text: "#7f2f2f",
-      badge: "#ffc7bf",
+      surfaceFrom: "#ffe1dc",
+      surfaceTo: "#ffb3a8",
+      border: "#f25c5c",
+      glow: "rgba(242, 92, 92, 0.35)",
+      text: "#7d1f1f",
+      badge: "#ff9f99",
     },
     "#bbf7d0": {
-      surfaceFrom: "#e7fff2",
-      surfaceTo: "#d6f6e8",
-      border: "#5bc59d",
-      glow: "rgba(91, 197, 157, 0.32)",
-      text: "#0f5037",
-      badge: "#c0f0dd",
+      surfaceFrom: "#e1fbec",
+      surfaceTo: "#baf1d4",
+      border: "#36b27a",
+      glow: "rgba(54, 178, 122, 0.32)",
+      text: "#0f4a34",
+      badge: "#8fd9b4",
     },
     "#bfdbfe": {
-      surfaceFrom: "#e4edff",
-      surfaceTo: "#d6e6ff",
-      border: "#5b8fd5",
-      glow: "rgba(73, 126, 195, 0.34)",
-      text: "#1e3f73",
-      badge: "#c8dcff",
+      surfaceFrom: "#e3ecff",
+      surfaceTo: "#bcd4ff",
+      border: "#4f8bff",
+      glow: "rgba(79, 139, 255, 0.34)",
+      text: "#1c3e82",
+      badge: "#9fc0ff",
     },
     "#dbeafe": {
-      surfaceFrom: "#e9eefe",
-      surfaceTo: "#dae6ff",
-      border: "#8ea2f5",
-      glow: "rgba(142, 162, 245, 0.32)",
-      text: "#2f3f7a",
-      badge: "#d5ddff",
+      surfaceFrom: "#ecebff",
+      surfaceTo: "#cbc6ff",
+      border: "#7d6bff",
+      glow: "rgba(125, 107, 255, 0.32)",
+      text: "#2f2f7a",
+      badge: "#b6a8ff",
     },
     "#dcfce7": {
-      surfaceFrom: "#e7faf4",
-      surfaceTo: "#d5f2ec",
-      border: "#61abc4",
-      glow: "rgba(97, 171, 196, 0.34)",
-      text: "#1f4a5a",
-      badge: "#cdebf0",
+      surfaceFrom: "#ddf7f3",
+      surfaceTo: "#b8ebe1",
+      border: "#2eb7b0",
+      glow: "rgba(46, 183, 176, 0.34)",
+      text: "#0f4a49",
+      badge: "#8adad2",
     },
   };
 
@@ -329,12 +329,12 @@ export function StickyNote({
         onMouseEnter={() => setIsNoteHovered(true)}
         onMouseLeave={() => setIsNoteHovered(false)}
         className={cn(
-          "w-56 md:w-64 p-4 md:p-5 rounded-2xl transition-all cursor-move relative no-select overflow-hidden backdrop-blur-xl border",
+          "w-56 md:w-64 p-4 md:p-5 rounded-2xl transition-all cursor-move relative no-select overflow-visible backdrop-blur-xl border",
           isDragging && "opacity-60 scale-95",
           !isDragging && "hover:-translate-y-1 hover:scale-[1.01]"
         )}
         style={{
-          backgroundImage: `radial-gradient(circle at 18% 16%, rgba(255,255,255,0.9) 0%, transparent 32%), radial-gradient(circle at 82% 8%, rgba(255,255,255,0.6) 0%, transparent 28%), linear-gradient(145deg, ${palette.surfaceFrom} 0%, ${palette.surfaceTo} 100%)`,
+          backgroundImage: `linear-gradient(145deg, ${palette.surfaceFrom} 0%, ${palette.surfaceTo} 100%)`,
           borderColor: palette.border,
           borderWidth: "1.5px",
           boxShadow: note.isConcept
@@ -349,13 +349,20 @@ export function StickyNote({
         {/* Concept star badge */}
         {note.isConcept && (
           <div
-            className="absolute -top-3 -right-3 rounded-full p-2 shadow-lg animate-pulse"
+            className="absolute -top-4 -right-4 rounded-full p-2.5 shadow-xl animate-pulse"
             style={{
               backgroundImage: `linear-gradient(135deg, ${palette.badge} 0%, ${palette.border} 100%)`,
-              boxShadow: `0 12px 20px -12px ${palette.glow}`,
+              boxShadow: `0 14px 26px -14px ${palette.glow}`,
             }}
           >
             <Star className="w-5 h-5 text-white fill-current drop-shadow-md" />
+          </div>
+        )}
+        {note.isConcept && (
+          <div className="absolute -top-4 left-0 flex items-center gap-2 pointer-events-none">
+            <span className="bg-amber-500 text-white text-xs font-black tracking-wide px-3 py-1 rounded-full shadow-lg ring-2 ring-white/70">
+              Concept
+            </span>
           </div>
         )}
         {/* Header */}
