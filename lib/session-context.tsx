@@ -46,6 +46,7 @@ interface SessionContextType {
     conceptIds: string[],
     tokenAllocation: Record<string, number>
   ) => void;
+  setFitToContentOnLoad: (value: boolean) => void;
   resetSession: () => void;
   loadExampleSession: (exampleState: Partial<SessionState>) => void;
   clearExampleSessionFlag: () => void;
@@ -286,6 +287,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       projectId: `proj-${Date.now()}`,
       createdAt: Date.now(),
       connections: [],
+      fitToContentOnLoad: false,
     });
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
@@ -309,6 +311,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const clearExampleSessionFlag = useCallback(() => {
     setState((prev) => ({ ...prev, isExampleSession: false }));
+  }, []);
+
+  const setFitToContentOnLoad = useCallback((value: boolean) => {
+    setState((prev) => ({ ...prev, fitToContentOnLoad: value }));
   }, []);
 
   const setViewport = useCallback(
@@ -381,6 +387,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         ...prev,
         notes: notes,
         connections: connections,
+        fitToContentOnLoad: true,
         questions: [],
         currentPhase: "canvas",
         selectedConceptIds: [], // Clear selections for fresh iteration
@@ -436,6 +443,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         redo,
         canUndo,
         canRedo,
+        setFitToContentOnLoad,
       }}
     >
       {children}

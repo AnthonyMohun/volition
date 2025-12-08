@@ -246,6 +246,8 @@ export interface SessionState {
   currentPhase: "hmw" | "canvas" | "select" | "refine" | "final";
   selectedConceptIds: string[];
   tokenAllocation: Record<string, number>;
+  // Flag to trigger fit-to-content on next canvas mount
+  fitToContentOnLoad?: boolean;
   // Viewport: world (canvas) center coordinates and zoom level
   viewport?: {
     centerX: number;
@@ -272,6 +274,7 @@ export const INITIAL_SESSION_STATE: SessionState = {
   currentPhase: "hmw",
   selectedConceptIds: [],
   tokenAllocation: {},
+  fitToContentOnLoad: false,
   viewport: { centerX: 0, centerY: 0, zoom: 1 },
   createdAt: Date.now(),
   isExampleSession: false,

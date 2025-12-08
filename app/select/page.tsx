@@ -330,6 +330,78 @@ export default function SelectPage() {
     return accentMap[color] || "#e5e7eb";
   };
 
+  const CONCEPT_CARD_PALETTE: Record<
+    string,
+    {
+      surfaceFrom: string;
+      surfaceTo: string;
+      border: string;
+      glow: string;
+      text: string;
+    }
+  > = {
+    "#fef3c7": {
+      surfaceFrom: "#fff3ce",
+      surfaceTo: "#ffd88a",
+      border: "#f4b740",
+      glow: "rgba(244, 183, 64, 0.35)",
+      text: "#7a4a00",
+    },
+    "#fecaca": {
+      surfaceFrom: "#ffe1dc",
+      surfaceTo: "#ffb3a8",
+      border: "#f25c5c",
+      glow: "rgba(242, 92, 92, 0.35)",
+      text: "#7d1f1f",
+    },
+    "#bbf7d0": {
+      surfaceFrom: "#e1fbec",
+      surfaceTo: "#baf1d4",
+      border: "#36b27a",
+      glow: "rgba(54, 178, 122, 0.32)",
+      text: "#0f4a34",
+    },
+    "#bfdbfe": {
+      surfaceFrom: "#e3ecff",
+      surfaceTo: "#bcd4ff",
+      border: "#4f8bff",
+      glow: "rgba(79, 139, 255, 0.34)",
+      text: "#1c3e82",
+    },
+    "#e9d5ff": {
+      surfaceFrom: "#ecebff",
+      surfaceTo: "#cbc6ff",
+      border: "#7d6bff",
+      glow: "rgba(125, 107, 255, 0.32)",
+      text: "#2f2f7a",
+    },
+    "#fbcfe8": {
+      surfaceFrom: "#ddf7f3",
+      surfaceTo: "#b8ebe1",
+      border: "#2eb7b0",
+      glow: "rgba(46, 183, 176, 0.34)",
+      text: "#0f4a49",
+    },
+  };
+
+  const getConceptCardPalette = (color: string) =>
+    CONCEPT_CARD_PALETTE[color] || {
+      surfaceFrom: "#f4f7fb",
+      surfaceTo: "#e8eef9",
+      border: "#d2d9e8",
+      glow: "rgba(120, 144, 180, 0.28)",
+      text: "#1f2937",
+    };
+
+  const makeConceptCardStyle = (color: string) => {
+    const palette = getConceptCardPalette(color);
+    return {
+      backgroundImage: `linear-gradient(145deg, ${palette.surfaceFrom} 0%, ${palette.surfaceTo} 100%)`,
+      borderColor: palette.border,
+      boxShadow: `0 18px 40px -24px ${palette.glow}, 0 12px 28px -24px rgba(15, 23, 42, 0.35)`,
+    } as const;
+  };
+
   // Calculate swipe indicator opacity
   const swipeProgress = Math.min(Math.abs(dragState.offsetX) / 100, 1);
   const swipeDirection =
@@ -727,11 +799,8 @@ export default function SelectPage() {
                           }}
                         >
                           <div
-                            className="w-[300px] md:w-[360px] h-[280px] md:h-[320px] p-5 rounded-3xl border-4 shadow-xl"
-                            style={{
-                              backgroundColor: getFunColor(note.color),
-                              borderColor: getAccentColor(note.color),
-                            }}
+                            className="w-[300px] md:w-[360px] h-[280px] md:h-[320px] p-5 rounded-3xl border-4"
+                            style={makeConceptCardStyle(note.color)}
                           />
                         </div>
                       );
@@ -768,10 +837,7 @@ export default function SelectPage() {
                     >
                       <div
                         className="w-full max-w-[300px] md:max-w-[360px] p-5 md:p-6 rounded-3xl border-4 shadow-2xl relative overflow-hidden select-none"
-                        style={{
-                          backgroundColor: getFunColor(topCard.color),
-                          borderColor: getAccentColor(topCard.color),
-                        }}
+                        style={makeConceptCardStyle(topCard.color)}
                       >
                         {/* Swipe indicators */}
                         <div

@@ -643,11 +643,7 @@ export function StickyNote({
               />
             ))}
 
-            {connectionCount > 0 && !isLinkingFrom && (
-              <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md">
-                {connectionCount}
-              </span>
-            )}
+            {/* Connection count badge removed for cleaner UI */}
           </div>
         )}
 

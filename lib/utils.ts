@@ -239,34 +239,31 @@ export function buildIterationCanvas(
   const notes: StickyNote[] = [];
   const connections: NoteConnection[] = [];
 
-  // Layout constants - centered cluster with generous spacing
-  const CANVAS_CENTER_X = 2000;
+  // Layout constants - side-by-side concept groups to prevent clipping
   const CANVAS_CENTER_Y = 1500;
-  const COLUMN_OFFSET = 600;
-  const CONCEPT_COLUMN_X = CANVAS_CENTER_X; // Center column for concepts
-  const STRENGTHS_COLUMN_X = CANVAS_CENTER_X - COLUMN_OFFSET; // Left column for strengths (green)
-  const IMPROVEMENTS_COLUMN_X = CANVAS_CENTER_X + COLUMN_OFFSET; // Right column for improvements (amber)
-  const VERTICAL_SPACING = 320; // Space between notes vertically
-  const CONCEPT_VERTICAL_SPACING = 740; // Space between concept groups
+  const GROUP_START_X = 1200;
+  const GROUP_SPACING_X = 1450; // widen to prevent overlap between adjacent groups
+  const COLUMN_OFFSET = 520;
+  const VERTICAL_SPACING = 320; // Space between notes vertically within a group
 
   // Colors
   const STRENGTH_COLOR = "#bbf7d0"; // green-200
   const IMPROVEMENT_COLOR = "#fef3c7"; // amber-100
 
-  // Center the column stack vertically so imported notes aren't pinned to the top
-  const totalConceptHeight =
-    concepts.length > 0 ? (concepts.length - 1) * CONCEPT_VERTICAL_SPACING : 0;
-  const startY = CANVAS_CENTER_Y - totalConceptHeight / 2;
-
   concepts.forEach((concept, conceptIdx) => {
     const aiEval = aiEvaluations.find((e) => e.conceptId === concept.id);
-    const baseY = startY + conceptIdx * CONCEPT_VERTICAL_SPACING;
+
+    // Place each concept group in its own column to avoid overlap
+    const conceptX = GROUP_START_X + conceptIdx * GROUP_SPACING_X;
+    const strengthsX = conceptX - COLUMN_OFFSET;
+    const improvementsX = conceptX + COLUMN_OFFSET;
+    const baseY = CANVAS_CENTER_Y;
 
     // Create concept note (center column)
     const conceptNote: StickyNote = {
       ...concept,
       id: `iter-concept-${concept.id}-${Date.now()}`,
-      x: CONCEPT_COLUMN_X,
+      x: conceptX,
       y: baseY,
       isConcept: true,
       createdAt: Date.now(),
@@ -286,7 +283,7 @@ export function buildIterationCanvas(
         const strengthNote: StickyNote = {
           id: `iter-strength-${concept.id}-${i}-${Date.now()}`,
           text: strength,
-          x: STRENGTHS_COLUMN_X,
+          x: strengthsX,
           y: baseY - feedbackOffset + i * VERTICAL_SPACING,
           color: STRENGTH_COLOR,
           isConcept: false,
@@ -310,7 +307,7 @@ export function buildIterationCanvas(
         const improvementNote: StickyNote = {
           id: `iter-improve-${concept.id}-${i}-${Date.now()}`,
           text: improvement,
-          x: IMPROVEMENTS_COLUMN_X,
+          x: improvementsX,
           y: baseY - feedbackOffset + i * VERTICAL_SPACING,
           color: IMPROVEMENT_COLOR,
           isConcept: false,

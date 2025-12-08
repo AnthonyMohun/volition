@@ -959,9 +959,6 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
       <div className="min-h-screen fun-gradient-bg flex flex-col relative overflow-hidden">
         {/* Floating decorative elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
-          <div className="absolute top-20 left-10 text-6xl float-animation">
-            🤖
-          </div>
           <div
             className="absolute top-40 right-20 text-5xl float-animation"
             style={{ animationDelay: "1s" }}
@@ -1771,9 +1768,6 @@ Be direct, specific, and helpful. No fluff. Start with an emoji. Don't repeat wh
     <div className="min-h-screen fun-gradient-bg flex flex-col relative overflow-hidden">
       {/* Floating decorative elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
-        <div className="absolute top-20 left-10 text-6xl float-animation">
-          ⭐
-        </div>
         <div
           className="absolute top-40 right-20 text-5xl float-animation"
           style={{ animationDelay: "1s" }}

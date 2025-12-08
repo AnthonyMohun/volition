@@ -59,6 +59,7 @@ export default function CanvasPage() {
     canRedo,
     setViewport,
     clearExampleSessionFlag,
+    setFitToContentOnLoad,
     setVoiceMode,
   } = useSession();
   const { showToast } = useToast();
@@ -221,6 +222,23 @@ export default function CanvasPage() {
     containerRef.current,
     clearExampleSessionFlag,
     handleFitToContent,
+  ]);
+
+  // Fit to content when flagged (e.g., after importing from Final stage)
+  useEffect(() => {
+    if (
+      state.fitToContentOnLoad &&
+      state.notes.length > 0 &&
+      containerRef.current
+    ) {
+      handleFitToContent();
+      setFitToContentOnLoad(false);
+    }
+  }, [
+    state.fitToContentOnLoad,
+    state.notes.length,
+    handleFitToContent,
+    setFitToContentOnLoad,
   ]);
 
   const handleResetView = useCallback(() => {
@@ -399,6 +417,13 @@ export default function CanvasPage() {
       x: (touch1.clientX + touch2.clientX) / 2,
       y: (touch1.clientY + touch2.clientY) / 2,
     };
+  };
+
+  const getTouchDistance = (touch1: React.Touch, touch2: React.Touch) => {
+    // Distance between the two touch points for pinch scale
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.hypot(dx, dy);
   };
 
   const handleTouchStart = useCallback(
