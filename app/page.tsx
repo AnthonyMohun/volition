@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/session-context";
+import { LoginModal } from "@/components/login-modal";
 import { HMWHelperModal } from "@/components/hmw-helper-modal";
 import { CrazyEightsModal } from "@/components/crazy-eights-modal";
 import { OnboardingModal } from "@/components/onboarding-modal";
@@ -40,6 +41,8 @@ export default function Home() {
   const [showCrazyEights, setShowCrazyEights] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // AI HMW Builder state
@@ -68,6 +71,24 @@ export default function Home() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("/api/auth");
+        const data = await response.json();
+        setIsAuthenticated(data.authenticated);
+      } catch (err) {
+        console.error("Failed to check auth:", err);
+        setIsAuthenticated(false);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   // Scroll to bottom of conversation
@@ -288,465 +309,504 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen volition-hero-bg flex items-center justify-center p-4 md:p-6 relative overflow-hidden">
-      <img
-        src="/corner-art.png"
-        alt=""
-        aria-hidden="true"
-        className="volition-corner-art"
-        loading="lazy"
-        decoding="async"
-      />
-
-      <div className="max-w-3xl w-full relative z-10">
-        {/* Hero Section */}
-        <div className="text-center mb-8 md:mb-12">
-          <img
-            src="/logo-text.png"
-            alt="Volition"
-            className="h-32 md:h-36 mx-auto mb-3 md:mb-4 drop-shadow-lg"
-          />
+    <>
+      {isCheckingAuth ? (
+        <div className="flex items-center justify-center w-full h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 mb-4 rounded-full bg-blue-100 animate-pulse">
+              <div className="w-6 h-6 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
+            </div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
         </div>
+      ) : !isAuthenticated ? (
+        <LoginModal />
+      ) : (
+        <div className="min-h-screen volition-hero-bg flex flex-col">
+          {/* Main Content */}
+          <div className="flex-1 flex items-center justify-center p-4 md:p-6 relative overflow-hidden">
+          <img
+            src="/corner-art.png"
+            alt=""
+            aria-hidden="true"
+            className="volition-corner-art"
+            loading="lazy"
+            decoding="async"
+          />
 
-        {/* Main Card */}
-        <div className="fun-card p-5 md:p-8 mb-6 md:mb-8 relative overflow-hidden mx-2 md:mx-0">
-          {/* Decorative gradient overlay */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/30 to-transparent rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-teal-200/30 to-transparent rounded-full blur-2xl"></div>
-
-          <form onSubmit={handleSubmit} className="relative z-10">
-            <div className="mb-5 md:mb-6">
-              {/* Header and Quick Start - Only visible when AI Builder is NOT showing */}
-              <AnimatePresence mode="wait">
-                {!showAIBuilder && (
-                  <motion.div
-                    key="header"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="flex items-center justify-between mb-4"
-                  >
-                    <label htmlFor="hmw" className="flex items-center gap-2">
-                      <span className="text-xl md:text-2xl">✏️</span>
-                      <div
-                        className="text-sm md:text-base font-black uppercase tracking-wide"
-                        style={{ color: "var(--color-primary)" }}
-                      >
-                        Your Design Challenge
-                      </div>
-                    </label>
-                    {/* Quick Actions Dropdown */}
-                    <div className="relative" ref={menuRef}>
-                      <button
-                        type="button"
-                        onClick={() => setShowMenu(!showMenu)}
-                        className="flex items-center gap-1.5 px-3 py-2.5 md:py-2 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full transition-all touch-manipulation"
-                      >
-                        <HelpCircle className="w-4 h-4" />
-                        <span className="hidden sm:inline">Quick Start</span>
-                        <ChevronDown
-                          className={`w-3 h-3 transition-transform ${
-                            showMenu ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-                      {showMenu && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowOnboarding(true);
-                              setShowMenu(false);
-                            }}
-                            className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
-                          >
-                            <span>💡</span> How it works
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              handleTryExample();
-                              setShowMenu(false);
-                            }}
-                            className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
-                          >
-                            <span>▶️</span> Try Example
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowHelper(true);
-                              setShowMenu(false);
-                            }}
-                            className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
-                          >
-                            <span>🛠️</span> HMW Builder
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowCrazyEights(true);
-                              setShowMenu(false);
-                            }}
-                            className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
-                          >
-                            <span>⚡</span> Crazy Eights
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* AI Builder Toggle */}
-              <AnimatePresence mode="wait">
-                {!showAIBuilder ? (
-                  <motion.div
-                    key="textarea"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                  >
-                    <textarea
-                      id="hmw"
-                      value={hmwInput}
-                      onChange={(e) => setHmwInput(e.target.value)}
-                      placeholder="Frame your challenge as a 'How Might We' statement to begin..."
-                      className="w-full px-4 md:px-6 py-4 md:py-5 bg-gradient-to-br from-white to-gray-50/50 border-3 border-blue-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-400 resize-none text-gray-800 placeholder:text-gray-400 transition-all text-base md:text-lg font-semibold shadow-sm hover:shadow-md touch-manipulation"
-                      rows={3}
-                      required
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="ai-builder"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="overflow-hidden rounded-2xl border-3 border-blue-100"
-                    style={{
-                      background:
-                        "linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 249, 255, 0.5) 100%)",
-                    }}
-                  >
-                    {/* Volition Challenge Builder Header */}
-                    <div
-                      className="px-4 md:px-6 py-4 flex items-center justify-between"
-                      style={{
-                        borderBottom: "2px solid rgba(59, 130, 246, 0.15)",
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Sparkles
-                          className="w-5 h-5 md:w-6 md:h-6"
-                          style={{ color: "#61ABC4" }}
-                        />
-                        <span
-                          className="font-bold text-sm md:text-base"
-                          style={{ color: "#61ABC4" }}
-                        >
-                          Volition Challenge Builder
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={toggleMute}
-                          className={`p-2 rounded-lg transition-all hover:scale-105 ${
-                            isMuted
-                              ? "text-red-500 bg-red-50 hover:bg-red-100"
-                              : ""
-                          }`}
-                          style={
-                            isMuted
-                              ? {}
-                              : {
-                                  color: "#61ABC4",
-                                  background: "rgba(97, 171, 196, 0.1)",
-                                }
-                          }
-                          title={isMuted ? "Unmute voice" : "Mute voice"}
-                        >
-                          {isMuted ? (
-                            <VolumeX className="w-4 h-4" />
-                          ) : (
-                            <Volume2 className="w-4 h-4" />
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={resetAIBuilder}
-                          className="p-2 rounded-lg transition-all hover:scale-105"
-                          style={{
-                            color: "#61ABC4",
-                            background: "rgba(97, 171, 196, 0.1)",
-                          }}
-                          title="Start over"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowAIBuilder(false)}
-                          className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg transition-all hover:scale-105"
-                          style={{
-                            color: "#61ABC4",
-                            background: "rgba(97, 171, 196, 0.1)",
-                          }}
-                          title="Back to manual entry"
-                        >
-                          <ArrowRight className="w-3 h-3 rotate-180" />
-                          <span className="hidden sm:inline">Back</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Conversation Area */}
-                    <div
-                      className="p-4 md:p-6 max-h-64 overflow-y-auto space-y-3"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 249, 255, 0.3) 100%)",
-                      }}
-                    >
-                      {aiConversation.map((item, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className={`flex ${
-                            item.type === "user"
-                              ? "justify-end"
-                              : "justify-start"
-                          }`}
-                        >
-                          <div
-                            className={`max-w-[85%] px-4 py-2.5 text-sm font-bold ${
-                              item.type === "user"
-                                ? "text-white"
-                                : "text-gray-700"
-                            }`}
-                            style={{
-                              whiteSpace: "pre-wrap",
-                              borderRadius:
-                                item.type === "user"
-                                  ? "20px 20px 6px 20px"
-                                  : "20px 20px 20px 6px",
-                              background:
-                                item.type === "user"
-                                  ? "linear-gradient(135deg, #61ABC4 0%, #4a9bb5 100%)"
-                                  : "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
-                              boxShadow:
-                                item.type === "user"
-                                  ? "0 6px 16px rgba(97, 171, 196, 0.4), inset 0 1px 2px rgba(255,255,255,0.2)"
-                                  : "4px 4px 8px rgba(163, 177, 198, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9), inset 1px 1px 2px rgba(255, 255, 255, 0.3)",
-                              border:
-                                item.type === "user"
-                                  ? "none"
-                                  : "2px solid rgba(226, 232, 240, 0.6)",
-                            }}
-                          >
-                            {item.text}
-                          </div>
-                        </motion.div>
-                      ))}
-                      {isAILoading && (
-                        <div className="flex justify-start">
-                          <div
-                            className="px-4 py-2.5 flex items-center gap-2"
-                            style={{
-                              borderRadius: "20px 20px 20px 6px",
-                              background:
-                                "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
-                              boxShadow:
-                                "4px 4px 8px rgba(163, 177, 198, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9)",
-                              border: "2px solid rgba(226, 232, 240, 0.6)",
-                            }}
-                          >
-                            <Loader2
-                              className="w-4 h-4 animate-spin"
-                              style={{ color: "#61ABC4" }}
-                            />
-                            <span className="text-sm text-gray-500 font-bold">
-                              Thinking...
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                      <div ref={conversationEndRef} />
-                    </div>
-
-                    {/* Input Area */}
-                    <div
-                      className="p-4 md:p-6 border-t-3"
-                      style={{ borderColor: "rgba(97, 171, 196, 0.2)" }}
-                    >
-                      {generatedHMW ? (
-                        <div className="flex gap-3">
-                          <button
-                            type="button"
-                            onClick={handleUseGeneratedHMW}
-                            className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 text-white font-bold transition-all hover:scale-105 active:scale-95"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, #61ABC4 0%, #4a9bb5 50%, #5eb8d0 100%)",
-                              backgroundSize: "200% 200%",
-                              animation: "gradientFlow 3s ease infinite",
-                              borderRadius: "20px",
-                              boxShadow:
-                                "0 8px 16px rgba(97, 171, 196, 0.4), 0 4px 8px rgba(74, 155, 181, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.2)",
-                              textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-                            }}
-                          >
-                            <span>Use this challenge</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={resetAIBuilder}
-                            className="px-5 py-3.5 font-bold transition-all hover:scale-105 active:scale-95"
-                            style={{
-                              background:
-                                "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
-                              borderRadius: "20px",
-                              border: "3px solid rgba(229, 231, 235, 0.8)",
-                              boxShadow:
-                                "6px 6px 12px rgba(163, 177, 198, 0.3), -6px -6px 12px rgba(255, 255, 255, 0.9), inset 1px 1px 2px rgba(255, 255, 255, 0.2)",
-                              color: "#4b5563",
-                            }}
-                          >
-                            Try again
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={userInput}
-                            onChange={(e) => setUserInput(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault();
-                                handleUserResponse();
-                              }
-                            }}
-                            placeholder="Type or speak your answer..."
-                            className="flex-1 px-4 py-3 text-gray-800 placeholder:text-gray-400 transition-all text-sm font-semibold focus:ring-2 focus:ring-blue-200"
-                            style={{
-                              background:
-                                "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
-                              borderRadius: "16px",
-                              border: "2px solid rgba(226, 232, 240, 0.8)",
-                              boxShadow:
-                                "inset 2px 2px 4px rgba(163, 177, 198, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.5)",
-                            }}
-                            disabled={isAILoading}
-                          />
-                          <button
-                            type="button"
-                            onClick={
-                              isRecordingInput
-                                ? stopVoiceInput
-                                : startVoiceInput
-                            }
-                            disabled={isAILoading}
-                            className="px-3.5 py-3 transition-all hover:scale-105 active:scale-95 rounded-xl"
-                            style={{
-                              background: isRecordingInput
-                                ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
-                                : "linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 100%)",
-                              color: isRecordingInput ? "white" : "#4b5563",
-                              boxShadow: isRecordingInput
-                                ? "0 4px 12px rgba(239, 68, 68, 0.4), inset 0 1px 2px rgba(255,255,255,0.1)"
-                                : "3px 3px 6px rgba(163, 177, 198, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.9)",
-                            }}
-                            title={
-                              isRecordingInput
-                                ? "Stop recording"
-                                : "Voice input"
-                            }
-                          >
-                            {isRecordingInput ? (
-                              <motion.div
-                                animate={{ scale: [1, 1.2, 1] }}
-                                transition={{ repeat: Infinity, duration: 1 }}
-                              >
-                                <Mic className="w-4 h-4" />
-                              </motion.div>
-                            ) : (
-                              <Mic className="w-4 h-4" />
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleUserResponse}
-                            disabled={!userInput.trim() || isAILoading}
-                            className="px-4 py-3 text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 rounded-xl"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, #61ABC4 0%, #4a9bb5 100%)",
-                              boxShadow:
-                                "0 6px 16px rgba(97, 171, 196, 0.4), inset 0 1px 2px rgba(255,255,255,0.2)",
-                            }}
-                          >
-                            <Send className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+          <div className="max-w-3xl w-full relative z-10">
+            {/* Hero Section */}
+            <div className="text-center mb-8 md:mb-12">
+              <img
+                src="/logo-text.png"
+                alt="Volition"
+                className="h-32 md:h-36 mx-auto mb-3 md:mb-4 drop-shadow-lg"
+              />
             </div>
 
-            {!showAIBuilder && (
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowAIBuilder(true)}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 md:py-2.5 font-bold transition-all active:scale-98 touch-manipulation rounded-2xl fun-button-secondary text-white"
-                  style={{
-                    background:
-                      "linear-gradient(145deg, #7bc4db 0%, #4a9bb5 100%)",
-                    borderColor: "rgba(97, 171, 196, 0.4)",
-                    boxShadow:
-                      "0 8px 18px rgba(62, 133, 163, 0.25), inset 0 -1px 2px rgba(255,255,255,0.6)",
-                    color: "#ffffff",
-                  }}
-                >
-                  <span className="font-black">Begin with Ai Guidance</span>
-                  <span className="text-lg">✨</span>
-                </button>
-                <button
-                  type="submit"
-                  disabled={!hmwInput.trim()}
-                  className="flex-1 fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed py-3 md:py-2.5 touch-manipulation"
-                >
-                  <span className="font-black">Begin Exploration</span>
-                  <span className="text-xl">🚀</span>
-                </button>
-              </div>
-            )}
-          </form>
+            {/* Main Card */}
+            <div className="fun-card p-5 md:p-8 mb-6 md:mb-8 relative overflow-hidden mx-2 md:mx-0">
+              {/* Decorative gradient overlay */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/30 to-transparent rounded-full blur-2xl"></div>
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-teal-200/30 to-transparent rounded-full blur-2xl"></div>
+
+              <form onSubmit={handleSubmit} className="relative z-10">
+                <div className="mb-5 md:mb-6">
+                  {/* Header and Quick Start - Only visible when AI Builder is NOT showing */}
+                  <AnimatePresence mode="wait">
+                    {!showAIBuilder && (
+                      <motion.div
+                        key="header"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="flex items-center justify-between mb-4"
+                      >
+                        <label
+                          htmlFor="hmw"
+                          className="flex items-center gap-2"
+                        >
+                          <span className="text-xl md:text-2xl">✏️</span>
+                          <div
+                            className="text-sm md:text-base font-black uppercase tracking-wide"
+                            style={{ color: "var(--color-primary)" }}
+                          >
+                            Your Design Challenge
+                          </div>
+                        </label>
+                        {/* Quick Actions Dropdown */}
+                        <div className="relative" ref={menuRef}>
+                          <button
+                            type="button"
+                            onClick={() => setShowMenu(!showMenu)}
+                            className="flex items-center gap-1.5 px-3 py-2.5 md:py-2 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full transition-all touch-manipulation"
+                          >
+                            <HelpCircle className="w-4 h-4" />
+                            <span className="hidden sm:inline">
+                              Quick Start
+                            </span>
+                            <ChevronDown
+                              className={`w-3 h-3 transition-transform ${
+                                showMenu ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+                          {showMenu && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowOnboarding(true);
+                                  setShowMenu(false);
+                                }}
+                                className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                              >
+                                <span>💡</span> How it works
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  handleTryExample();
+                                  setShowMenu(false);
+                                }}
+                                className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                              >
+                                <span>▶️</span> Try Example
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowHelper(true);
+                                  setShowMenu(false);
+                                }}
+                                className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                              >
+                                <span>🛠️</span> HMW Builder
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowCrazyEights(true);
+                                  setShowMenu(false);
+                                }}
+                                className="w-full px-4 py-3 md:py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors touch-manipulation"
+                              >
+                                <span>⚡</span> Crazy Eights
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* AI Builder Toggle */}
+                  <AnimatePresence mode="wait">
+                    {!showAIBuilder ? (
+                      <motion.div
+                        key="textarea"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                      >
+                        <textarea
+                          id="hmw"
+                          value={hmwInput}
+                          onChange={(e) => setHmwInput(e.target.value)}
+                          placeholder="Frame your challenge as a 'How Might We' statement to begin..."
+                          className="w-full px-4 md:px-6 py-4 md:py-5 bg-gradient-to-br from-white to-gray-50/50 border-3 border-blue-200 rounded-2xl focus:ring-4 focus:ring-blue-200 focus:border-blue-400 resize-none text-gray-800 placeholder:text-gray-400 transition-all text-base md:text-lg font-semibold shadow-sm hover:shadow-md touch-manipulation"
+                          rows={3}
+                          required
+                        />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="ai-builder"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="overflow-hidden rounded-2xl border-3 border-blue-100"
+                        style={{
+                          background:
+                            "linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 249, 255, 0.5) 100%)",
+                        }}
+                      >
+                        {/* Volition Challenge Builder Header */}
+                        <div
+                          className="px-4 md:px-6 py-4 flex items-center justify-between"
+                          style={{
+                            borderBottom: "2px solid rgba(59, 130, 246, 0.15)",
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Sparkles
+                              className="w-5 h-5 md:w-6 md:h-6"
+                              style={{ color: "#61ABC4" }}
+                            />
+                            <span
+                              className="font-bold text-sm md:text-base"
+                              style={{ color: "#61ABC4" }}
+                            >
+                              Volition Challenge Builder
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={toggleMute}
+                              className={`p-2 rounded-lg transition-all hover:scale-105 ${
+                                isMuted
+                                  ? "text-red-500 bg-red-50 hover:bg-red-100"
+                                  : ""
+                              }`}
+                              style={
+                                isMuted
+                                  ? {}
+                                  : {
+                                      color: "#61ABC4",
+                                      background: "rgba(97, 171, 196, 0.1)",
+                                    }
+                              }
+                              title={isMuted ? "Unmute voice" : "Mute voice"}
+                            >
+                              {isMuted ? (
+                                <VolumeX className="w-4 h-4" />
+                              ) : (
+                                <Volume2 className="w-4 h-4" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={resetAIBuilder}
+                              className="p-2 rounded-lg transition-all hover:scale-105"
+                              style={{
+                                color: "#61ABC4",
+                                background: "rgba(97, 171, 196, 0.1)",
+                              }}
+                              title="Start over"
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setShowAIBuilder(false)}
+                              className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg transition-all hover:scale-105"
+                              style={{
+                                color: "#61ABC4",
+                                background: "rgba(97, 171, 196, 0.1)",
+                              }}
+                              title="Back to manual entry"
+                            >
+                              <ArrowRight className="w-3 h-3 rotate-180" />
+                              <span className="hidden sm:inline">Back</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Conversation Area */}
+                        <div
+                          className="p-4 md:p-6 max-h-64 overflow-y-auto space-y-3"
+                          style={{
+                            background:
+                              "linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 249, 255, 0.3) 100%)",
+                          }}
+                        >
+                          {aiConversation.map((item, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className={`flex ${
+                                item.type === "user"
+                                  ? "justify-end"
+                                  : "justify-start"
+                              }`}
+                            >
+                              <div
+                                className={`max-w-[85%] px-4 py-2.5 text-sm font-bold ${
+                                  item.type === "user"
+                                    ? "text-white"
+                                    : "text-gray-700"
+                                }`}
+                                style={{
+                                  whiteSpace: "pre-wrap",
+                                  borderRadius:
+                                    item.type === "user"
+                                      ? "20px 20px 6px 20px"
+                                      : "20px 20px 20px 6px",
+                                  background:
+                                    item.type === "user"
+                                      ? "linear-gradient(135deg, #61ABC4 0%, #4a9bb5 100%)"
+                                      : "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
+                                  boxShadow:
+                                    item.type === "user"
+                                      ? "0 6px 16px rgba(97, 171, 196, 0.4), inset 0 1px 2px rgba(255,255,255,0.2)"
+                                      : "4px 4px 8px rgba(163, 177, 198, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9), inset 1px 1px 2px rgba(255, 255, 255, 0.3)",
+                                  border:
+                                    item.type === "user"
+                                      ? "none"
+                                      : "2px solid rgba(226, 232, 240, 0.6)",
+                                }}
+                              >
+                                {item.text}
+                              </div>
+                            </motion.div>
+                          ))}
+                          {isAILoading && (
+                            <div className="flex justify-start">
+                              <div
+                                className="px-4 py-2.5 flex items-center gap-2"
+                                style={{
+                                  borderRadius: "20px 20px 20px 6px",
+                                  background:
+                                    "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
+                                  boxShadow:
+                                    "4px 4px 8px rgba(163, 177, 198, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9)",
+                                  border: "2px solid rgba(226, 232, 240, 0.6)",
+                                }}
+                              >
+                                <Loader2
+                                  className="w-4 h-4 animate-spin"
+                                  style={{ color: "#61ABC4" }}
+                                />
+                                <span className="text-sm text-gray-500 font-bold">
+                                  Thinking...
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          <div ref={conversationEndRef} />
+                        </div>
+
+                        {/* Input Area */}
+                        <div
+                          className="p-4 md:p-6 border-t-3"
+                          style={{ borderColor: "rgba(97, 171, 196, 0.2)" }}
+                        >
+                          {generatedHMW ? (
+                            <div className="flex gap-3">
+                              <button
+                                type="button"
+                                onClick={handleUseGeneratedHMW}
+                                className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 text-white font-bold transition-all hover:scale-105 active:scale-95"
+                                style={{
+                                  background:
+                                    "linear-gradient(135deg, #61ABC4 0%, #4a9bb5 50%, #5eb8d0 100%)",
+                                  backgroundSize: "200% 200%",
+                                  animation: "gradientFlow 3s ease infinite",
+                                  borderRadius: "20px",
+                                  boxShadow:
+                                    "0 8px 16px rgba(97, 171, 196, 0.4), 0 4px 8px rgba(74, 155, 181, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.2)",
+                                  textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+                                }}
+                              >
+                                <span>Use this challenge</span>
+                                <ArrowRight className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={resetAIBuilder}
+                                className="px-5 py-3.5 font-bold transition-all hover:scale-105 active:scale-95"
+                                style={{
+                                  background:
+                                    "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
+                                  borderRadius: "20px",
+                                  border: "3px solid rgba(229, 231, 235, 0.8)",
+                                  boxShadow:
+                                    "6px 6px 12px rgba(163, 177, 198, 0.3), -6px -6px 12px rgba(255, 255, 255, 0.9), inset 1px 1px 2px rgba(255, 255, 255, 0.2)",
+                                  color: "#4b5563",
+                                }}
+                              >
+                                Try again
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={userInput}
+                                onChange={(e) => setUserInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleUserResponse();
+                                  }
+                                }}
+                                placeholder="Type or speak your answer..."
+                                className="flex-1 px-4 py-3 text-gray-800 placeholder:text-gray-400 transition-all text-sm font-semibold focus:ring-2 focus:ring-blue-200"
+                                style={{
+                                  background:
+                                    "linear-gradient(145deg, #ffffff 0%, #fafafa 100%)",
+                                  borderRadius: "16px",
+                                  border: "2px solid rgba(226, 232, 240, 0.8)",
+                                  boxShadow:
+                                    "inset 2px 2px 4px rgba(163, 177, 198, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.5)",
+                                }}
+                                disabled={isAILoading}
+                              />
+                              <button
+                                type="button"
+                                onClick={
+                                  isRecordingInput
+                                    ? stopVoiceInput
+                                    : startVoiceInput
+                                }
+                                disabled={isAILoading}
+                                className="px-3.5 py-3 transition-all hover:scale-105 active:scale-95 rounded-xl"
+                                style={{
+                                  background: isRecordingInput
+                                    ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                                    : "linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 100%)",
+                                  color: isRecordingInput ? "white" : "#4b5563",
+                                  boxShadow: isRecordingInput
+                                    ? "0 4px 12px rgba(239, 68, 68, 0.4), inset 0 1px 2px rgba(255,255,255,0.1)"
+                                    : "3px 3px 6px rgba(163, 177, 198, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.9)",
+                                }}
+                                title={
+                                  isRecordingInput
+                                    ? "Stop recording"
+                                    : "Voice input"
+                                }
+                              >
+                                {isRecordingInput ? (
+                                  <motion.div
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{
+                                      repeat: Infinity,
+                                      duration: 1,
+                                    }}
+                                  >
+                                    <Mic className="w-4 h-4" />
+                                  </motion.div>
+                                ) : (
+                                  <Mic className="w-4 h-4" />
+                                )}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleUserResponse}
+                                disabled={!userInput.trim() || isAILoading}
+                                className="px-4 py-3 text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 rounded-xl"
+                                style={{
+                                  background:
+                                    "linear-gradient(135deg, #61ABC4 0%, #4a9bb5 100%)",
+                                  boxShadow:
+                                    "0 6px 16px rgba(97, 171, 196, 0.4), inset 0 1px 2px rgba(255,255,255,0.2)",
+                                }}
+                              >
+                                <Send className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {!showAIBuilder && (
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowAIBuilder(true)}
+                      className="flex-1 flex items-center justify-center gap-2 py-3 md:py-2.5 font-bold transition-all active:scale-98 touch-manipulation rounded-2xl fun-button-secondary text-white"
+                      style={{
+                        background:
+                          "linear-gradient(145deg, #7bc4db 0%, #4a9bb5 100%)",
+                        borderColor: "rgba(97, 171, 196, 0.4)",
+                        boxShadow:
+                          "0 8px 18px rgba(62, 133, 163, 0.25), inset 0 -1px 2px rgba(255,255,255,0.6)",
+                        color: "#ffffff",
+                      }}
+                    >
+                      <span className="font-black">Begin with Ai Guidance</span>
+                      <span className="text-lg">✨</span>
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!hmwInput.trim()}
+                      className="flex-1 fun-button-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed py-3 md:py-2.5 touch-manipulation"
+                    >
+                      <span className="font-black">Begin Exploration</span>
+                      <span className="text-xl">🚀</span>
+                    </button>
+                  </div>
+                )}
+              </form>
+            </div>
+          </div>
+
+          <HMWHelperModal
+            isOpen={showHelper}
+            onClose={() => setShowHelper(false)}
+            onSelect={handleSelectTemplate}
+          />
+
+          <CrazyEightsModal
+            isOpen={showCrazyEights}
+            onClose={() => setShowCrazyEights(false)}
+          />
+
+          <OnboardingModal
+            isOpen={showOnboarding}
+            onClose={() => setShowOnboarding(false)}
+          />
+          </div>
+
+          {/* Footer */}
+          <footer className="text-center text-xs md:text-sm text-gray-600 py-4 px-4 border-t border-gray-200 bg-white/50 backdrop-blur-sm">
+            Created by{" "}
+            <a
+              href="https://anthonymohun.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            >
+              Anthony Mohun
+            </a>
+          </footer>
         </div>
-      </div>
-
-      <HMWHelperModal
-        isOpen={showHelper}
-        onClose={() => setShowHelper(false)}
-        onSelect={handleSelectTemplate}
-      />
-
-      <CrazyEightsModal
-        isOpen={showCrazyEights}
-        onClose={() => setShowCrazyEights(false)}
-      />
-
-      <OnboardingModal
-        isOpen={showOnboarding}
-        onClose={() => setShowOnboarding(false)}
-      />
-    </div>
+      )}
+    </>
   );
 }
