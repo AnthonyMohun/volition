@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
-const CORRECT_PASSWORD = "ncad2025";
+const CORRECT_PASSWORD = "mohun";
 const TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
 export async function POST(request: NextRequest) {
