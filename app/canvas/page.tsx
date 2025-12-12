@@ -1295,12 +1295,12 @@ Ask ONE question about their specific idea to help them develop it further.`,
                         exit={{ opacity: 0, y: 5, scale: 0.95 }}
                         className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 ${
                           state.voiceTranscript
-                            ? "p-3 bg-white border-2 border-blue-200 rounded-2xl shadow-lg"
+                            ? "p-3 bg-white border-2 border-blue-200 rounded-2xl shadow-lg w-[400px]"
                             : ""
                         }`}
                       >
                         {state.voiceTranscript ? (
-                          <p className="text-sm text-gray-700 font-bold">
+                          <p className="text-sm text-gray-700 font-bold whitespace-normal">
                             <span className="text-gray-400">💬</span>{" "}
                             {state.voiceTranscript}
                           </p>
